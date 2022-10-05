@@ -1,7 +1,7 @@
+using Project_1.Models.Repositories;
+using Project_1.Presenters;
+using Project_1.Views;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Project_1
@@ -17,7 +17,14 @@ namespace Project_1
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Drawer());
+
+            var drawer = new Drawer();
+            var shapesRepository = new ShapeRepository();
+            var relationsRepository = new RelationRepository();
+            
+            new Canvas(drawer, shapesRepository, relationsRepository);
+
+            Application.Run(drawer);
         }
     }
 }

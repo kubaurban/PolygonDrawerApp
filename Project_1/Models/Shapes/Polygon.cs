@@ -1,0 +1,9 @@
+﻿using System.Collections.Generic;
+
+namespace Project_1.Models.Shapes
+{
+    public class Polygon : Shape
+    {
+        public List<Point> Vertex { get; set; }
+    }
+}
