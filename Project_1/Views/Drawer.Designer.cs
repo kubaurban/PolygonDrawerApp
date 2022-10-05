@@ -29,12 +29,34 @@ namespace Project_1.Views
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.IsBresenham = new System.Windows.Forms.CheckBox();
+            this.SuspendLayout();
+            // 
+            // IsBresenham
+            // 
+            this.IsBresenham.AutoSize = true;
+            this.IsBresenham.Location = new System.Drawing.Point(12, 12);
+            this.IsBresenham.Name = "IsBresenham";
+            this.IsBresenham.Size = new System.Drawing.Size(142, 19);
+            this.IsBresenham.TabIndex = 1;
+            this.IsBresenham.Text = "Bresenham Algorithm";
+            this.IsBresenham.UseVisualStyleBackColor = true;
+            // 
+            // Drawer
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(1384, 661);
+            this.Controls.Add(this.IsBresenham);
+            this.Name = "Drawer";
+            this.Text = "PolygonDrawer";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
+
+        private System.Windows.Forms.CheckBox IsBresenham;
     }
 }
