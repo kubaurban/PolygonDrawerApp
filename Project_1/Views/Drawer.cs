@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
 namespace Project_1.Views
 {
@@ -7,6 +8,16 @@ namespace Project_1.Views
         public Drawer()
         {
             InitializeComponent();
+        }
+
+        private void DeleteModeChecked(object sender, EventArgs e)
+        {
+            IsBresenham.Enabled = false;
+        }
+
+        private void DrawingModeChecked(object sender, EventArgs e)
+        {
+            IsBresenham.Enabled = true;
         }
     }
 }
