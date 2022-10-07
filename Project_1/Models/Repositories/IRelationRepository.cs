@@ -5,10 +5,10 @@ namespace Project_1.Models.Repositories
 {
     public interface IRelationRepository
     {
-        public List<Relation> GetAll();
-        public Relation GetRelationById(int id);
-        public Relation Add(Relation relation);
-        public Relation Remove(int id);
-        public bool Remove(Relation relation);
+        List<Relation> GetAll();
+        Relation GetRelationById(int id);
+        Relation Add(Relation relation);
+        Relation Remove(int id);
+        bool Remove(Relation relation);
     }
 }

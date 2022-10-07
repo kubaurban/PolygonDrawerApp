@@ -4,10 +4,10 @@ using Project_1.Models.Shapes;
 {
     public interface IDrawer
     {
-        public void DrawLine(Point p1, Point p2);
-        public void DrawPoint(Point p);
-        public void DrawPolygon(Polygon polygon);
-        public void ClearArea();
-        public void RefreshArea();
+        void DrawLine(Point p1, Point p2);
+        void DrawPoint(Point p);
+        void DrawPolygon(Polygon polygon);
+        void ClearArea();
+        void RefreshArea();
     }
 }

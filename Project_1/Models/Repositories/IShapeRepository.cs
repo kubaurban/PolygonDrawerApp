@@ -5,15 +5,15 @@ namespace Project_1.Models.Repositories
 {
     public interface IShapeRepository
     {
-        public List<Polygon> GetAllPolygons();
-        public Polygon GetPolygonById(int id);
-        public Polygon AddPolygon(Polygon polygon);
-        public Polygon RemovePolygon(int id);
-        public bool RemovePolygon(Polygon polygon);
+        List<Polygon> GetAllPolygons();
+        Polygon GetPolygonById(int id);
+        Polygon AddPolygon(Polygon polygon);
+        Polygon RemovePolygon(int id);
+        bool RemovePolygon(Polygon polygon);
 
-        public List<Point> GetSolitaryPoints();
-        public Point GetSolitaryPointById(int id);
-        public Point AddSolitaryPoint(Point point);
-        public void ClearSolitaryPoints();
+        List<Point> GetSolitaryPoints();
+        Point GetSolitaryPointById(int id);
+        Point AddSolitaryPoint(Point point);
+        void ClearSolitaryPoints();
     }
 }
