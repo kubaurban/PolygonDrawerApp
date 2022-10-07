@@ -33,7 +33,7 @@ namespace Project_1.Views
             _drawArea = new Bitmap(PictureBox.Width, PictureBox.Height);
             _blackPen = new Pen(Color.Black);
             _blackBrush = new SolidBrush(Color.Black);
-            _pointWidth = 0.25f;
+            _pointWidth = 6.0f;
             _isLeftMouseClicked = false;
 
             PictureBox.Image = DrawArea;
