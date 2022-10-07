@@ -1,5 +1,6 @@
 ﻿using Project_1.Models.Repositories;
 using Project_1.Views;
+using System.Windows.Forms;
 
 namespace Project_1.Presenters
 {
@@ -18,6 +19,30 @@ namespace Project_1.Presenters
             _drawer = drawer;
             _shapes = shapes;
             _relations = relations;
+
+            InitActionHandlers();
+        }
+
+        public void InitActionHandlers()
+        {
+            Drawer.LeftMouseDownHandler += HandleLeftMouseDownEvent;
+            Drawer.RightMouseDownHandler += HandleRightMouseDownEvent;
+            Drawer.MouseDownMoveHandler += HandleMouseDownMoveEvent;
+        }
+
+        public void HandleLeftMouseDownEvent(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        public void HandleRightMouseDownEvent(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        public void HandleMouseDownMoveEvent(object sender, MouseEventArgs e)
+        {
+
         }
     }
 }

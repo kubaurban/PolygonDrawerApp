@@ -13,12 +13,18 @@ namespace Project_1.Views
         private readonly Pen _blackPen;
         private readonly Brush _blackBrush;
         private readonly float _pointWidth;
+        private readonly bool _isLeftMouseClicked;
+
+        public event MouseEventHandler LeftMouseDownHandler;
+        public event MouseEventHandler RightMouseDownHandler;
+        public event MouseEventHandler MouseDownMoveHandler;
 
         public Bitmap DrawArea => _drawArea;
         public Graphics Graphics => Graphics.FromImage(DrawArea);
         public Pen BlackPen => _blackPen;
         public Brush BlackBrush => _blackBrush;
         public float PointWidth => _pointWidth;
+        public bool IsLeftMouseDown => _isLeftMouseClicked;
 
         public Drawer()
         {
@@ -28,6 +34,7 @@ namespace Project_1.Views
             _blackPen = new Pen(Color.Black);
             _blackBrush = new SolidBrush(Color.Black);
             _pointWidth = 0.25f;
+            _isLeftMouseClicked = false;
 
             PictureBox.Image = DrawArea;
             ClearArea();
@@ -81,6 +88,29 @@ namespace Project_1.Views
         public void RefreshArea()
         {
             PictureBox.Refresh();
+        }
+
+        private void OnMouseDown(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case MouseButtons.Left:
+                    LeftMouseDownHandler?.Invoke(sender, e);
+                    break;
+                case MouseButtons.Right:
+                    RightMouseDownHandler?.Invoke(sender, e);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (IsLeftMouseDown)
+            {
+                MouseDownMoveHandler?.Invoke(sender, e);
+            }
         }
     }
 }
