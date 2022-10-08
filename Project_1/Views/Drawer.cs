@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Point = Project_1.Models.Shapes.Point;
@@ -14,6 +15,7 @@ namespace Project_1.Views
         private readonly Pen _blackPen;
         private readonly Brush _blackBrush;
         private readonly bool _isLeftMouseClicked;
+        private readonly int _moveIconWidth;
 
         public event MouseEventHandler LeftMouseDownHandler;
         public event MouseEventHandler RightMouseDownHandler;
@@ -26,6 +28,8 @@ namespace Project_1.Views
         public bool IsLeftMouseDown => _isLeftMouseClicked;
         public bool IsInDrawingMode => DrawingMode?.Checked ?? true;
         public bool IsInDeleteMode => DeleteMode?.Checked ?? false;
+        public int MoveIconWidth => _moveIconWidth;
+        public string MoveIconFilePath => "../../../../Resources/move.ico";
 
         public Drawer()
         {
@@ -35,6 +39,7 @@ namespace Project_1.Views
             _blackPen = new Pen(Color.Black);
             _blackBrush = new SolidBrush(Color.Black);
             _isLeftMouseClicked = false;
+            _moveIconWidth = 20;
 
             PictureBox.Image = DrawArea;
             ClearArea();
@@ -79,6 +84,9 @@ namespace Project_1.Views
                 prev = v;
             }
             DrawLine(prev, first);
+
+            // draw gravity center point
+            DrawGrabIcon(polygon.GravityCenterPoint);
         }
 
         public void DrawPolygons(IEnumerable<Polygon> polygons)
@@ -87,6 +95,12 @@ namespace Project_1.Views
             {
                 DrawPolygon(polygon);
             }
+        }
+
+        public void DrawGrabIcon(PointF point)
+        {
+            using var g = Graphics;
+            g.DrawIcon(new(MoveIconFilePath), new((int)point.X, (int)point.Y, MoveIconWidth, MoveIconWidth));
         }
 
         public void ClearArea()
