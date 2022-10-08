@@ -8,6 +8,11 @@ namespace Project_1.Models.Repositories
     {
         private List<Relation> Relations { get; set; }
 
+        public RelationRepository()
+        {
+            Relations = new List<Relation>();
+        }
+
         public Relation Add(Relation relation)
         {
             Relations.Add(relation);
