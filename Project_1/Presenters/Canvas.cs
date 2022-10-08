@@ -87,6 +87,39 @@ namespace Project_1.Presenters
                     Drawer.RefreshArea();
                 }
             }
+            else if (Drawer.IsInMoveMode)
+            {
+                #region Vertex move
+
+                selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInside(clickedPoint, x, DrawerClass.PointWidth));
+
+                if (selectedVertex != default(Point))
+                {
+                    // vertex move
+                    return;
+                }
+
+                #endregion
+
+                #region Polygon move
+
+                var allGravityCenterPoints = Shapes.GetAllPolygons().Select(x => x.GravityCenterPoint).ToList();
+                var selectedGravityCenter = allGravityCenterPoints.Find(x => DrawerClass.IsInside(clickedPoint, x, DrawerClass.MoveIconWidth));
+
+                if (selectedGravityCenter != default)
+                {
+                    // polygon move
+                    return;
+                }
+
+                #endregion
+
+                #region Edge move
+
+
+
+                #endregion
+            }
         }
 
         public void HandleRightMouseDownEvent(object sender, MouseEventArgs e)
