@@ -4,7 +4,7 @@ namespace Project_1.Models.Shapes
 {
     public class Point : Shape
     {
-        private static readonly int _pointWidth = 6;
+        private static readonly int _pointWidth = 8;
 
         public float X { get; set; }
         public float Y { get; set; }
