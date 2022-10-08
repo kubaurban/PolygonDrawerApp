@@ -51,9 +51,17 @@ namespace Project_1.Presenters
                 Shapes.AddSolitaryPoint(clickedPoint);
                 Drawer.RefreshArea();
             }
-            else
+            else if (Shapes.GetSolitaryPoints().Count > 2)
             {
+                Shapes.AddPolygon(new Polygon
+                {
+                    Vertices = Shapes.GetSolitaryPoints()
+                });
 
+                Shapes.ClearSolitaryPoints();
+                Drawer.ClearArea();
+                Drawer.DrawPolygons(Shapes.GetAllPolygons());
+                Drawer.RefreshArea();
             }
         }
 
