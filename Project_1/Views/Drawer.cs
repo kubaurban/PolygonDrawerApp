@@ -1,5 +1,6 @@
 ﻿using Project_1.Models.Shapes;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -76,6 +77,14 @@ namespace Project_1.Views
                 prev = v;
             }
             DrawLine(prev, first);
+        }
+
+        public void DrawPolygons(IEnumerable<Polygon> polygons)
+        {
+            foreach (var polygon in polygons)
+            {
+                DrawPolygon(polygon);
+            }
         }
 
         public void ClearArea()
