@@ -41,12 +41,11 @@ namespace Project_1.Presenters
 
         public void HandleLeftMouseDownEvent(object sender, MouseEventArgs e)
         {
-            var clickedPoint = new Point(e.X, e.Y);
-
-            var clickedInsidePoint = Shapes.GetSolitaryPoints().Find(x => x.IsInside(e.Location));
+            var clickedPoint = e.Location;
+            var clickedInsidePoint = Shapes.GetSolitaryPoints().Find(x => x.IsInside(clickedPoint));
 
             if (clickedInsidePoint == default(Point))
-            {
+            {                
                 Drawer.DrawPoint(clickedPoint);
                 Shapes.AddSolitaryPoint(clickedPoint);
                 Drawer.RefreshArea();
