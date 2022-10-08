@@ -44,23 +44,30 @@ namespace Project_1.Presenters
             var clickedPoint = e.Location;
             var clickedInsidePoint = Shapes.GetSolitaryPoints().Find(x => x.IsInside(clickedPoint));
 
-            if (clickedInsidePoint == default(Point))
-            {                
-                Drawer.DrawPoint(clickedPoint);
-                Shapes.AddSolitaryPoint(clickedPoint);
-                Drawer.RefreshArea();
-            }
-            else if (Shapes.GetSolitaryPoints().Count > 2)
+            if (Drawer.IsInDrawingMode)
             {
-                Shapes.AddPolygon(new Polygon
+                if (clickedInsidePoint == default(Point))
                 {
-                    Vertices = Shapes.GetSolitaryPoints()
-                });
+                    Drawer.DrawPoint(clickedPoint);
+                    Shapes.AddSolitaryPoint(clickedPoint);
+                    Drawer.RefreshArea();
+                }
+                else if (Shapes.GetSolitaryPoints().Count > 2)
+                {
+                    Shapes.AddPolygon(new Polygon
+                    {
+                        Vertices = Shapes.GetSolitaryPoints()
+                    });
 
-                Shapes.ClearSolitaryPoints();
-                Drawer.ClearArea();
-                Drawer.DrawPolygons(Shapes.GetAllPolygons());
-                Drawer.RefreshArea();
+                    Shapes.ClearSolitaryPoints();
+                    Drawer.ClearArea();
+                    Drawer.DrawPolygons(Shapes.GetAllPolygons());
+                    Drawer.RefreshArea();
+                }
+            }
+            else if (Drawer.IsInDeleteMode)
+            {
+
             }
         }
 

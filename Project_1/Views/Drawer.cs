@@ -24,6 +24,8 @@ namespace Project_1.Views
         public Pen BlackPen => _blackPen;
         public Brush BlackBrush => _blackBrush;
         public bool IsLeftMouseDown => _isLeftMouseClicked;
+        public bool IsInDrawingMode => DrawingMode?.Checked ?? true;
+        public bool IsInDeleteMode => DeleteMode?.Checked ?? false;
 
         public Drawer()
         {
