@@ -4,6 +4,7 @@ using Project_1.Views;
 using System.Linq;
 using System.Collections.Specialized;
 using System.Windows.Forms;
+using DrawerClass = Project_1.Views.Drawer;
 
 namespace Project_1.Presenters
 {
@@ -46,7 +47,7 @@ namespace Project_1.Presenters
 
             if (Drawer.IsInDrawingMode)
             {
-                selectedVertex = Shapes.GetSolitaryPoints().Find(x => x.IsInside(clickedPoint));
+                selectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInside(clickedPoint, x, DrawerClass.PointWidth));
 
                 if (selectedVertex == default(Point))
                 {
@@ -66,7 +67,7 @@ namespace Project_1.Presenters
             }
             else if (Drawer.IsInDeleteMode)
             {
-                selectedVertex = Shapes.GetAllPolygonPoints().Find(x => x.IsInside(clickedPoint));
+                selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInside(clickedPoint, x, DrawerClass.PointWidth));
 
                 if (selectedVertex != default(Point))
                 {

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Point = Project_1.Models.Shapes.Point;
@@ -11,11 +10,13 @@ namespace Project_1.Views
 {
     public partial class Drawer : Form, IDrawer
     {
+        private static readonly int _pointWidth = 8;
+        private static readonly int _moveIconWidth = 20;
+
         private readonly Bitmap _drawArea;
         private readonly Pen _blackPen;
         private readonly Brush _blackBrush;
         private readonly bool _isLeftMouseClicked;
-        private readonly int _moveIconWidth;
 
         public event MouseEventHandler LeftMouseDownHandler;
         public event MouseEventHandler RightMouseDownHandler;
@@ -28,7 +29,9 @@ namespace Project_1.Views
         public bool IsLeftMouseDown => _isLeftMouseClicked;
         public bool IsInDrawingMode => DrawingMode?.Checked ?? true;
         public bool IsInDeleteMode => DeleteMode?.Checked ?? false;
-        public int MoveIconWidth => _moveIconWidth;
+        public bool IsInMoveMode => MoveMode?.Checked ?? false;
+        public static int PointWidth => _pointWidth;
+        public static int MoveIconWidth => _moveIconWidth;
         public string MoveIconFilePath => "../../../../Resources/move.ico";
 
         public Drawer()
@@ -39,7 +42,6 @@ namespace Project_1.Views
             _blackPen = new Pen(Color.Black);
             _blackBrush = new SolidBrush(Color.Black);
             _isLeftMouseClicked = false;
-            _moveIconWidth = 20;
 
             PictureBox.Image = DrawArea;
             ClearArea();
@@ -56,6 +58,11 @@ namespace Project_1.Views
             IsBresenham.Enabled = true;
         }
 
+        private void MoveModeChecked(object sender, EventArgs e)
+        {
+            IsBresenham.Enabled = false;
+        }
+
         public void DrawLine(Point p1, Point p2)
         {
             using var g = Graphics;
@@ -64,10 +71,8 @@ namespace Project_1.Views
 
         public void DrawPoint(Point p)
         {
-            var pointWidth = Point.PointWidth;
-
             using var g = Graphics;
-            g.FillRectangle(BlackBrush, p.X - pointWidth / 2, p.Y - pointWidth / 2, pointWidth, pointWidth);
+            g.FillRectangle(BlackBrush, p.X - PointWidth / 2, p.Y - PointWidth / 2, PointWidth, PointWidth);
         }
 
         public void DrawPolygon(Polygon polygon)
@@ -97,11 +102,14 @@ namespace Project_1.Views
             }
         }
 
-        public void DrawGrabIcon(PointF point)
+        public void DrawGrabIcon(System.Drawing.Point point)
         {
             using var g = Graphics;
-            g.DrawIcon(new(MoveIconFilePath), new((int)point.X, (int)point.Y, MoveIconWidth, MoveIconWidth));
+            g.DrawIcon(new(MoveIconFilePath), new(point.X, point.Y, MoveIconWidth, MoveIconWidth));
         }
+
+        public static bool IsInside(PointF click, Point point, int pointWidth) 
+            => Math.Abs(point.X - click.X) <= pointWidth / 2 && Math.Abs(point.Y - click.Y) <= pointWidth / 2;
 
         public void ClearArea()
         {

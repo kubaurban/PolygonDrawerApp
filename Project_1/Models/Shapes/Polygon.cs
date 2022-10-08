@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace Project_1.Models.Shapes
 {
@@ -24,7 +23,7 @@ namespace Project_1.Models.Shapes
             Vertices.Remove(p);
         }
 
-        public System.Drawing.PointF GravityCenterPoint {
+        public System.Drawing.Point GravityCenterPoint {
             // below code reused from: https://stackoverflow.com/questions/9815699/how-to-calculate-centroid
             get
             {
@@ -43,10 +42,10 @@ namespace Project_1.Models.Shapes
                 }
 
                 if (Math.Abs(accumulatedArea) < 1E-7f)
-                    return PointF.Empty;  // Avoid division by zero
+                    return System.Drawing.Point.Empty;  // Avoid division by zero
 
                 accumulatedArea *= 3f;
-                return new PointF(centerX / accumulatedArea, centerY / accumulatedArea);
+                return new((int)(centerX / accumulatedArea), (int)(centerY / accumulatedArea));
             }
         }
     }

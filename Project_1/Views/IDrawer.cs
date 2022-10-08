@@ -8,6 +8,7 @@ namespace Project_1.Views
     {
         bool IsInDrawingMode { get; }
         bool IsInDeleteMode { get; }
+        bool IsInMoveMode { get; }
 
         void DrawLine(Point p1, Point p2);
         void DrawPoint(Point p);
