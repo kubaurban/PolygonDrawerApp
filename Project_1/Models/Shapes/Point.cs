@@ -8,6 +8,7 @@ namespace Project_1.Models.Shapes
 
         public float X { get; set; }
         public float Y { get; set; }
+        public int PolygonId { get; set; }
 
         public static int PointWidth => _pointWidth;
 
