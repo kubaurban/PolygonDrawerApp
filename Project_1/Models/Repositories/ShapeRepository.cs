@@ -9,6 +9,12 @@ namespace Project_1.Models.Repositories
         private List<Polygon> Polygons { get; set; }
         private List<Point> SolitaryPoints { get; set; }
 
+        public ShapeRepository()
+        {
+            Polygons = new List<Polygon>();
+            SolitaryPoints = new List<Point>();
+        }
+
         public Polygon AddPolygon(Polygon polygon)
         {
             Polygons.Add(polygon);
