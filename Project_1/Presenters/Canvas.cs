@@ -42,17 +42,19 @@ namespace Project_1.Presenters
         public void HandleLeftMouseDownEvent(object sender, MouseEventArgs e)
         {
             var clickedPoint = e.Location;
-            var clickedInsidePoint = Shapes.GetSolitaryPoints().Find(x => x.IsInside(clickedPoint));
+            var selectedVertex = default(Point);
 
             if (Drawer.IsInDrawingMode)
             {
-                if (clickedInsidePoint == default(Point))
+                selectedVertex = Shapes.GetSolitaryPoints().Find(x => x.IsInside(clickedPoint));
+
+                if (selectedVertex == default(Point))
                 {
                     Drawer.DrawPoint(clickedPoint);
                     Shapes.AddSolitaryPoint(clickedPoint);
                     Drawer.RefreshArea();
                 }
-                else if (clickedInsidePoint == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
+                else if (selectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
                 {
                     Shapes.AddPolygon(Shapes.GetSolitaryPoints());
 
@@ -64,7 +66,25 @@ namespace Project_1.Presenters
             }
             else if (Drawer.IsInDeleteMode)
             {
+                selectedVertex = Shapes.GetAllPolygonPoints().Find(x => x.IsInside(clickedPoint));
 
+                if (selectedVertex != default(Point))
+                {
+                    var polygon = Shapes.GetPolygonById(selectedVertex.PolygonId);
+
+                    if (polygon.Vertices.Count > 3)
+                    {
+                        polygon.RemoveVertex(selectedVertex);
+                    }
+                    else
+                    {
+                        Shapes.RemovePolygon(polygon);
+                    }
+
+                    Drawer.ClearArea();
+                    Drawer.DrawPolygons(Shapes.GetAllPolygons());
+                    Drawer.RefreshArea();
+                }
             }
         }
 

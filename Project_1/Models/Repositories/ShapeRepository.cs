@@ -70,5 +70,7 @@ namespace Project_1.Models.Repositories
                 OnSolitaryPointAdded?.Invoke(sender, e);
             }
         }
+
+        public List<Point> GetAllPolygonPoints() => Polygons.SelectMany(x => x.Vertices).ToList();
     }
 }

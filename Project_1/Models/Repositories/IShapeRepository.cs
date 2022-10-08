@@ -11,6 +11,7 @@ namespace Project_1.Models.Repositories
 
         // polygons management
         List<Polygon> GetAllPolygons();
+        List<Point> GetAllPolygonPoints();
         Polygon GetPolygonById(int id);
         Polygon AddPolygon(List<Point> vertices);
         Polygon RemovePolygon(int id);
