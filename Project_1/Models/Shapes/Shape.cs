@@ -2,6 +2,10 @@
 {
     public abstract class Shape
     {
-        public int Id { get; set; }
+        public int Id { get; private set; }
+
+        protected Shape() { }
+
+        protected Shape(int id) => Id = id;
     }
 }

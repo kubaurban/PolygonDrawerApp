@@ -12,13 +12,13 @@ namespace Project_1.Models.Repositories
         // polygons management
         List<Polygon> GetAllPolygons();
         Polygon GetPolygonById(int id);
-        Polygon AddPolygon(Polygon polygon);
+        Polygon AddPolygon(List<Point> vertices);
         Polygon RemovePolygon(int id);
         bool RemovePolygon(Polygon polygon);
 
         // solitary points management
         List<Point> GetSolitaryPoints();
-        Point AddSolitaryPoint(Point point);
+        Point AddSolitaryPoint(System.Drawing.Point point);
         void ClearSolitaryPoints();
     }
 }

@@ -4,12 +4,22 @@ namespace Project_1.Models.Shapes
 {
     public class Polygon : Shape
     {
-        public List<Point> Vertices { get; set; }
+        private List<Point> _vertices;
 
-        public Polygon(List<Point> vertices)
+        public List<Point> Vertices { 
+            get => _vertices;
+            set
+            {
+                _vertices = value;
+                _vertices.ForEach(x => x.PolygonId = Id);
+            }
+        }
+
+        public Polygon(int id) : base(id) { }
+
+        public void RemoveVertex(Point p)
         {
-            Vertices = vertices;
-            Vertices.ForEach(x => x.PolygonId = Id);
+            Vertices.Remove(p);
         }
     }
 }

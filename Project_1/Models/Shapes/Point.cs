@@ -12,7 +12,9 @@ namespace Project_1.Models.Shapes
 
         public static int PointWidth => _pointWidth;
 
-        public Point(float x, float y)
+        public Point(int id) : base(id) { }
+
+        private Point(float x, float y) : base()
         {
             X = x;
             Y = y;

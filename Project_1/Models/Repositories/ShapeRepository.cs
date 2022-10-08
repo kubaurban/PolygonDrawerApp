@@ -8,6 +8,9 @@ namespace Project_1.Models.Repositories
 {
     public class ShapeRepository : IShapeRepository
     {
+        private static int PolygonIdCounter { get; set; }
+        private static int PointIdCounter { get; set; }
+
         private List<Polygon> Polygons { get; set; }
         private ObservableCollection<Point> SolitaryPoints { get; set; }
         public NotifyCollectionChangedEventHandler OnSolitaryPointAdded { get; set; }
@@ -15,20 +18,31 @@ namespace Project_1.Models.Repositories
         public ShapeRepository()
         {
             Polygons = new List<Polygon>();
+            PolygonIdCounter = 0;
             SolitaryPoints = new ObservableCollection<Point>();
+            PointIdCounter = 0;
             SolitaryPoints.CollectionChanged += OnSolitaryPointsChanged;
         }
 
-        public Polygon AddPolygon(Polygon polygon)
+        public Polygon AddPolygon(List<Point> vertices)
         {
-            Polygons.Add(polygon);
-            return polygon;
+            var newPolygon = new Polygon(++PolygonIdCounter)
+            {
+                Vertices = vertices
+            };
+            Polygons.Add(newPolygon);
+            return newPolygon;
         }
 
-        public Point AddSolitaryPoint(Point point)
+        public Point AddSolitaryPoint(System.Drawing.Point point)
         {
-            SolitaryPoints.Add(point);
-            return point;
+            var newPoint = new Point(++PointIdCounter)
+            {
+                X = point.X,
+                Y = point.Y
+            };
+            SolitaryPoints.Add(newPoint);
+            return newPoint;
         }
 
         public void ClearSolitaryPoints() => SolitaryPoints.Clear();
