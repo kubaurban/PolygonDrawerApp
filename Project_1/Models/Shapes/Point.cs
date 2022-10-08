@@ -2,8 +2,12 @@
 {
     public class Point : Shape
     {
+        private static readonly int _pointWidth = 6;
+
         public float X { get; set; }
         public float Y { get; set; }
+
+        public static int PointWidth => _pointWidth;
 
         public Point(float x, float y)
         {

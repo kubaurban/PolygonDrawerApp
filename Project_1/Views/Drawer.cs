@@ -12,7 +12,6 @@ namespace Project_1.Views
         private readonly Bitmap _drawArea;
         private readonly Pen _blackPen;
         private readonly Brush _blackBrush;
-        private readonly float _pointWidth;
         private readonly bool _isLeftMouseClicked;
 
         public event MouseEventHandler LeftMouseDownHandler;
@@ -23,7 +22,6 @@ namespace Project_1.Views
         public Graphics Graphics => Graphics.FromImage(DrawArea);
         public Pen BlackPen => _blackPen;
         public Brush BlackBrush => _blackBrush;
-        public float PointWidth => _pointWidth;
         public bool IsLeftMouseDown => _isLeftMouseClicked;
 
         public Drawer()
@@ -33,7 +31,6 @@ namespace Project_1.Views
             _drawArea = new Bitmap(PictureBox.Width, PictureBox.Height);
             _blackPen = new Pen(Color.Black);
             _blackBrush = new SolidBrush(Color.Black);
-            _pointWidth = 6.0f;
             _isLeftMouseClicked = false;
 
             PictureBox.Image = DrawArea;
@@ -59,8 +56,10 @@ namespace Project_1.Views
 
         public void DrawPoint(Point p)
         {
+            var pointWidth = Point.PointWidth;
+
             using var g = Graphics;
-            g.FillRectangle(BlackBrush, p.X - PointWidth / 2, p.Y - PointWidth / 2, PointWidth, PointWidth);
+            g.FillRectangle(BlackBrush, p.X - pointWidth / 2, p.Y - pointWidth / 2, pointWidth, pointWidth);
         }
 
         public void DrawPolygon(Polygon polygon)
