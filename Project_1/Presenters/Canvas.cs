@@ -1,6 +1,8 @@
 ﻿using Project_1.Models.Repositories;
 using Project_1.Models.Shapes;
 using Project_1.Views;
+using System.Linq;
+using System.Collections.Specialized;
 using System.Windows.Forms;
 
 namespace Project_1.Presenters
@@ -21,6 +23,7 @@ namespace Project_1.Presenters
             _shapes = shapes;
             _relations = relations;
 
+            InitModelChangedHandlers();
             InitActionHandlers();
         }
 
@@ -29,6 +32,11 @@ namespace Project_1.Presenters
             Drawer.LeftMouseDownHandler += HandleLeftMouseDownEvent;
             Drawer.RightMouseDownHandler += HandleRightMouseDownEvent;
             Drawer.MouseDownMoveHandler += HandleMouseDownMoveEvent;
+        }
+
+        public void InitModelChangedHandlers()
+        {
+            Shapes.OnSolitaryPointAdded += HandleSolitaryPointAdded;
         }
 
         public void HandleLeftMouseDownEvent(object sender, MouseEventArgs e)
@@ -50,6 +58,16 @@ namespace Project_1.Presenters
         public void HandleMouseDownMoveEvent(object sender, MouseEventArgs e)
         {
 
+        }
+
+        private void HandleSolitaryPointAdded(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            var solitaryPointsCount = Shapes.GetSolitaryPoints().Count;
+            if (solitaryPointsCount > 1)
+            {
+                var lastTwoVerices = Shapes.GetSolitaryPoints().Skip(solitaryPointsCount - 2);
+                Drawer.DrawLine(lastTwoVerices.First(), lastTwoVerices.Last());
+            }
         }
     }
 }

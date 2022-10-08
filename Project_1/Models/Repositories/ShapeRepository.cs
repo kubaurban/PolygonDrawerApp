@@ -1,5 +1,7 @@
 ﻿using Project_1.Models.Shapes;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace Project_1.Models.Repositories
@@ -7,12 +9,14 @@ namespace Project_1.Models.Repositories
     public class ShapeRepository : IShapeRepository
     {
         private List<Polygon> Polygons { get; set; }
-        private List<Point> SolitaryPoints { get; set; }
+        private ObservableCollection<Point> SolitaryPoints { get; set; }
+        public NotifyCollectionChangedEventHandler OnSolitaryPointAdded { get; set; }
 
         public ShapeRepository()
         {
             Polygons = new List<Polygon>();
-            SolitaryPoints = new List<Point>();
+            SolitaryPoints = new ObservableCollection<Point>();
+            SolitaryPoints.CollectionChanged += OnSolitaryPointsChanged;
         }
 
         public Polygon AddPolygon(Polygon polygon)
@@ -33,8 +37,6 @@ namespace Project_1.Models.Repositories
 
         public Polygon GetPolygonById(int id) => Polygons.Find(x => x.Id == id);
 
-        public Point GetSolitaryPointById(int id) => SolitaryPoints.Find(x => x.Id == id);
-
         public List<Point> GetSolitaryPoints() => SolitaryPoints.ToList();
 
         public Polygon RemovePolygon(int id)
@@ -46,5 +48,13 @@ namespace Project_1.Models.Repositories
         }
 
         public bool RemovePolygon(Polygon polygon) => Polygons.Remove(polygon);
+
+        private void OnSolitaryPointsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                OnSolitaryPointAdded?.Invoke(sender, e);
+            }
+        }
     }
 }
