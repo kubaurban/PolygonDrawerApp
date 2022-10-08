@@ -43,10 +43,17 @@ namespace Project_1.Presenters
         {
             var clickedPoint = new Point(e.X, e.Y);
 
+            var clickedInsidePoint = Shapes.GetSolitaryPoints().Find(x => x.IsInside(e.Location));
+
+            if (clickedInsidePoint == default(Point))
             {
                 Drawer.DrawPoint(clickedPoint);
                 Shapes.AddSolitaryPoint(clickedPoint);
                 Drawer.RefreshArea();
+            }
+            else
+            {
+
             }
         }
 
