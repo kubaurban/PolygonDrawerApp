@@ -54,10 +54,11 @@ namespace Project_1.Presenters
                 }
                 else if (clickedInsidePoint == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
                 {
-                    Shapes.AddPolygon(new Polygon
+                    var newPolygon = new Polygon
                     {
                         Vertices = Shapes.GetSolitaryPoints()
-                    });
+                    };
+                    Shapes.AddPolygon(newPolygon);
 
                     Shapes.ClearSolitaryPoints();
                     Drawer.ClearArea();
