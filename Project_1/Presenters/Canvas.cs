@@ -1,4 +1,5 @@
 ﻿using Project_1.Models.Repositories;
+using Project_1.Models.Shapes;
 using Project_1.Views;
 using System.Windows.Forms;
 
@@ -32,7 +33,13 @@ namespace Project_1.Presenters
 
         public void HandleLeftMouseDownEvent(object sender, MouseEventArgs e)
         {
+            var clickedPoint = new Point(e.X, e.Y);
 
+            {
+                Drawer.DrawPoint(clickedPoint);
+                Shapes.AddSolitaryPoint(clickedPoint);
+                Drawer.RefreshArea();
+            }
         }
 
         public void HandleRightMouseDownEvent(object sender, MouseEventArgs e)
