@@ -16,6 +16,12 @@ namespace Project_1.Models.Shapes
             Y = y;
         }
 
+        public void Move(System.Drawing.Point vector)
+        {
+            X += vector.X;
+            Y += vector.Y;
+        }
+
         public static implicit operator System.Drawing.PointF(Point p) => new(p.X, p.Y);
         public static implicit operator Point(System.Drawing.Point p) => new(p.X, p.Y);
     }
