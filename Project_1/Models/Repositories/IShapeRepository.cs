@@ -12,7 +12,6 @@ namespace Project_1.Models.Repositories
         bool RemovePolygon(Polygon polygon);
 
         List<Point> GetSolitaryPoints();
-        Point GetSolitaryPointById(int id);
         Point AddSolitaryPoint(Point point);
         void ClearSolitaryPoints();
     }

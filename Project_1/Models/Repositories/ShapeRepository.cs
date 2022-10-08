@@ -1,5 +1,7 @@
 ﻿using Project_1.Models.Shapes;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace Project_1.Models.Repositories
@@ -7,7 +9,7 @@ namespace Project_1.Models.Repositories
     public class ShapeRepository : IShapeRepository
     {
         private List<Polygon> Polygons { get; set; }
-        private List<Point> SolitaryPoints { get; set; }
+        private ObservableCollection<Point> SolitaryPoints { get; set; }
 
         public ShapeRepository()
         {
@@ -32,8 +34,6 @@ namespace Project_1.Models.Repositories
         public List<Polygon> GetAllPolygons() => Polygons.ToList();
 
         public Polygon GetPolygonById(int id) => Polygons.Find(x => x.Id == id);
-
-        public Point GetSolitaryPointById(int id) => SolitaryPoints.Find(x => x.Id == id);
 
         public List<Point> GetSolitaryPoints() => SolitaryPoints.ToList();
 
