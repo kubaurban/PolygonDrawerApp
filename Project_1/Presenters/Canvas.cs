@@ -52,7 +52,7 @@ namespace Project_1.Presenters
                     Shapes.AddSolitaryPoint(clickedPoint);
                     Drawer.RefreshArea();
                 }
-                else if (Shapes.GetSolitaryPoints().Count > 2)
+                else if (clickedInsidePoint == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
                 {
                     Shapes.AddPolygon(new Polygon
                     {
