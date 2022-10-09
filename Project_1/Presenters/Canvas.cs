@@ -37,6 +37,12 @@ namespace Project_1.Presenters
 
             InitModelChangedHandlers();
             InitActionHandlers();
+            Drawer.ModeChangedHandler += HandleModeChanged;
+        }
+
+        private void HandleModeChanged(object sender, EventArgs e)
+        {
+            RedrawAll?.Invoke();
         }
 
         public void InitActionHandlers()

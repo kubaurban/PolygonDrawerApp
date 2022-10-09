@@ -22,6 +22,8 @@ namespace Project_1.Views
         public event MouseEventHandler RightMouseDownHandler;
         public event MouseEventHandler MouseDownMoveHandler;
 
+        public event EventHandler ModeChangedHandler;
+
         public Bitmap DrawArea => _drawArea;
         public Graphics Graphics => Graphics.FromImage(DrawArea);
         public Pen BlackPen => _blackPen;
@@ -41,7 +43,11 @@ namespace Project_1.Views
             _drawArea = new Bitmap(PictureBox.Width, PictureBox.Height);
             _blackPen = new Pen(Color.Black);
             _blackBrush = new SolidBrush(Color.Black);
+
             IsLeftMouseDown = false;
+            DrawingMode.CheckedChanged += OnModeChanged;
+            DeleteMode.CheckedChanged += OnModeChanged;
+            MoveMode.CheckedChanged += OnModeChanged;
 
             PictureBox.Image = DrawArea;
             ClearArea();
@@ -90,8 +96,11 @@ namespace Project_1.Views
             }
             DrawLine(prev, first);
 
-            // draw gravity center point
-            DrawGrabIcon(polygon.GravityCenterPoint);
+            if (IsInMoveMode)
+            {
+                // draw gravity center point
+                DrawGrabIcon(polygon.GravityCenterPoint);
+            }
         }
 
         public void DrawPolygons(IEnumerable<Polygon> polygons)
@@ -108,7 +117,7 @@ namespace Project_1.Views
             g.DrawIcon(new(MoveIconFilePath), new(point.X - MoveIconWidth / 2, point.Y - MoveIconWidth / 2, MoveIconWidth, MoveIconWidth));
         }
 
-        public static bool IsInside(PointF click, Point point, int pointWidth) 
+        public static bool IsInside(PointF click, Point point, int pointWidth)
             => Math.Abs(point.X - click.X) <= pointWidth / 2 && Math.Abs(point.Y - click.Y) <= pointWidth / 2;
 
         public void ClearArea()
@@ -153,6 +162,11 @@ namespace Project_1.Views
                 IsLeftMouseDown = false;
                 LeftMouseUpHandler?.Invoke(sender, e);
             }
+        }
+
+        private void OnModeChanged(object sender, EventArgs e)
+        {
+            ModeChangedHandler?.Invoke(sender, e);
         }
     }
 }
