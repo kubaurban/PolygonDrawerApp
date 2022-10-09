@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Windows.Forms;
 using Point = Project_1.Models.Shapes.Point;
 
@@ -11,6 +12,7 @@ namespace Project_1.Views
     public partial class Drawer : Form, IDrawer
     {
         private static readonly int _pointWidth = 8;
+        private static readonly int _edgeWidth = 4;
         private static readonly int _moveIconWidth = 20;
 
         private readonly Bitmap _drawArea;
@@ -33,6 +35,7 @@ namespace Project_1.Views
         public bool IsInMoveMode => MoveMode?.Checked ?? false;
         public bool IsLeftMouseDown { get; set; }
         public static int PointWidth => _pointWidth;
+        public static int EdgeWidth => _edgeWidth;
         public static int MoveIconWidth => _moveIconWidth;
         public string MoveIconFilePath => "../../../../Resources/move.ico";
 
@@ -117,8 +120,46 @@ namespace Project_1.Views
             g.DrawIcon(new(MoveIconFilePath), new(point.X - MoveIconWidth / 2, point.Y - MoveIconWidth / 2, MoveIconWidth, MoveIconWidth));
         }
 
-        public static bool IsInside(PointF click, Point point, int pointWidth)
+        public static bool IsInsidePoint(PointF click, Point point, int pointWidth)
             => Math.Abs(point.X - click.X) <= pointWidth / 2 && Math.Abs(point.Y - click.Y) <= pointWidth / 2;
+
+        public static bool IsInsideEdge(PointF click, Edge edge)
+        {
+            var u = (PointF)edge.U;
+            var v = (PointF)edge.V;
+
+            var uv = new Vector2(v.X - u.X, v.Y - u.Y);
+            var a = uv.Length() / PointWidth;
+            uv /= a;
+
+            var uvPerpendicular = new Vector2(v.Y - u.Y, u.X - v.X);
+            var b = uvPerpendicular.Length() / EdgeWidth;
+            uvPerpendicular /= b;
+
+            var polygon = new List<PointF>
+            {
+                new(u.ToVector2() + uv + uvPerpendicular),
+                new(v.ToVector2() - uv + uvPerpendicular),
+                new(v.ToVector2() - uv - uvPerpendicular),
+                new(u.ToVector2() + uv - uvPerpendicular)
+            };
+
+            // code reused from https://stackoverflow.com/questions/4243042/c-sharp-point-in-polygon
+            bool result = false;
+            int j = polygon.Count - 1;
+            for (int i = 0; i < polygon.Count; i++)
+            {
+                if (polygon[i].Y < click.Y && polygon[j].Y >= click.Y || polygon[j].Y < click.Y && polygon[i].Y >= click.Y)
+                {
+                    if (polygon[i].X + (click.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) * (polygon[j].X - polygon[i].X) < click.X)
+                    {
+                        result = !result;
+                    }
+                }
+                j = i;
+            }
+            return result;
+        }
 
         public void ClearArea()
         {

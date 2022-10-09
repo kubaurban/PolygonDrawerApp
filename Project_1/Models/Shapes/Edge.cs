@@ -5,6 +5,12 @@
         public Point U { get; set; }
         public Point V { get; set; }
 
+        public Edge(Point u, Point v) : base()
+        {
+            U = u;
+            V = v;
+        }
+
         public override void Move(System.Drawing.Point vector)
         {
             U.Move(vector);

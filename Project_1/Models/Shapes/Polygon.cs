@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Project_1.Models.Shapes
 {
@@ -13,6 +14,25 @@ namespace Project_1.Models.Shapes
             {
                 _vertices = value;
                 _vertices.ForEach(x => x.PolygonId = Id);
+            }
+        }
+
+        public List<Edge> Edges
+        {
+            get
+            {
+                var edges = new List<Edge>();
+
+                var first = Vertices.First();
+                var prev = first;
+                foreach (var v in Vertices.Skip(1))
+                {
+                    edges.Add(new(prev, v));
+                    prev = v;
+                }
+                edges.Add(new(prev, first));
+
+                return edges;
             }
         }
 
