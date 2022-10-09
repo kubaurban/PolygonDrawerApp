@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Numerics;
 
 namespace Project_1.Models.Shapes
 {
@@ -49,28 +51,10 @@ namespace Project_1.Models.Shapes
         }
 
         public System.Drawing.Point GravityCenterPoint {
-            // below code reused from: https://stackoverflow.com/questions/9815699/how-to-calculate-centroid
             get
             {
-                var vertices = Vertices.ToArray();
-
-                float accumulatedArea = 0.0f;
-                float centerX = 0.0f;
-                float centerY = 0.0f;
-
-                for (int i = 0, j = vertices.Length - 1; i < vertices.Length; j = i++)
-                {
-                    float temp = vertices[i].X * vertices[j].Y - vertices[j].X * vertices[i].Y;
-                    accumulatedArea += temp;
-                    centerX += (vertices[i].X + vertices[j].X) * temp;
-                    centerY += (vertices[i].Y + vertices[j].Y) * temp;
-                }
-
-                if (Math.Abs(accumulatedArea) < 1E-7f)
-                    return System.Drawing.Point.Empty;  // Avoid division by zero
-
-                accumulatedArea *= 3f;
-                return new((int)(centerX / accumulatedArea), (int)(centerY / accumulatedArea));
+                var centerVector = Vertices.Aggregate(new Vector2(0, 0), (x, p) => x += new Vector2(p.X, p.Y)) / Vertices.Count;
+                return new((int)centerVector.X, (int)centerVector.Y);
             }
         }
     }
