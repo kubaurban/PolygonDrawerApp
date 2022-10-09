@@ -16,9 +16,9 @@ namespace Project_1.Views
         private readonly Bitmap _drawArea;
         private readonly Pen _blackPen;
         private readonly Brush _blackBrush;
-        private readonly bool _isLeftMouseClicked;
 
         public event MouseEventHandler LeftMouseDownHandler;
+        public event MouseEventHandler LeftMouseUpHandler;
         public event MouseEventHandler RightMouseDownHandler;
         public event MouseEventHandler MouseDownMoveHandler;
 
@@ -26,10 +26,10 @@ namespace Project_1.Views
         public Graphics Graphics => Graphics.FromImage(DrawArea);
         public Pen BlackPen => _blackPen;
         public Brush BlackBrush => _blackBrush;
-        public bool IsLeftMouseDown => _isLeftMouseClicked;
         public bool IsInDrawingMode => DrawingMode?.Checked ?? true;
         public bool IsInDeleteMode => DeleteMode?.Checked ?? false;
         public bool IsInMoveMode => MoveMode?.Checked ?? false;
+        public bool IsLeftMouseDown { get; set; }
         public static int PointWidth => _pointWidth;
         public static int MoveIconWidth => _moveIconWidth;
         public string MoveIconFilePath => "../../../../Resources/move.ico";
@@ -41,7 +41,7 @@ namespace Project_1.Views
             _drawArea = new Bitmap(PictureBox.Width, PictureBox.Height);
             _blackPen = new Pen(Color.Black);
             _blackBrush = new SolidBrush(Color.Black);
-            _isLeftMouseClicked = false;
+            IsLeftMouseDown = false;
 
             PictureBox.Image = DrawArea;
             ClearArea();
@@ -127,6 +127,7 @@ namespace Project_1.Views
             switch (e.Button)
             {
                 case MouseButtons.Left:
+                    IsLeftMouseDown = true;
                     LeftMouseDownHandler?.Invoke(sender, e);
                     break;
                 case MouseButtons.Right:
@@ -142,6 +143,15 @@ namespace Project_1.Views
             if (IsLeftMouseDown)
             {
                 MouseDownMoveHandler?.Invoke(sender, e);
+            }
+        }
+
+        private void OnMouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                IsLeftMouseDown = false;
+                LeftMouseUpHandler?.Invoke(sender, e);
             }
         }
     }

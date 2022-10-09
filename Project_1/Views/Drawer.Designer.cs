@@ -58,6 +58,7 @@ namespace Project_1.Views
             this.PictureBox.TabStop = false;
             this.PictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.OnMouseDown);
             this.PictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.OnMouseMove);
+            this.PictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.OnMouseUp);
             // 
             // OptionsBox
             // 

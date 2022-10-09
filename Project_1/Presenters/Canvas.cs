@@ -18,6 +18,10 @@ namespace Project_1.Presenters
         public IShapeRepository Shapes { get => _shapes; }
         public IRelationRepository Relations { get => _relations; }
 
+        private System.Drawing.Point ClickedPoint { get; set; }
+        private Shape MovedShape { get; set; }
+        private Point SelectedVertex { get; set; }
+
         public Canvas(IDrawer drawer, IShapeRepository shapes, IRelationRepository relations)
         {
             _drawer = drawer;
@@ -31,6 +35,7 @@ namespace Project_1.Presenters
         public void InitActionHandlers()
         {
             Drawer.LeftMouseDownHandler += HandleLeftMouseDownEvent;
+            Drawer.LeftMouseUpHandler += HandleLeftMouseUpEvent;
             Drawer.RightMouseDownHandler += HandleRightMouseDownEvent;
             Drawer.MouseDownMoveHandler += HandleMouseDownMoveEvent;
         }
@@ -42,20 +47,19 @@ namespace Project_1.Presenters
 
         public void HandleLeftMouseDownEvent(object sender, MouseEventArgs e)
         {
-            var clickedPoint = e.Location;
-            var selectedVertex = default(Point);
+            ClickedPoint = e.Location;
 
             if (Drawer.IsInDrawingMode)
             {
-                selectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInside(clickedPoint, x, DrawerClass.PointWidth));
+                SelectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInside(ClickedPoint, x, DrawerClass.PointWidth));
 
-                if (selectedVertex == default(Point))
+                if (SelectedVertex == default(Point))
                 {
-                    Drawer.DrawPoint(clickedPoint);
-                    Shapes.AddSolitaryPoint(clickedPoint);
+                    Drawer.DrawPoint(ClickedPoint);
+                    Shapes.AddSolitaryPoint(ClickedPoint);
                     Drawer.RefreshArea();
                 }
-                else if (selectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
+                else if (SelectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
                 {
                     Shapes.AddPolygon(Shapes.GetSolitaryPoints());
 
@@ -67,15 +71,15 @@ namespace Project_1.Presenters
             }
             else if (Drawer.IsInDeleteMode)
             {
-                selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInside(clickedPoint, x, DrawerClass.PointWidth));
+                SelectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInside(ClickedPoint, x, DrawerClass.PointWidth));
 
-                if (selectedVertex != default(Point))
+                if (SelectedVertex != default(Point))
                 {
-                    var polygon = Shapes.GetPolygonById(selectedVertex.PolygonId);
+                    var polygon = Shapes.GetPolygonById(SelectedVertex.PolygonId);
 
                     if (polygon.Vertices.Count > 3)
                     {
-                        polygon.RemoveVertex(selectedVertex);
+                        polygon.RemoveVertex(SelectedVertex);
                     }
                     else
                     {
@@ -89,11 +93,11 @@ namespace Project_1.Presenters
             }
             else if (Drawer.IsInMoveMode)
             {
-                #region Vertex move
+                #region Vertex selection
 
-                selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInside(clickedPoint, x, DrawerClass.PointWidth));
+                MovedShape = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInside(ClickedPoint, x, DrawerClass.PointWidth));
 
-                if (selectedVertex != default(Point))
+                if (MovedShape != default(Point))
                 {
                     // vertex move
                     return;
@@ -101,25 +105,29 @@ namespace Project_1.Presenters
 
                 #endregion
 
-                #region Polygon move
+                #region Polygon selection
 
-                var allGravityCenterPoints = Shapes.GetAllPolygons().Select(x => x.GravityCenterPoint).ToList();
-                var selectedGravityCenter = allGravityCenterPoints.Find(x => DrawerClass.IsInside(clickedPoint, x, DrawerClass.MoveIconWidth));
+                var allPolygons = Shapes.GetAllPolygons().ToList();
+                MovedShape = allPolygons.Find(x => DrawerClass.IsInside(ClickedPoint, x.GravityCenterPoint, DrawerClass.MoveIconWidth));
 
-                if (selectedGravityCenter != default)
+                if (MovedShape != default(Polygon))
                 {
-                    // polygon move
                     return;
                 }
 
                 #endregion
 
-                #region Edge move
+                #region Edge selection
 
 
 
                 #endregion
             }
+        }
+
+        public void HandleLeftMouseUpEvent(object sender, MouseEventArgs e)
+        {
+            MovedShape = default;
         }
 
         public void HandleRightMouseDownEvent(object sender, MouseEventArgs e)
