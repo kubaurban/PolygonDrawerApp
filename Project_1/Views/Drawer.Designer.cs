@@ -29,12 +29,14 @@ namespace Project_1.Views
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.IsBresenham = new System.Windows.Forms.CheckBox();
             this.PictureBox = new System.Windows.Forms.PictureBox();
             this.OptionsBox = new System.Windows.Forms.GroupBox();
             this.DeleteMode = new System.Windows.Forms.RadioButton();
             this.DrawingMode = new System.Windows.Forms.RadioButton();
             this.MoveMode = new System.Windows.Forms.RadioButton();
+            this.ManageEdgeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.OptionsBox.SuspendLayout();
             this.SuspendLayout();
@@ -110,6 +112,12 @@ namespace Project_1.Views
             this.MoveMode.UseVisualStyleBackColor = true;
             this.MoveMode.CheckedChanged += new System.EventHandler(this.MoveModeChecked);
             // 
+            // ManageEdgeMenu
+            // 
+            this.ManageEdgeMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ManageEdgeMenu.Name = "ManageEdgeMenu";
+            this.ManageEdgeMenu.Size = new System.Drawing.Size(61, 4);
+            // 
             // Drawer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -134,5 +142,6 @@ namespace Project_1.Views
         private System.Windows.Forms.RadioButton DeleteMode;
         private System.Windows.Forms.RadioButton DrawingMode;
         private System.Windows.Forms.RadioButton MoveMode;
+        private System.Windows.Forms.ContextMenuStrip ManageEdgeMenu;
     }
 }

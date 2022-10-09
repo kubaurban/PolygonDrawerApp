@@ -25,6 +25,8 @@ namespace Project_1.Views
         public event MouseEventHandler MouseDownMoveHandler;
 
         public event EventHandler ModeChangedHandler;
+        public event EventHandler EdgeInsertPointClickedHandler;
+        public event EventHandler EdgeSetFixedLengthClickedHandler;
 
         public Bitmap DrawArea => _drawArea;
         public Graphics Graphics => Graphics.FromImage(DrawArea);
@@ -42,6 +44,7 @@ namespace Project_1.Views
         public Drawer()
         {
             InitializeComponent();
+            InitManageEdgeMenuItems();
 
             _drawArea = new Bitmap(PictureBox.Width, PictureBox.Height);
             _blackPen = new Pen(Color.Black);
@@ -70,6 +73,13 @@ namespace Project_1.Views
         private void MoveModeChecked(object sender, EventArgs e)
         {
             IsBresenham.Enabled = false;
+        }
+
+        private void InitManageEdgeMenuItems()
+        {
+            var addMiddle = new ToolStripMenuItem("Insert point", null, new EventHandler(OnEdgeInsertPoint));
+            var setLength = new ToolStripMenuItem("Set fixed length", null, new EventHandler(OnEdgeSetFixedLength));
+            ManageEdgeMenu.Items.AddRange(new ToolStripItem[]{ addMiddle, setLength });
         }
 
         public void DrawLine(Point p1, Point p2)
@@ -172,6 +182,11 @@ namespace Project_1.Views
             PictureBox.Refresh();
         }
 
+        public void ShowManageEdgeMenu(System.Drawing.Point point)
+        {
+            ManageEdgeMenu.Show(PictureBox, point);
+        }
+
         private void OnMouseDown(object sender, MouseEventArgs e)
         {
             switch (e.Button)
@@ -208,6 +223,16 @@ namespace Project_1.Views
         private void OnModeChanged(object sender, EventArgs e)
         {
             ModeChangedHandler?.Invoke(sender, e);
+        }
+
+        private void OnEdgeInsertPoint(object sender, EventArgs e)
+        {
+            EdgeInsertPointClickedHandler?.Invoke(sender, e);
+        }
+
+        private void OnEdgeSetFixedLength(object sender, EventArgs e)
+        {
+            EdgeSetFixedLengthClickedHandler?.Invoke(sender, e);
         }
     }
 }

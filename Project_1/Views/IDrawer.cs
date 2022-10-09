@@ -12,6 +12,8 @@ namespace Project_1.Views
         bool IsInMoveMode { get; }
 
         event EventHandler ModeChangedHandler;
+        event EventHandler EdgeInsertPointClickedHandler;
+        event EventHandler EdgeSetFixedLengthClickedHandler;
 
         void DrawLine(Point p1, Point p2);
         void DrawPoint(Point p);
@@ -19,5 +21,6 @@ namespace Project_1.Views
         void DrawPolygons(IEnumerable<Polygon> polygons);
         void ClearArea();
         void RefreshArea();
+        void ShowManageEdgeMenu(System.Drawing.Point point);
     }
 }

@@ -23,21 +23,21 @@ namespace Project_1.Presenters
 
         private System.Drawing.Point ClickedPoint { get; set; }
         private Shape MovedShape { get; set; }
-        private Point SelectedVertex { get; set; }
+        private Edge SelectedEdge { get; set; }
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IRelationRepository relations)
         {
             _drawer = drawer;
             _shapes = shapes;
             _relations = relations;
-
+            
             RedrawAll += Drawer.ClearArea;
             RedrawAll += DrawAllPolygons;
             RedrawAll += Drawer.RefreshArea;
 
             InitModelChangedHandlers();
             InitActionHandlers();
-            Drawer.ModeChangedHandler += HandleModeChanged;
+            InitBusinessLogicHandlers();
         }
 
         private void HandleModeChanged(object sender, EventArgs e)
@@ -51,6 +51,13 @@ namespace Project_1.Presenters
             Drawer.LeftMouseUpHandler += HandleLeftMouseUpEvent;
             Drawer.RightMouseDownHandler += HandleRightMouseDownEvent;
             Drawer.MouseDownMoveHandler += HandleMouseDownMoveEvent;
+        }
+
+        public void InitBusinessLogicHandlers()
+        {
+            Drawer.ModeChangedHandler += HandleModeChanged;
+            Drawer.EdgeInsertPointClickedHandler += OnEdgeInsertPointClicked;
+            Drawer.EdgeSetFixedLengthClickedHandler += OnEdgeSetFixedLengthClicked;
         }
 
         public void InitModelChangedHandlers()
@@ -73,7 +80,7 @@ namespace Project_1.Presenters
                     Shapes.AddSolitaryPoint(ClickedPoint);
                     Drawer.RefreshArea();
                 }
-                else if (SelectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
+                else if (selectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
                 {
                     Shapes.AddPolygon(Shapes.GetSolitaryPoints());
 
@@ -147,7 +154,15 @@ namespace Project_1.Presenters
 
         public void HandleRightMouseDownEvent(object sender, MouseEventArgs e)
         {
+            ClickedPoint = e.Location;
 
+            var allEdges = Shapes.GetAllPolygonEdges().ToList();
+            SelectedEdge = allEdges.Find(x => DrawerClass.IsInsideEdge(ClickedPoint, x));
+
+            if (SelectedEdge != default(Edge))
+            {
+                Drawer.ShowManageEdgeMenu(ClickedPoint);
+            }
         }
 
         public void HandleMouseDownMoveEvent(object sender, MouseEventArgs e)
@@ -164,6 +179,16 @@ namespace Project_1.Presenters
                 MovedShape.Move(vector);
                 RedrawAll?.Invoke();
             }
+        }
+
+        private void OnEdgeSetFixedLengthClicked(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnEdgeInsertPointClicked(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void HandleSolitaryPointAdded(object sender, NotifyCollectionChangedEventArgs e)
