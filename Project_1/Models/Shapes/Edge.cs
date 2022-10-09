@@ -1,4 +1,6 @@
-﻿namespace Project_1.Models.Shapes
+﻿using System.Numerics;
+
+namespace Project_1.Models.Shapes
 {
     public class Edge : Shape
     {
@@ -13,7 +15,7 @@
 
         public int PolygonId => U.PolygonId;
 
-        public override void Move(System.Drawing.Point vector)
+        public override void Move(Vector2 vector)
         {
             U.Move(vector);
             V.Move(vector);

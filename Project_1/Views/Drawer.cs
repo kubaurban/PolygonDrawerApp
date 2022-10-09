@@ -1,4 +1,5 @@
-﻿using Project_1.Models.Shapes;
+﻿using Project_1.Helpers.UI;
+using Project_1.Models.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -112,7 +113,7 @@ namespace Project_1.Views
             if (IsInMoveMode)
             {
                 // draw gravity center point
-                DrawGrabIcon(polygon.GravityCenterPoint);
+                DrawGrabIcon(polygon.GravityCenterPoint.ToPoint());
             }
         }
 

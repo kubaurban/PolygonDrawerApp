@@ -6,6 +6,8 @@ using System.Collections.Specialized;
 using System.Windows.Forms;
 using DrawerClass = Project_1.Views.Drawer;
 using System;
+using Project_1.Helpers.UI;
+using System.Numerics;
 
 namespace Project_1.Presenters
 {
@@ -21,7 +23,7 @@ namespace Project_1.Presenters
 
         public Action RedrawAll { get; set; }
 
-        private System.Drawing.Point ClickedPoint { get; set; }
+        private System.Drawing.PointF ClickedPoint { get; set; }
         private Shape MovedShape { get; set; }
         private Edge SelectedEdge { get; set; }
 
@@ -161,13 +163,13 @@ namespace Project_1.Presenters
 
             if (SelectedEdge != default(Edge))
             {
-                Drawer.ShowManageEdgeMenu(ClickedPoint);
+                Drawer.ShowManageEdgeMenu(ClickedPoint.ToPoint());
             }
         }
 
         public void HandleMouseDownMoveEvent(object sender, MouseEventArgs e)
         {
-            var vector = new System.Drawing.Point
+            var vector = new Vector2
             {
                 X = e.Location.X - ClickedPoint.X,
                 Y = e.Location.Y - ClickedPoint.Y
@@ -190,7 +192,7 @@ namespace Project_1.Presenters
         {
             var polygon = Shapes.GetAllPolygons().Find(x => x.Id == SelectedEdge.PolygonId);
 
-            var point = Shapes.AddSolitaryPoint(new((int)(SelectedEdge.U.X + SelectedEdge.V.X) / 2, (int)(SelectedEdge.U.Y + SelectedEdge.V.Y) / 2));
+            var point = Shapes.AddSolitaryPoint(new((SelectedEdge.U.X + SelectedEdge.V.X) / 2, (SelectedEdge.U.Y + SelectedEdge.V.Y) / 2));
             polygon.InsertPoint(SelectedEdge, point);
             Shapes.ClearSolitaryPoints();
 

@@ -34,7 +34,7 @@ namespace Project_1.Models.Repositories
             return newPolygon;
         }
 
-        public Point AddSolitaryPoint(System.Drawing.Point point)
+        public Point AddSolitaryPoint(System.Drawing.PointF point)
         {
             var newPoint = new Point(++PointIdCounter)
             {

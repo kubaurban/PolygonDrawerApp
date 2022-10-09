@@ -40,7 +40,7 @@ namespace Project_1.Models.Shapes
 
         public Polygon(int id) : base(id) { }
 
-        public override void Move(System.Drawing.Point vector)
+        public override void Move(Vector2 vector)
         {
             Vertices.ForEach(x => x.Move(vector));
         }
@@ -57,11 +57,11 @@ namespace Project_1.Models.Shapes
             Vertices.Insert(vIdx, p);
         }
 
-        public System.Drawing.Point GravityCenterPoint {
+        public PointF GravityCenterPoint {
             get
             {
                 var centerVector = Vertices.Aggregate(new Vector2(0, 0), (x, p) => x += new Vector2(p.X, p.Y)) / Vertices.Count;
-                return new((int)centerVector.X, (int)centerVector.Y);
+                return new(centerVector.X, centerVector.Y);
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace Project_1.Models.Shapes
+﻿using System.Numerics;
+
+namespace Project_1.Models.Shapes
 {
     public abstract class Shape
     {
@@ -8,6 +10,6 @@
 
         protected Shape(int id) => Id = id;
 
-        public abstract void Move(System.Drawing.Point vector);
+        public abstract void Move(Vector2 vector);
     }
 }

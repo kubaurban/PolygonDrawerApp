@@ -20,7 +20,7 @@ namespace Project_1.Models.Repositories
 
         // solitary points management
         List<Point> GetSolitaryPoints();
-        Point AddSolitaryPoint(System.Drawing.Point point);
+        Point AddSolitaryPoint(System.Drawing.PointF point);
         void ClearSolitaryPoints();
     }
 }
