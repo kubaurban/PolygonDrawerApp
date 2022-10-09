@@ -105,7 +105,7 @@ namespace Project_1.Views
         public void DrawGrabIcon(System.Drawing.Point point)
         {
             using var g = Graphics;
-            g.DrawIcon(new(MoveIconFilePath), new(point.X, point.Y, MoveIconWidth, MoveIconWidth));
+            g.DrawIcon(new(MoveIconFilePath), new(point.X - MoveIconWidth / 2, point.Y - MoveIconWidth / 2, MoveIconWidth, MoveIconWidth));
         }
 
         public static bool IsInside(PointF click, Point point, int pointWidth) 
