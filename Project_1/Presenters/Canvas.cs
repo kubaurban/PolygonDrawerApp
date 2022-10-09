@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Specialized;
 using System.Windows.Forms;
 using DrawerClass = Project_1.Views.Drawer;
+using System;
 
 namespace Project_1.Presenters
 {
@@ -18,6 +19,8 @@ namespace Project_1.Presenters
         public IShapeRepository Shapes { get => _shapes; }
         public IRelationRepository Relations { get => _relations; }
 
+        public Action RedrawAll { get; set; }
+
         private System.Drawing.Point ClickedPoint { get; set; }
         private Shape MovedShape { get; set; }
         private Point SelectedVertex { get; set; }
@@ -27,6 +30,10 @@ namespace Project_1.Presenters
             _drawer = drawer;
             _shapes = shapes;
             _relations = relations;
+
+            RedrawAll += Drawer.ClearArea;
+            RedrawAll += DrawAllPolygons;
+            RedrawAll += Drawer.RefreshArea;
 
             InitModelChangedHandlers();
             InitActionHandlers();
@@ -64,9 +71,7 @@ namespace Project_1.Presenters
                     Shapes.AddPolygon(Shapes.GetSolitaryPoints());
 
                     Shapes.ClearSolitaryPoints();
-                    Drawer.ClearArea();
-                    Drawer.DrawPolygons(Shapes.GetAllPolygons());
-                    Drawer.RefreshArea();
+                    RedrawAll?.Invoke();
                 }
             }
             else if (Drawer.IsInDeleteMode)
@@ -86,9 +91,7 @@ namespace Project_1.Presenters
                         Shapes.RemovePolygon(polygon);
                     }
 
-                    Drawer.ClearArea();
-                    Drawer.DrawPolygons(Shapes.GetAllPolygons());
-                    Drawer.RefreshArea();
+                    RedrawAll?.Invoke();
                 }
             }
             else if (Drawer.IsInMoveMode)
@@ -99,7 +102,6 @@ namespace Project_1.Presenters
 
                 if (MovedShape != default(Point))
                 {
-                    // vertex move
                     return;
                 }
 
@@ -137,7 +139,18 @@ namespace Project_1.Presenters
 
         public void HandleMouseDownMoveEvent(object sender, MouseEventArgs e)
         {
+            var vector = new System.Drawing.Point
+            {
+                X = e.Location.X - ClickedPoint.X,
+                Y = e.Location.Y - ClickedPoint.Y
+            };
+            ClickedPoint = e.Location;
 
+            if (Drawer.IsInMoveMode && MovedShape != default(Shape))
+            {
+                MovedShape?.Move(vector);
+                RedrawAll?.Invoke();
+            }
         }
 
         private void HandleSolitaryPointAdded(object sender, NotifyCollectionChangedEventArgs e)
@@ -148,6 +161,11 @@ namespace Project_1.Presenters
                 var lastTwoVerices = Shapes.GetSolitaryPoints().Skip(solitaryPointsCount - 2);
                 Drawer.DrawLine(lastTwoVerices.First(), lastTwoVerices.Last());
             }
+        }
+
+        private void DrawAllPolygons()
+        {
+            Drawer.DrawPolygons(Shapes.GetAllPolygons());
         }
     }
 }

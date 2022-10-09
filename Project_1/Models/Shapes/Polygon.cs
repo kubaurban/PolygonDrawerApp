@@ -18,6 +18,11 @@ namespace Project_1.Models.Shapes
 
         public Polygon(int id) : base(id) { }
 
+        public override void Move(System.Drawing.Point vector)
+        {
+            Vertices.ForEach(x => x.Move(vector));
+        }
+
         public void RemoveVertex(Point p)
         {
             Vertices.Remove(p);

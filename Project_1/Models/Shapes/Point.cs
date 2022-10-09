@@ -16,7 +16,7 @@ namespace Project_1.Models.Shapes
             Y = y;
         }
 
-        public void Move(System.Drawing.Point vector)
+        public override void Move(System.Drawing.Point vector)
         {
             X += vector.X;
             Y += vector.Y;
