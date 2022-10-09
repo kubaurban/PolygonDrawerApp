@@ -50,6 +50,13 @@ namespace Project_1.Models.Shapes
             Vertices.Remove(p);
         }
 
+        public void InsertPoint(Edge e, Point p)
+        {
+            var vIdx = Vertices.IndexOf(e.V);
+            p.PolygonId = Id;
+            Vertices.Insert(vIdx, p);
+        }
+
         public System.Drawing.Point GravityCenterPoint {
             get
             {

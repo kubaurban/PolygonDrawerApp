@@ -11,6 +11,8 @@
             V = v;
         }
 
+        public int PolygonId => U.PolygonId;
+
         public override void Move(System.Drawing.Point vector)
         {
             U.Move(vector);

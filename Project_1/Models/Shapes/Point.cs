@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Project_1.Models.Shapes
+﻿namespace Project_1.Models.Shapes
 {
     public class Point : Shape
     {

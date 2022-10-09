@@ -188,7 +188,13 @@ namespace Project_1.Presenters
 
         private void OnEdgeInsertPointClicked(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            var polygon = Shapes.GetAllPolygons().Find(x => x.Id == SelectedEdge.PolygonId);
+
+            var point = Shapes.AddSolitaryPoint(new((int)(SelectedEdge.U.X + SelectedEdge.V.X) / 2, (int)(SelectedEdge.U.Y + SelectedEdge.V.Y) / 2));
+            polygon.InsertPoint(SelectedEdge, point);
+            Shapes.ClearSolitaryPoints();
+
+            RedrawAll?.Invoke();
         }
 
         private void HandleSolitaryPointAdded(object sender, NotifyCollectionChangedEventArgs e)
