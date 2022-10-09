@@ -61,12 +61,13 @@ namespace Project_1.Presenters
         public void HandleLeftMouseDownEvent(object sender, MouseEventArgs e)
         {
             ClickedPoint = e.Location;
+            Point selectedVertex = default;
 
             if (Drawer.IsInDrawingMode)
             {
-                SelectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
+                selectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
 
-                if (SelectedVertex == default(Point))
+                if (selectedVertex == default(Point))
                 {
                     Drawer.DrawPoint(ClickedPoint);
                     Shapes.AddSolitaryPoint(ClickedPoint);
@@ -82,15 +83,15 @@ namespace Project_1.Presenters
             }
             else if (Drawer.IsInDeleteMode)
             {
-                SelectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
+                selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
 
-                if (SelectedVertex != default(Point))
+                if (selectedVertex != default(Point))
                 {
-                    var polygon = Shapes.GetPolygonById(SelectedVertex.PolygonId);
+                    var polygon = Shapes.GetPolygonById(selectedVertex.PolygonId);
 
                     if (polygon.Vertices.Count > 3)
                     {
-                        polygon.RemoveVertex(SelectedVertex);
+                        polygon.RemoveVertex(selectedVertex);
                     }
                     else
                     {
@@ -127,7 +128,7 @@ namespace Project_1.Presenters
 
                 #region Edge selection
 
-                var allEdges = allPolygons.SelectMany(x => x.Edges).ToList();
+                var allEdges = Shapes.GetAllPolygonEdges().ToList();
                 MovedShape = allEdges.Find(x => DrawerClass.IsInsideEdge(ClickedPoint, x));
 
                 if (MovedShape != default(Edge))

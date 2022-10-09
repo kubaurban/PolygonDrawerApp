@@ -72,5 +72,6 @@ namespace Project_1.Models.Repositories
         }
 
         public List<Point> GetAllPolygonPoints() => Polygons.SelectMany(x => x.Vertices).ToList();
+        public List<Edge> GetAllPolygonEdges() => Polygons.SelectMany(x => x.Edges).ToList();
     }
 }
