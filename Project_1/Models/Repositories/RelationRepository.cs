@@ -1,4 +1,5 @@
 ﻿using Project_1.Models.Relations;
+using Project_1.Models.Shapes;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,17 +7,35 @@ namespace Project_1.Models.Repositories
 {
     public class RelationRepository : IRelationRepository
     {
+        private static int RelationIdCounter { get; set; }
         private List<Relation> Relations { get; set; }
 
         public RelationRepository()
         {
             Relations = new List<Relation>();
+            RelationIdCounter = 0;
         }
 
-        public Relation Add(Relation relation)
+        public Relation AddPerpendicularRelation(Edge edge1, Edge edge2)
         {
-            Relations.Add(relation);
-            return relation;
+            var newRelation = new PerpendicularRelation(++RelationIdCounter)
+            {
+                FirstEdge = edge1,
+                SecondEdge = edge2,
+            };
+            Relations.Add(newRelation);
+            return newRelation;
+        }
+
+        public Relation AddFixedEdgeRelation(Edge edge, int length)
+        {
+            var newRelation = new FixedEdgeLength(++RelationIdCounter)
+            {
+                FirstEdge = edge,
+                Length = length,
+            };
+            Relations.Add(newRelation);
+            return newRelation;
         }
 
         public List<Relation> GetAll() => Relations.ToList();
