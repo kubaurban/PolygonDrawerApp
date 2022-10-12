@@ -33,9 +33,9 @@ namespace Project_1.Views
             this.IsBresenham = new System.Windows.Forms.CheckBox();
             this.PictureBox = new System.Windows.Forms.PictureBox();
             this.OptionsBox = new System.Windows.Forms.GroupBox();
+            this.MoveMode = new System.Windows.Forms.RadioButton();
             this.DeleteMode = new System.Windows.Forms.RadioButton();
             this.DrawingMode = new System.Windows.Forms.RadioButton();
-            this.MoveMode = new System.Windows.Forms.RadioButton();
             this.ManageEdgeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.OptionsBox.SuspendLayout();
@@ -75,6 +75,18 @@ namespace Project_1.Views
             this.OptionsBox.TabStop = false;
             this.OptionsBox.Text = "Options";
             // 
+            // MoveMode
+            // 
+            this.MoveMode.AutoSize = true;
+            this.MoveMode.Location = new System.Drawing.Point(330, 22);
+            this.MoveMode.Name = "MoveMode";
+            this.MoveMode.Size = new System.Drawing.Size(89, 19);
+            this.MoveMode.TabIndex = 4;
+            this.MoveMode.TabStop = true;
+            this.MoveMode.Text = "Move Mode";
+            this.MoveMode.UseVisualStyleBackColor = true;
+            this.MoveMode.CheckedChanged += new System.EventHandler(this.MoveModeChecked);
+            // 
             // DeleteMode
             // 
             this.DeleteMode.AutoSize = true;
@@ -99,18 +111,6 @@ namespace Project_1.Views
             this.DrawingMode.Text = "Drawing Mode";
             this.DrawingMode.UseVisualStyleBackColor = true;
             this.DrawingMode.CheckedChanged += new System.EventHandler(this.DrawingModeChecked);
-            // 
-            // MoveMode
-            // 
-            this.MoveMode.AutoSize = true;
-            this.MoveMode.Location = new System.Drawing.Point(330, 22);
-            this.MoveMode.Name = "MoveMode";
-            this.MoveMode.Size = new System.Drawing.Size(89, 19);
-            this.MoveMode.TabIndex = 4;
-            this.MoveMode.TabStop = true;
-            this.MoveMode.Text = "Move Mode";
-            this.MoveMode.UseVisualStyleBackColor = true;
-            this.MoveMode.CheckedChanged += new System.EventHandler(this.MoveModeChecked);
             // 
             // ManageEdgeMenu
             // 

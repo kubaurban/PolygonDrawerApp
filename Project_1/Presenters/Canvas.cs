@@ -59,7 +59,7 @@ namespace Project_1.Presenters
         {
             Drawer.ModeChangedHandler += HandleModeChanged;
             Drawer.EdgeInsertPointClickedHandler += OnEdgeInsertPointClicked;
-            Drawer.EdgeSetFixedLengthClickedHandler += OnEdgeSetFixedLengthClicked;
+            Drawer.EdgeSaveLengthClickedHandler += OnEdgeSaveLengthClicked;
         }
 
         public void InitModelChangedHandlers()
@@ -183,7 +183,7 @@ namespace Project_1.Presenters
             }
         }
 
-        private void OnEdgeSetFixedLengthClicked(object sender, EventArgs e)
+        private void OnEdgeSaveLengthClicked(object sender, EventArgs e)
         {
             throw new NotImplementedException();
         }

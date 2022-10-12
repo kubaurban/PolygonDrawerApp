@@ -27,7 +27,7 @@ namespace Project_1.Views
 
         public event EventHandler ModeChangedHandler;
         public event EventHandler EdgeInsertPointClickedHandler;
-        public event EventHandler EdgeSetFixedLengthClickedHandler;
+        public event EventHandler EdgeSaveLengthClickedHandler;
 
         public Bitmap DrawArea => _drawArea;
         public Graphics Graphics => Graphics.FromImage(DrawArea);
@@ -233,7 +233,13 @@ namespace Project_1.Views
 
         private void OnEdgeSetFixedLength(object sender, EventArgs e)
         {
-            EdgeSetFixedLengthClickedHandler?.Invoke(sender, e);
+            var lengthInputDialog = new LengthInputDialog();
+            if (lengthInputDialog.ShowDialog() == DialogResult.OK  && lengthInputDialog.InputLength > 0)
+            {
+                EdgeSaveLengthClickedHandler?.Invoke(sender, new SaveLengthArgs(lengthInputDialog.InputLength));
+            }
+            lengthInputDialog.Close();
+            lengthInputDialog.Dispose();
         }
     }
 }
