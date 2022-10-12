@@ -20,5 +20,11 @@ namespace Project_1.Models.Shapes
             U.Move(vector);
             V.Move(vector);
         }
+
+        public void AddRelation(int id)
+        {
+            U.RelationIds.Add(id);
+            V.RelationIds.Add(id);
+        }
     }
 }

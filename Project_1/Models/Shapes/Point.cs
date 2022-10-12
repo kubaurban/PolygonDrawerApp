@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 
 namespace Project_1.Models.Shapes
 {
@@ -7,6 +8,7 @@ namespace Project_1.Models.Shapes
         public float X { get; set; }
         public float Y { get; set; }
         public int PolygonId { get; set; }
+        public List<int> RelationIds { get; set; }
 
         public Point(int id) : base(id) { }
 

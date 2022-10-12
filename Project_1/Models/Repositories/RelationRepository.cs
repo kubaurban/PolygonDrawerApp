@@ -2,6 +2,7 @@
 using Project_1.Models.Shapes;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms.VisualStyles;
 
 namespace Project_1.Models.Repositories
 {
@@ -23,6 +24,9 @@ namespace Project_1.Models.Repositories
                 FirstEdge = edge1,
                 SecondEdge = edge2,
             };
+            edge1.AddRelation(RelationIdCounter);
+            edge2.AddRelation(RelationIdCounter);
+
             Relations.Add(newRelation);
             return newRelation;
         }
@@ -34,6 +38,8 @@ namespace Project_1.Models.Repositories
                 FirstEdge = edge,
                 Length = length,
             };
+            edge.AddRelation(RelationIdCounter);
+
             Relations.Add(newRelation);
             return newRelation;
         }

@@ -8,6 +8,7 @@ using DrawerClass = Project_1.Views.Drawer;
 using System;
 using Project_1.Helpers.UI;
 using System.Numerics;
+using Project_1.Models.Relations;
 
 namespace Project_1.Presenters
 {
@@ -185,7 +186,15 @@ namespace Project_1.Presenters
 
         private void OnEdgeSaveLengthClicked(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            var relation = Relations.AddFixedEdgeRelation(SelectedEdge, (e as SaveLengthArgs).Length) as FixedEdgeLength;
+            var u = relation.FirstEdge.U;
+            var v = relation.FirstEdge.V;
+
+            var vector = new Vector2(v.X - u.X, v.Y - u.Y);
+            var newVector = vector * relation.Length / vector.Length();
+            u.Move(vector - newVector);
+
+            RedrawAll?.Invoke();
         }
 
         private void OnEdgeInsertPointClicked(object sender, EventArgs e)
