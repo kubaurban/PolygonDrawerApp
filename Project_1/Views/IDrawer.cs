@@ -7,9 +7,7 @@ namespace Project_1.Views
 {
     public interface IDrawer : IUserActionHandler
     {
-        bool IsInDrawingMode { get; }
-        bool IsInDeleteMode { get; }
-        bool IsInMoveMode { get; }
+        DrawerMode Mode { get; set; }
 
         event EventHandler ModeChangedHandler;
         event EventHandler EdgeInsertPointClickedHandler;

@@ -33,9 +33,7 @@ namespace Project_1.Views
         public Graphics Graphics => Graphics.FromImage(DrawArea);
         public Pen BlackPen => _blackPen;
         public Brush BlackBrush => _blackBrush;
-        public bool IsInDrawingMode => DrawingMode?.Checked ?? true;
-        public bool IsInDeleteMode => DeleteMode?.Checked ?? false;
-        public bool IsInMoveMode => MoveMode?.Checked ?? false;
+        public DrawerMode Mode { get; set; }
         public bool IsLeftMouseDown { get; set; }
         public static int PointWidth => _pointWidth;
         public static int EdgeWidth => _edgeWidth;
@@ -51,10 +49,12 @@ namespace Project_1.Views
             _blackPen = new Pen(Color.Black);
             _blackBrush = new SolidBrush(Color.Black);
 
+            Mode = DrawerMode.Draw;
             IsLeftMouseDown = false;
-            DrawingMode.CheckedChanged += OnModeChanged;
-            DeleteMode.CheckedChanged += OnModeChanged;
-            MoveMode.CheckedChanged += OnModeChanged;
+            DrawingMode.CheckedChanged += OnDrawingModeChecked;
+            DeleteMode.CheckedChanged += OnDeleteModeChecked;
+            MoveMode.CheckedChanged += OnMoveModeChecked;
+            MakePerpendicularMode.CheckedChanged += OnMakePerpendicularModeChecked;
 
             PictureBox.Image = DrawArea;
             ClearArea();
@@ -110,7 +110,7 @@ namespace Project_1.Views
             }
             DrawLine(prev, first);
 
-            if (IsInMoveMode)
+            if (Mode == DrawerMode.Move)
             {
                 // draw gravity center point
                 DrawGrabIcon(polygon.GravityCenterPoint.ToPoint());
@@ -219,6 +219,30 @@ namespace Project_1.Views
                 IsLeftMouseDown = false;
                 LeftMouseUpHandler?.Invoke(sender, e);
             }
+        }
+
+        private void OnDrawingModeChecked(object sender, EventArgs e)
+        {
+            Mode = DrawerMode.Draw;
+            OnModeChanged(sender, e);
+        }
+
+        private void OnDeleteModeChecked(object sender, EventArgs e)
+        {
+            Mode = DrawerMode.Delete;
+            OnModeChanged(sender, e);
+        }
+
+        private void OnMoveModeChecked(object sender, EventArgs e)
+        {
+            Mode = DrawerMode.Move;
+            OnModeChanged(sender, e);
+        }
+
+        private void OnMakePerpendicularModeChecked(object sender, EventArgs e)
+        {
+            Mode = DrawerMode.MakePerpendicular;
+            OnModeChanged(sender, e);
         }
 
         private void OnModeChanged(object sender, EventArgs e)

@@ -73,80 +73,83 @@ namespace Project_1.Presenters
             ClickedPoint = e.Location;
             Point selectedVertex = default;
 
-            if (Drawer.IsInDrawingMode)
+            switch (Drawer.Mode)
             {
-                selectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
+                case DrawerMode.Draw:
+                    selectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
 
-                if (selectedVertex == default(Point))
-                {
-                    Drawer.DrawPoint(ClickedPoint);
-                    Shapes.AddSolitaryPoint(ClickedPoint);
-                    Drawer.RefreshArea();
-                }
-                else if (selectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
-                {
-                    Shapes.AddPolygon(Shapes.GetSolitaryPoints());
-
-                    Shapes.ClearSolitaryPoints();
-                    RedrawAll?.Invoke();
-                }
-            }
-            else if (Drawer.IsInDeleteMode)
-            {
-                selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
-
-                if (selectedVertex != default(Point))
-                {
-                    var polygon = Shapes.GetPolygonById(selectedVertex.PolygonId);
-
-                    if (polygon.Vertices.Count > 3)
+                    if (selectedVertex == default(Point))
                     {
-                        polygon.RemoveVertex(selectedVertex);
+                        Drawer.DrawPoint(ClickedPoint);
+                        Shapes.AddSolitaryPoint(ClickedPoint);
+                        Drawer.RefreshArea();
                     }
-                    else
+                    else if (selectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
                     {
-                        Shapes.RemovePolygon(polygon);
+                        Shapes.AddPolygon(Shapes.GetSolitaryPoints());
+
+                        Shapes.ClearSolitaryPoints();
+                        RedrawAll?.Invoke();
+                    }
+                    break;
+
+                case DrawerMode.Delete:
+                    selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
+
+                    if (selectedVertex != default(Point))
+                    {
+                        var polygon = Shapes.GetPolygonById(selectedVertex.PolygonId);
+
+                        if (polygon.Vertices.Count > 3)
+                        {
+                            polygon.RemoveVertex(selectedVertex);
+                        }
+                        else
+                        {
+                            Shapes.RemovePolygon(polygon);
+                        }
+
+                        RedrawAll?.Invoke();
+                    }
+                    break;
+
+                case DrawerMode.Move:
+                    #region Vertex selection
+
+                    MovedShape = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
+
+                    if (MovedShape != default(Point))
+                    {
+                        return;
                     }
 
-                    RedrawAll?.Invoke();
-                }
-            }
-            else if (Drawer.IsInMoveMode)
-            {
-                #region Vertex selection
+                    #endregion
 
-                MovedShape = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
+                    #region Polygon selection
 
-                if (MovedShape != default(Point))
-                {
-                    return;
-                }
+                    var allPolygons = Shapes.GetAllPolygons().ToList();
+                    MovedShape = allPolygons.Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.GravityCenterPoint, DrawerClass.MoveIconWidth));
 
-                #endregion
+                    if (MovedShape != default(Polygon))
+                    {
+                        return;
+                    }
 
-                #region Polygon selection
+                    #endregion
 
-                var allPolygons = Shapes.GetAllPolygons().ToList();
-                MovedShape = allPolygons.Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.GravityCenterPoint, DrawerClass.MoveIconWidth));
+                    #region Edge selection
 
-                if (MovedShape != default(Polygon))
-                {
-                    return;
-                }
+                    var allEdges = Shapes.GetAllPolygonEdges().ToList();
+                    MovedShape = allEdges.Find(x => DrawerClass.IsInsideEdge(ClickedPoint, x));
 
-                #endregion
+                    #endregion
+                    break;
 
-                #region Edge selection
-
-                var allEdges = Shapes.GetAllPolygonEdges().ToList();
-                MovedShape = allEdges.Find(x => DrawerClass.IsInsideEdge(ClickedPoint, x));
-
-                if (MovedShape != default(Edge))
-                {
-                    return;
-                }
-
-                #endregion
+                case DrawerMode.MakePerpendicular:
+                    
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -177,7 +180,7 @@ namespace Project_1.Presenters
             };
             ClickedPoint = e.Location;
 
-            if (Drawer.IsInMoveMode && MovedShape != default(Shape))
+            if (Drawer.Mode == DrawerMode.Move && MovedShape != default(Shape))
             {
                 MovedShape.Move(vector);
                 RedrawAll?.Invoke();

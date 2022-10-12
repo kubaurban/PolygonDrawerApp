@@ -33,6 +33,7 @@ namespace Project_1.Views
             this.IsBresenham = new System.Windows.Forms.CheckBox();
             this.PictureBox = new System.Windows.Forms.PictureBox();
             this.OptionsBox = new System.Windows.Forms.GroupBox();
+            this.MakePerpendicularMode = new System.Windows.Forms.RadioButton();
             this.MoveMode = new System.Windows.Forms.RadioButton();
             this.DeleteMode = new System.Windows.Forms.RadioButton();
             this.DrawingMode = new System.Windows.Forms.RadioButton();
@@ -64,38 +65,50 @@ namespace Project_1.Views
             // 
             // OptionsBox
             // 
+            this.OptionsBox.Controls.Add(this.MakePerpendicularMode);
             this.OptionsBox.Controls.Add(this.MoveMode);
             this.OptionsBox.Controls.Add(this.DeleteMode);
             this.OptionsBox.Controls.Add(this.DrawingMode);
             this.OptionsBox.Controls.Add(this.IsBresenham);
             this.OptionsBox.Location = new System.Drawing.Point(12, 4);
             this.OptionsBox.Name = "OptionsBox";
-            this.OptionsBox.Size = new System.Drawing.Size(436, 76);
+            this.OptionsBox.Size = new System.Drawing.Size(411, 76);
             this.OptionsBox.TabIndex = 3;
             this.OptionsBox.TabStop = false;
             this.OptionsBox.Text = "Options";
             // 
+            // MakePerpendicularMode
+            // 
+            this.MakePerpendicularMode.AutoSize = true;
+            this.MakePerpendicularMode.Location = new System.Drawing.Point(274, 22);
+            this.MakePerpendicularMode.Name = "MakePerpendicularMode";
+            this.MakePerpendicularMode.Size = new System.Drawing.Size(130, 19);
+            this.MakePerpendicularMode.TabIndex = 5;
+            this.MakePerpendicularMode.TabStop = true;
+            this.MakePerpendicularMode.Text = "Make perpendicular";
+            this.MakePerpendicularMode.UseVisualStyleBackColor = true;
+            // 
             // MoveMode
             // 
             this.MoveMode.AutoSize = true;
-            this.MoveMode.Location = new System.Drawing.Point(330, 22);
+            this.MoveMode.Location = new System.Drawing.Point(185, 22);
             this.MoveMode.Name = "MoveMode";
-            this.MoveMode.Size = new System.Drawing.Size(89, 19);
+            this.MoveMode.Size = new System.Drawing.Size(55, 19);
             this.MoveMode.TabIndex = 4;
             this.MoveMode.TabStop = true;
-            this.MoveMode.Text = "Move Mode";
+            this.MoveMode.Text = "Move";
             this.MoveMode.UseVisualStyleBackColor = true;
             this.MoveMode.CheckedChanged += new System.EventHandler(this.MoveModeChecked);
             // 
             // DeleteMode
             // 
             this.DeleteMode.AutoSize = true;
-            this.DeleteMode.Location = new System.Drawing.Point(174, 22);
+            this.DeleteMode.Location = new System.Drawing.Point(95, 22);
             this.DeleteMode.Name = "DeleteMode";
-            this.DeleteMode.Size = new System.Drawing.Size(92, 19);
+            this.DeleteMode.Size = new System.Drawing.Size(58, 19);
             this.DeleteMode.TabIndex = 3;
             this.DeleteMode.TabStop = true;
-            this.DeleteMode.Text = "Delete Mode";
+            this.DeleteMode.Text = "Delete";
             this.DeleteMode.UseVisualStyleBackColor = true;
             this.DeleteMode.CheckedChanged += new System.EventHandler(this.DeleteModeChecked);
             // 
@@ -105,10 +118,10 @@ namespace Project_1.Views
             this.DrawingMode.Checked = true;
             this.DrawingMode.Location = new System.Drawing.Point(11, 22);
             this.DrawingMode.Name = "DrawingMode";
-            this.DrawingMode.Size = new System.Drawing.Size(103, 19);
+            this.DrawingMode.Size = new System.Drawing.Size(52, 19);
             this.DrawingMode.TabIndex = 2;
             this.DrawingMode.TabStop = true;
-            this.DrawingMode.Text = "Drawing Mode";
+            this.DrawingMode.Text = "Draw";
             this.DrawingMode.UseVisualStyleBackColor = true;
             this.DrawingMode.CheckedChanged += new System.EventHandler(this.DrawingModeChecked);
             // 
@@ -143,5 +156,6 @@ namespace Project_1.Views
         private System.Windows.Forms.RadioButton DrawingMode;
         private System.Windows.Forms.RadioButton MoveMode;
         private System.Windows.Forms.ContextMenuStrip ManageEdgeMenu;
+        private System.Windows.Forms.RadioButton MakePerpendicularMode;
     }
 }
