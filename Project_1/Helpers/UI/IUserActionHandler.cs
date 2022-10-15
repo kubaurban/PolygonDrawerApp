@@ -9,5 +9,6 @@ namespace Project_1.Helpers.UI
         event MouseEventHandler LeftMouseUpHandler;
         event MouseEventHandler RightMouseDownHandler;
         event MouseEventHandler MouseDownMoveHandler;
+        event MouseEventHandler MouseUpMoveHandler;
     }
 }

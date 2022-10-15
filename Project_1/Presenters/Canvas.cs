@@ -57,6 +57,7 @@ namespace Project_1.Presenters
             Drawer.LeftMouseUpHandler += HandleLeftMouseUpEvent;
             Drawer.RightMouseDownHandler += HandleRightMouseDownEvent;
             Drawer.MouseDownMoveHandler += HandleMouseDownMoveEvent;
+            Drawer.MouseUpMoveHandler += HandleMouseUpMoveEvent;
         }
 
         public void InitBusinessLogicHandlers()
@@ -176,17 +177,36 @@ namespace Project_1.Presenters
 
         public void HandleMouseDownMoveEvent(object sender, MouseEventArgs e)
         {
-            var vector = new Vector2
+            if (Drawer.Mode == DrawerMode.Move)
             {
-                X = e.Location.X - ClickedPoint.X,
-                Y = e.Location.Y - ClickedPoint.Y
-            };
-            ClickedPoint = e.Location;
+                var vector = new Vector2
+                {
+                    X = e.Location.X - ClickedPoint.X,
+                    Y = e.Location.Y - ClickedPoint.Y
+                };
+                ClickedPoint = e.Location;
 
-            if (Drawer.Mode == DrawerMode.Move && MovedShape != default(Shape))
+                if (MovedShape != default(Shape))
+                {
+                    MovedShape.Move(vector);
+                    RedrawAll?.Invoke();
+                } 
+            }
+        }
+
+        private void HandleMouseUpMoveEvent(object sender, MouseEventArgs e)
+        {
+            if (Drawer.Mode == DrawerMode.Draw)
             {
-                MovedShape.Move(vector);
-                RedrawAll?.Invoke();
+                var solitaryPoints = Shapes.GetSolitaryPoints();
+                if (solitaryPoints.Count > 0)
+                {
+                    Drawer.ClearArea();
+                    DrawAllPolygons();
+                    DrawAllSolitaryPoints();
+                    Drawer.DrawLine(solitaryPoints.Last().Location, e.Location);
+                    Drawer.RefreshArea();
+                } 
             }
         }
 
@@ -227,6 +247,23 @@ namespace Project_1.Presenters
         private void DrawAllPolygons()
         {
             Drawer.DrawPolygons(Shapes.GetAllPolygons());
+        }
+
+        private void DrawAllSolitaryPoints()
+        {
+            var solitaryPoints = Shapes.GetSolitaryPoints();
+            
+            if (solitaryPoints.Count > 0)
+            {
+                var prev = solitaryPoints.First();
+                Drawer.DrawPoint(prev.Location);
+                foreach (var p in solitaryPoints.Skip(1))
+                {
+                    Drawer.DrawPoint(p.Location);
+                    Drawer.DrawLine(prev.Location, p.Location);
+                    prev = p;
+                }
+            }
         }
     }
 }
