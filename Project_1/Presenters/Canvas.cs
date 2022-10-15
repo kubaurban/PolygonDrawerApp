@@ -45,6 +45,9 @@ namespace Project_1.Presenters
 
         private void HandleModeChanged(object sender, EventArgs e)
         {
+            ClickedPoint = default;
+            MovedShape = default;
+            SelectedEdge = default;
             RedrawAll?.Invoke();
         }
 
