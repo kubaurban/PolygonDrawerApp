@@ -52,6 +52,7 @@ namespace Project_1.Views
             this.IsBresenham.TabIndex = 1;
             this.IsBresenham.Text = "Bresenham Algorithm";
             this.IsBresenham.UseVisualStyleBackColor = true;
+            this.IsBresenham.CheckedChanged += new System.EventHandler(this.IsBresenhamCheckedChanged);
             // 
             // PictureBox
             // 

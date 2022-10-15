@@ -6,10 +6,11 @@ using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Windows.Forms;
-using Point = Project_1.Models.Shapes.Point;
 
 namespace Project_1.Views
 {
+    delegate void LineDrawer(PointF p1, PointF p2);
+
     public partial class Drawer : Form, IDrawer
     {
         private static readonly int _pointWidth = 8;
@@ -36,6 +37,7 @@ namespace Project_1.Views
         public Brush BlackBrush => _blackBrush;
         public DrawerMode Mode { get; set; }
         public bool IsLeftMouseDown { get; set; }
+        private LineDrawer LineDrawer { get; set; }
         public static int PointWidth => _pointWidth;
         public static int EdgeWidth => _edgeWidth;
         public static int MoveIconWidth => _moveIconWidth;
@@ -52,6 +54,7 @@ namespace Project_1.Views
 
             Mode = DrawerMode.Draw;
             IsLeftMouseDown = false;
+            LineDrawer = DrawLineLibrary;
             DrawingMode.CheckedChanged += OnDrawingModeChecked;
             DeleteMode.CheckedChanged += OnDeleteModeChecked;
             MoveMode.CheckedChanged += OnMoveModeChecked;
@@ -62,39 +65,49 @@ namespace Project_1.Views
             RefreshArea();
         }
 
-        private void ToggleBresenhamAlgorithm(bool? checkBresenham = null)
+        private void DisableBresenhamAlgorithm()
         {
-            IsBresenham.Enabled = checkBresenham ?? !IsBresenham.Enabled;
+            IsBresenham.Enabled = false;
+        }
+
+        private void EnableBresenhamAlgorithm()
+        {
+            IsBresenham.Enabled = true;
         }
 
         private void DeleteModeChecked(object sender, EventArgs e)
         {
-            ToggleBresenhamAlgorithm(checkBresenham: false);
+            DisableBresenhamAlgorithm();
         }
 
         private void DrawingModeChecked(object sender, EventArgs e)
         {
-            ToggleBresenhamAlgorithm(checkBresenham: true);
+            EnableBresenhamAlgorithm();
         }
 
         private void MoveModeChecked(object sender, EventArgs e)
         {
-            ToggleBresenhamAlgorithm(checkBresenham: false);
+            DisableBresenhamAlgorithm();
         }
 
         private void MakePerpendicularModeChecked(object sender, EventArgs e)
         {
-            ToggleBresenhamAlgorithm(checkBresenham: false);
+            DisableBresenhamAlgorithm();
         }
 
         private void InitManageEdgeMenuItems()
         {
             var addMiddle = new ToolStripMenuItem("Insert point", null, new EventHandler(OnEdgeInsertPoint));
             var setLength = new ToolStripMenuItem("Set fixed length", null, new EventHandler(OnEdgeSetFixedLength));
-            ManageEdgeMenu.Items.AddRange(new ToolStripItem[]{ addMiddle, setLength });
+            ManageEdgeMenu.Items.AddRange(new ToolStripItem[] { addMiddle, setLength });
         }
 
         public void DrawLine(PointF p1, PointF p2)
+        {
+            LineDrawer?.Invoke(p1, p2);
+        }
+
+        private void DrawLineLibrary(PointF p1, PointF p2)
         {
             using var g = Graphics;
             g.DrawLine(BlackPen, p1, p2);
@@ -116,10 +129,10 @@ namespace Project_1.Views
             foreach (var v in polygon.Vertices.Skip(1))
             {
                 DrawPoint(v.Location);
-                DrawLine(prev.Location, v.Location);
+                DrawLineLibrary(prev.Location, v.Location);
                 prev = v;
             }
-            DrawLine(prev.Location, first.Location);
+            DrawLineLibrary(prev.Location, first.Location);
 
             if (Mode == DrawerMode.Move)
             {
@@ -273,12 +286,75 @@ namespace Project_1.Views
         private void OnEdgeSetFixedLength(object sender, EventArgs e)
         {
             var lengthInputDialog = new LengthInputDialog();
-            if (lengthInputDialog.ShowDialog() == DialogResult.OK  && lengthInputDialog.InputLength > 0)
+            if (lengthInputDialog.ShowDialog() == DialogResult.OK && lengthInputDialog.InputLength > 0)
             {
                 EdgeSaveLengthClickedHandler?.Invoke(sender, new SaveLengthArgs(lengthInputDialog.InputLength));
             }
             lengthInputDialog.Close();
             lengthInputDialog.Dispose();
+        }
+
+        private void DrawLineBresenham(PointF p1, PointF p2)
+        {
+            var dx = Math.Abs((int)p2.X - (int)p1.X);
+            var dy = Math.Abs((int)p2.Y - (int)p1.Y);
+            var d_horizontal = (p1.X < p2.X) ? 1 : p1.X == p2.X ? 0 : -1;
+            var d_vertical = (p1.Y < p2.Y) ? 1 : p1.Y == p2.Y ? 0 : -1;
+
+            var x = (int)p1.X;
+            var y = (int)p1.Y;
+            DrawArea.SetPixel(x, y, Color.Black);
+
+            if (dx > dy)
+            {
+                int d = 2 * dy - dx;
+                while (x != p2.X)
+                {
+                    if (d < 0) // choose E
+                    {
+                        d += 2 * dy;
+                        x += d_horizontal;
+                    }
+                    else // choose NE
+                    {
+                        d += (dy - dx) * 2;
+                        x += d_horizontal;
+                        y += d_vertical;
+                    }
+                    DrawArea.SetPixel(x, y, Color.Black);
+                }
+            }
+            else
+            {
+                int d = 2 * dx - dy;
+                while (y != p2.Y)
+                {
+                    if (d < 0) // choose E
+                    {
+                        d += 2 * dx;
+                        y += d_vertical;
+                    }
+                    else // choose NE
+                    {
+                        d += (dx - dy) * 2;
+                        x += d_horizontal;
+                        y += d_vertical;
+                    }
+                    DrawArea.SetPixel(x, y, Color.Black);
+                }
+            }
+        }
+
+        private void IsBresenhamCheckedChanged(object sender, EventArgs e)
+        {
+            if (IsBresenham.Checked)
+            {
+                LineDrawer = DrawLineBresenham;
+            }
+            else
+            {
+                LineDrawer = DrawLineLibrary;
+            }
         }
     }
 }
