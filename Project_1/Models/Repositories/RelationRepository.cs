@@ -17,7 +17,7 @@ namespace Project_1.Models.Repositories
             RelationIdCounter = 0;
         }
 
-        public Relation AddPerpendicularRelation(Edge edge1, Edge edge2)
+        public PerpendicularRelation AddPerpendicularRelation(Edge edge1, Edge edge2)
         {
             var newRelation = new PerpendicularRelation(++RelationIdCounter)
             {
@@ -31,7 +31,7 @@ namespace Project_1.Models.Repositories
             return newRelation;
         }
 
-        public Relation AddFixedEdgeRelation(Edge edge, int length)
+        public FixedEdgeLength AddFixedEdgeRelation(Edge edge, int length)
         {
             var newRelation = new FixedEdgeLength(++RelationIdCounter)
             {

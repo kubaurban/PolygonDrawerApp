@@ -8,8 +8,8 @@ namespace Project_1.Models.Repositories
     {
         List<Relation> GetAll();
         Relation GetRelationById(int id);
-        Relation AddPerpendicularRelation(Edge edge1, Edge edge2);
-        Relation AddFixedEdgeRelation(Edge edge, int length);
+        PerpendicularRelation AddPerpendicularRelation(Edge edge1, Edge edge2);
+        FixedEdgeLength AddFixedEdgeRelation(Edge edge, int length);
         Relation Remove(int id);
         bool Remove(Relation relation);
     }

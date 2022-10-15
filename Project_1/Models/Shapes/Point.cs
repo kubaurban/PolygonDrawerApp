@@ -10,12 +10,16 @@ namespace Project_1.Models.Shapes
         public int PolygonId { get; set; }
         public List<int> RelationIds { get; set; }
 
-        public Point(int id) : base(id) { }
+        public Point(int id) : base(id) 
+        {
+            RelationIds = new List<int>();
+        }
 
         private Point(float x, float y) : base()
         {
             X = x;
             Y = y;
+            RelationIds = new List<int>();
         }
 
         public override void Move(Vector2 vector)

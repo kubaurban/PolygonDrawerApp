@@ -189,7 +189,7 @@ namespace Project_1.Presenters
 
         private void OnEdgeSaveLengthClicked(object sender, EventArgs e)
         {
-            var relation = Relations.AddFixedEdgeRelation(SelectedEdge, (e as SaveLengthArgs).Length) as FixedEdgeLength;
+            var relation = Relations.AddFixedEdgeRelation(SelectedEdge, (e as SaveLengthArgs).Length);
             var u = relation.FirstEdge.U;
             var v = relation.FirstEdge.V;
 
