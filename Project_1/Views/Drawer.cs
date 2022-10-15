@@ -13,13 +13,19 @@ namespace Project_1.Views
 
     public partial class Drawer : Form, IDrawer
     {
+        #region Private fields
+
         private static readonly int _pointWidth = 8;
         private static readonly int _edgeWidth = 4;
         private static readonly int _moveIconWidth = 20;
-
+        
         private readonly Bitmap _drawArea;
         private readonly Pen _blackPen;
-        private readonly Brush _blackBrush;
+        private readonly Brush _blackBrush; 
+
+        #endregion
+
+        #region User action handlers
 
         public event MouseEventHandler LeftMouseDownHandler;
         public event MouseEventHandler LeftMouseUpHandler;
@@ -27,9 +33,15 @@ namespace Project_1.Views
         public event MouseEventHandler MouseDownMoveHandler;
         public event MouseEventHandler MouseUpMoveHandler;
 
+        #endregion
+
+        #region BL handlers
+
         public event EventHandler ModeChangedHandler;
         public event EventHandler EdgeInsertPointClickedHandler;
-        public event EventHandler EdgeSaveLengthClickedHandler;
+        public event EventHandler EdgeSaveLengthClickedHandler; 
+        
+        #endregion
 
         public Bitmap DrawArea => _drawArea;
         public Graphics Graphics => Graphics.FromImage(DrawArea);
@@ -65,6 +77,62 @@ namespace Project_1.Views
             RefreshArea();
         }
 
+        public static bool IsInsidePoint(PointF click, PointF point, int pointWidth)
+            => Math.Abs(point.X - click.X) <= pointWidth / 2 && Math.Abs(point.Y - click.Y) <= pointWidth / 2;
+
+        public static bool IsInsideEdge(PointF click, Edge edge)
+        {
+            var u = edge.U.Location;
+            var v = edge.V.Location;
+
+            var uv = new Vector2(v.X - u.X, v.Y - u.Y);
+            var a = uv.Length() / PointWidth;
+            uv /= a;
+
+            var uvPerpendicular = new Vector2(v.Y - u.Y, u.X - v.X);
+            var b = uvPerpendicular.Length() / EdgeWidth;
+            uvPerpendicular /= b;
+
+            var polygon = new List<PointF>
+            {
+                new(u.ToVector2() + uv + uvPerpendicular),
+                new(v.ToVector2() - uv + uvPerpendicular),
+                new(v.ToVector2() - uv - uvPerpendicular),
+                new(u.ToVector2() + uv - uvPerpendicular)
+            };
+
+            // code reused from https://stackoverflow.com/questions/4243042/c-sharp-point-in-polygon
+            bool result = false;
+            int j = polygon.Count - 1;
+            for (int i = 0; i < polygon.Count; i++)
+            {
+                if (polygon[i].Y < click.Y && polygon[j].Y >= click.Y || polygon[j].Y < click.Y && polygon[i].Y >= click.Y)
+                {
+                    if (polygon[i].X + (click.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) * (polygon[j].X - polygon[i].X) < click.X)
+                    {
+                        result = !result;
+                    }
+                }
+                j = i;
+            }
+            return result;
+        }
+
+        #region Manage edge menu
+        private void InitManageEdgeMenuItems()
+        {
+            var addMiddle = new ToolStripMenuItem("Insert point", null, new EventHandler(OnEdgeInsertPoint));
+            var setLength = new ToolStripMenuItem("Set fixed length", null, new EventHandler(OnEdgeSetFixedLength));
+            ManageEdgeMenu.Items.AddRange(new ToolStripItem[] { addMiddle, setLength });
+        }
+
+        public void ShowManageEdgeMenu(PointF point)
+        {
+            ManageEdgeMenu.Show(PictureBox, new System.Drawing.Point((int)point.X, (int)point.Y));
+        }
+        #endregion
+
+        #region Bresenham logic
         private void DisableBresenhamAlgorithm()
         {
             IsBresenham.Enabled = false;
@@ -95,13 +163,20 @@ namespace Project_1.Views
             DisableBresenhamAlgorithm();
         }
 
-        private void InitManageEdgeMenuItems()
+        private void IsBresenhamCheckedChanged(object sender, EventArgs e)
         {
-            var addMiddle = new ToolStripMenuItem("Insert point", null, new EventHandler(OnEdgeInsertPoint));
-            var setLength = new ToolStripMenuItem("Set fixed length", null, new EventHandler(OnEdgeSetFixedLength));
-            ManageEdgeMenu.Items.AddRange(new ToolStripItem[] { addMiddle, setLength });
+            if (IsBresenham.Checked)
+            {
+                LineDrawer = DrawLineBresenham;
+            }
+            else
+            {
+                LineDrawer = DrawLineLibrary;
+            }
         }
+        #endregion
 
+        #region Drawing shapes
         public void DrawLine(PointF p1, PointF p2)
         {
             LineDrawer?.Invoke(p1, p2);
@@ -111,6 +186,57 @@ namespace Project_1.Views
         {
             using var g = Graphics;
             g.DrawLine(BlackPen, p1, p2);
+        }
+
+        private void DrawLineBresenham(PointF p1, PointF p2)
+        {
+            var dx = Math.Abs((int)p2.X - (int)p1.X);
+            var dy = Math.Abs((int)p2.Y - (int)p1.Y);
+            var d_horizontal = (p1.X < p2.X) ? 1 : p1.X == p2.X ? 0 : -1;
+            var d_vertical = (p1.Y < p2.Y) ? 1 : p1.Y == p2.Y ? 0 : -1;
+
+            var x = (int)p1.X;
+            var y = (int)p1.Y;
+            DrawArea.SetPixel(x, y, Color.Black);
+
+            if (dx > dy)
+            {
+                int d = 2 * dy - dx;
+                while (x != p2.X)
+                {
+                    if (d < 0) // choose E
+                    {
+                        d += 2 * dy;
+                        x += d_horizontal;
+                    }
+                    else // choose NE
+                    {
+                        d += (dy - dx) * 2;
+                        x += d_horizontal;
+                        y += d_vertical;
+                    }
+                    DrawArea.SetPixel(x, y, Color.Black);
+                }
+            }
+            else
+            {
+                int d = 2 * dx - dy;
+                while (y != p2.Y)
+                {
+                    if (d < 0) // choose E
+                    {
+                        d += 2 * dx;
+                        y += d_vertical;
+                    }
+                    else // choose NE
+                    {
+                        d += (dx - dy) * 2;
+                        x += d_horizontal;
+                        y += d_vertical;
+                    }
+                    DrawArea.SetPixel(x, y, Color.Black);
+                }
+            }
         }
 
         public void DrawPoint(PointF p)
@@ -155,47 +281,6 @@ namespace Project_1.Views
             g.DrawIcon(new(MoveIconFilePath), new((int)point.X - MoveIconWidth / 2, (int)point.Y - MoveIconWidth / 2, MoveIconWidth, MoveIconWidth));
         }
 
-        public static bool IsInsidePoint(PointF click, PointF point, int pointWidth)
-            => Math.Abs(point.X - click.X) <= pointWidth / 2 && Math.Abs(point.Y - click.Y) <= pointWidth / 2;
-
-        public static bool IsInsideEdge(PointF click, Edge edge)
-        {
-            var u = edge.U.Location;
-            var v = edge.V.Location;
-
-            var uv = new Vector2(v.X - u.X, v.Y - u.Y);
-            var a = uv.Length() / PointWidth;
-            uv /= a;
-
-            var uvPerpendicular = new Vector2(v.Y - u.Y, u.X - v.X);
-            var b = uvPerpendicular.Length() / EdgeWidth;
-            uvPerpendicular /= b;
-
-            var polygon = new List<PointF>
-            {
-                new(u.ToVector2() + uv + uvPerpendicular),
-                new(v.ToVector2() - uv + uvPerpendicular),
-                new(v.ToVector2() - uv - uvPerpendicular),
-                new(u.ToVector2() + uv - uvPerpendicular)
-            };
-
-            // code reused from https://stackoverflow.com/questions/4243042/c-sharp-point-in-polygon
-            bool result = false;
-            int j = polygon.Count - 1;
-            for (int i = 0; i < polygon.Count; i++)
-            {
-                if (polygon[i].Y < click.Y && polygon[j].Y >= click.Y || polygon[j].Y < click.Y && polygon[i].Y >= click.Y)
-                {
-                    if (polygon[i].X + (click.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) * (polygon[j].X - polygon[i].X) < click.X)
-                    {
-                        result = !result;
-                    }
-                }
-                j = i;
-            }
-            return result;
-        }
-
         public void ClearArea()
         {
             using var g = Graphics;
@@ -206,12 +291,9 @@ namespace Project_1.Views
         {
             PictureBox.Refresh();
         }
+        #endregion
 
-        public void ShowManageEdgeMenu(PointF point)
-        {
-            ManageEdgeMenu.Show(PictureBox, new System.Drawing.Point((int)point.X, (int)point.Y));
-        }
-
+        #region Event handling functions
         private void OnMouseDown(object sender, MouseEventArgs e)
         {
             switch (e.Button)
@@ -293,68 +375,6 @@ namespace Project_1.Views
             lengthInputDialog.Close();
             lengthInputDialog.Dispose();
         }
-
-        private void DrawLineBresenham(PointF p1, PointF p2)
-        {
-            var dx = Math.Abs((int)p2.X - (int)p1.X);
-            var dy = Math.Abs((int)p2.Y - (int)p1.Y);
-            var d_horizontal = (p1.X < p2.X) ? 1 : p1.X == p2.X ? 0 : -1;
-            var d_vertical = (p1.Y < p2.Y) ? 1 : p1.Y == p2.Y ? 0 : -1;
-
-            var x = (int)p1.X;
-            var y = (int)p1.Y;
-            DrawArea.SetPixel(x, y, Color.Black);
-
-            if (dx > dy)
-            {
-                int d = 2 * dy - dx;
-                while (x != p2.X)
-                {
-                    if (d < 0) // choose E
-                    {
-                        d += 2 * dy;
-                        x += d_horizontal;
-                    }
-                    else // choose NE
-                    {
-                        d += (dy - dx) * 2;
-                        x += d_horizontal;
-                        y += d_vertical;
-                    }
-                    DrawArea.SetPixel(x, y, Color.Black);
-                }
-            }
-            else
-            {
-                int d = 2 * dx - dy;
-                while (y != p2.Y)
-                {
-                    if (d < 0) // choose E
-                    {
-                        d += 2 * dx;
-                        y += d_vertical;
-                    }
-                    else // choose NE
-                    {
-                        d += (dx - dy) * 2;
-                        x += d_horizontal;
-                        y += d_vertical;
-                    }
-                    DrawArea.SetPixel(x, y, Color.Black);
-                }
-            }
-        }
-
-        private void IsBresenhamCheckedChanged(object sender, EventArgs e)
-        {
-            if (IsBresenham.Checked)
-            {
-                LineDrawer = DrawLineBresenham;
-            }
-            else
-            {
-                LineDrawer = DrawLineLibrary;
-            }
-        }
+        #endregion
     }
 }
