@@ -62,19 +62,29 @@ namespace Project_1.Views
             RefreshArea();
         }
 
+        private void ToggleBresenhamAlgorithm(bool? checkBresenham = null)
+        {
+            IsBresenham.Enabled = checkBresenham ?? !IsBresenham.Enabled;
+        }
+
         private void DeleteModeChecked(object sender, EventArgs e)
         {
-            IsBresenham.Enabled = false;
+            ToggleBresenhamAlgorithm(checkBresenham: false);
         }
 
         private void DrawingModeChecked(object sender, EventArgs e)
         {
-            IsBresenham.Enabled = true;
+            ToggleBresenhamAlgorithm(checkBresenham: true);
         }
 
         private void MoveModeChecked(object sender, EventArgs e)
         {
-            IsBresenham.Enabled = false;
+            ToggleBresenhamAlgorithm(checkBresenham: false);
+        }
+
+        private void MakePerpendicularModeChecked(object sender, EventArgs e)
+        {
+            ToggleBresenhamAlgorithm(checkBresenham: false);
         }
 
         private void InitManageEdgeMenuItems()

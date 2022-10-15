@@ -45,18 +45,20 @@ namespace Project_1.Views
             // IsBresenham
             // 
             this.IsBresenham.AutoSize = true;
-            this.IsBresenham.Location = new System.Drawing.Point(11, 47);
+            this.IsBresenham.Location = new System.Drawing.Point(13, 63);
+            this.IsBresenham.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.IsBresenham.Name = "IsBresenham";
-            this.IsBresenham.Size = new System.Drawing.Size(142, 19);
+            this.IsBresenham.Size = new System.Drawing.Size(175, 24);
             this.IsBresenham.TabIndex = 1;
             this.IsBresenham.Text = "Bresenham Algorithm";
             this.IsBresenham.UseVisualStyleBackColor = true;
             // 
             // PictureBox
             // 
-            this.PictureBox.Location = new System.Drawing.Point(12, 86);
+            this.PictureBox.Location = new System.Drawing.Point(14, 115);
+            this.PictureBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.PictureBox.Name = "PictureBox";
-            this.PictureBox.Size = new System.Drawing.Size(1360, 563);
+            this.PictureBox.Size = new System.Drawing.Size(1554, 751);
             this.PictureBox.TabIndex = 2;
             this.PictureBox.TabStop = false;
             this.PictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.OnMouseDown);
@@ -70,9 +72,11 @@ namespace Project_1.Views
             this.OptionsBox.Controls.Add(this.DeleteMode);
             this.OptionsBox.Controls.Add(this.DrawingMode);
             this.OptionsBox.Controls.Add(this.IsBresenham);
-            this.OptionsBox.Location = new System.Drawing.Point(12, 4);
+            this.OptionsBox.Location = new System.Drawing.Point(14, 5);
+            this.OptionsBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.OptionsBox.Name = "OptionsBox";
-            this.OptionsBox.Size = new System.Drawing.Size(411, 76);
+            this.OptionsBox.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.OptionsBox.Size = new System.Drawing.Size(480, 101);
             this.OptionsBox.TabIndex = 3;
             this.OptionsBox.TabStop = false;
             this.OptionsBox.Text = "Options";
@@ -80,20 +84,23 @@ namespace Project_1.Views
             // MakePerpendicularMode
             // 
             this.MakePerpendicularMode.AutoSize = true;
-            this.MakePerpendicularMode.Location = new System.Drawing.Point(274, 22);
+            this.MakePerpendicularMode.Location = new System.Drawing.Point(306, 29);
+            this.MakePerpendicularMode.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MakePerpendicularMode.Name = "MakePerpendicularMode";
-            this.MakePerpendicularMode.Size = new System.Drawing.Size(130, 19);
+            this.MakePerpendicularMode.Size = new System.Drawing.Size(162, 24);
             this.MakePerpendicularMode.TabIndex = 5;
             this.MakePerpendicularMode.TabStop = true;
             this.MakePerpendicularMode.Text = "Make perpendicular";
             this.MakePerpendicularMode.UseVisualStyleBackColor = true;
+            this.MakePerpendicularMode.CheckedChanged += new System.EventHandler(this.MakePerpendicularModeChecked);
             // 
             // MoveMode
             // 
             this.MoveMode.AutoSize = true;
-            this.MoveMode.Location = new System.Drawing.Point(185, 22);
+            this.MoveMode.Location = new System.Drawing.Point(211, 29);
+            this.MoveMode.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MoveMode.Name = "MoveMode";
-            this.MoveMode.Size = new System.Drawing.Size(55, 19);
+            this.MoveMode.Size = new System.Drawing.Size(67, 24);
             this.MoveMode.TabIndex = 4;
             this.MoveMode.TabStop = true;
             this.MoveMode.Text = "Move";
@@ -103,9 +110,10 @@ namespace Project_1.Views
             // DeleteMode
             // 
             this.DeleteMode.AutoSize = true;
-            this.DeleteMode.Location = new System.Drawing.Point(95, 22);
+            this.DeleteMode.Location = new System.Drawing.Point(109, 29);
+            this.DeleteMode.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.DeleteMode.Name = "DeleteMode";
-            this.DeleteMode.Size = new System.Drawing.Size(58, 19);
+            this.DeleteMode.Size = new System.Drawing.Size(74, 24);
             this.DeleteMode.TabIndex = 3;
             this.DeleteMode.TabStop = true;
             this.DeleteMode.Text = "Delete";
@@ -116,9 +124,10 @@ namespace Project_1.Views
             // 
             this.DrawingMode.AutoSize = true;
             this.DrawingMode.Checked = true;
-            this.DrawingMode.Location = new System.Drawing.Point(11, 22);
+            this.DrawingMode.Location = new System.Drawing.Point(13, 29);
+            this.DrawingMode.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.DrawingMode.Name = "DrawingMode";
-            this.DrawingMode.Size = new System.Drawing.Size(52, 19);
+            this.DrawingMode.Size = new System.Drawing.Size(65, 24);
             this.DrawingMode.TabIndex = 2;
             this.DrawingMode.TabStop = true;
             this.DrawingMode.Text = "Draw";
@@ -133,11 +142,12 @@ namespace Project_1.Views
             // 
             // Drawer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1384, 661);
+            this.ClientSize = new System.Drawing.Size(1582, 881);
             this.Controls.Add(this.OptionsBox);
             this.Controls.Add(this.PictureBox);
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Drawer";
             this.Text = "PolygonDrawer";
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).EndInit();
