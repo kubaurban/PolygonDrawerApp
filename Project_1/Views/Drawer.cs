@@ -24,6 +24,7 @@ namespace Project_1.Views
         public event MouseEventHandler LeftMouseUpHandler;
         public event MouseEventHandler RightMouseDownHandler;
         public event MouseEventHandler MouseDownMoveHandler;
+        public event MouseEventHandler MouseUpMoveHandler;
 
         public event EventHandler ModeChangedHandler;
         public event EventHandler EdgeInsertPointClickedHandler;
@@ -83,13 +84,13 @@ namespace Project_1.Views
             ManageEdgeMenu.Items.AddRange(new ToolStripItem[]{ addMiddle, setLength });
         }
 
-        public void DrawLine(Point p1, Point p2)
+        public void DrawLine(PointF p1, PointF p2)
         {
             using var g = Graphics;
             g.DrawLine(BlackPen, p1, p2);
         }
 
-        public void DrawPoint(Point p)
+        public void DrawPoint(PointF p)
         {
             using var g = Graphics;
             g.FillRectangle(BlackBrush, p.X - PointWidth / 2, p.Y - PointWidth / 2, PointWidth, PointWidth);
@@ -100,20 +101,20 @@ namespace Project_1.Views
             using var g = Graphics;
 
             var first = polygon.Vertices.First();
-            DrawPoint(first);
+            DrawPoint(first.Location);
             var prev = first;
             foreach (var v in polygon.Vertices.Skip(1))
             {
-                DrawPoint(v);
-                DrawLine(prev, v);
+                DrawPoint(v.Location);
+                DrawLine(prev.Location, v.Location);
                 prev = v;
             }
-            DrawLine(prev, first);
+            DrawLine(prev.Location, first.Location);
 
             if (Mode == DrawerMode.Move)
             {
                 // draw gravity center point
-                DrawGrabIcon(polygon.GravityCenterPoint.ToPoint());
+                DrawGrabIcon(polygon.GravityCenterPoint);
             }
         }
 
@@ -125,19 +126,19 @@ namespace Project_1.Views
             }
         }
 
-        public void DrawGrabIcon(System.Drawing.Point point)
+        public void DrawGrabIcon(PointF point)
         {
             using var g = Graphics;
-            g.DrawIcon(new(MoveIconFilePath), new(point.X - MoveIconWidth / 2, point.Y - MoveIconWidth / 2, MoveIconWidth, MoveIconWidth));
+            g.DrawIcon(new(MoveIconFilePath), new((int)point.X - MoveIconWidth / 2, (int)point.Y - MoveIconWidth / 2, MoveIconWidth, MoveIconWidth));
         }
 
-        public static bool IsInsidePoint(PointF click, Point point, int pointWidth)
+        public static bool IsInsidePoint(PointF click, PointF point, int pointWidth)
             => Math.Abs(point.X - click.X) <= pointWidth / 2 && Math.Abs(point.Y - click.Y) <= pointWidth / 2;
 
         public static bool IsInsideEdge(PointF click, Edge edge)
         {
-            var u = (PointF)edge.U;
-            var v = (PointF)edge.V;
+            var u = edge.U.Location;
+            var v = edge.V.Location;
 
             var uv = new Vector2(v.X - u.X, v.Y - u.Y);
             var a = uv.Length() / PointWidth;
@@ -183,9 +184,9 @@ namespace Project_1.Views
             PictureBox.Refresh();
         }
 
-        public void ShowManageEdgeMenu(System.Drawing.Point point)
+        public void ShowManageEdgeMenu(PointF point)
         {
-            ManageEdgeMenu.Show(PictureBox, point);
+            ManageEdgeMenu.Show(PictureBox, new System.Drawing.Point((int)point.X, (int)point.Y));
         }
 
         private void OnMouseDown(object sender, MouseEventArgs e)
@@ -209,6 +210,10 @@ namespace Project_1.Views
             if (IsLeftMouseDown)
             {
                 MouseDownMoveHandler?.Invoke(sender, e);
+            }
+            else
+            {
+                MouseUpMoveHandler?.Invoke(sender, e);
             }
         }
 

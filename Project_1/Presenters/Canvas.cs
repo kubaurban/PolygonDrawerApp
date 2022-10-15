@@ -24,7 +24,7 @@ namespace Project_1.Presenters
 
         public Action RedrawAll { get; set; }
 
-        private System.Drawing.PointF ClickedPoint { get; set; }
+        private System.Drawing.Point ClickedPoint { get; set; }
         private Shape MovedShape { get; set; }
         private Edge SelectedEdge { get; set; }
 
@@ -79,7 +79,7 @@ namespace Project_1.Presenters
             switch (Drawer.Mode)
             {
                 case DrawerMode.Draw:
-                    selectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
+                    selectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.Location, DrawerClass.PointWidth));
 
                     if (selectedVertex == default(Point))
                     {
@@ -97,7 +97,7 @@ namespace Project_1.Presenters
                     break;
 
                 case DrawerMode.Delete:
-                    selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
+                    selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.Location, DrawerClass.PointWidth));
 
                     if (selectedVertex != default(Point))
                     {
@@ -119,7 +119,7 @@ namespace Project_1.Presenters
                 case DrawerMode.Move:
                     #region Vertex selection
 
-                    MovedShape = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x, DrawerClass.PointWidth));
+                    MovedShape = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.Location, DrawerClass.PointWidth));
 
                     if (MovedShape != default(Point))
                     {
@@ -170,7 +170,7 @@ namespace Project_1.Presenters
 
             if (SelectedEdge != default(Edge))
             {
-                Drawer.ShowManageEdgeMenu(ClickedPoint.ToPoint());
+                Drawer.ShowManageEdgeMenu(ClickedPoint);
             }
         }
 
@@ -220,7 +220,7 @@ namespace Project_1.Presenters
             if (solitaryPointsCount > 1)
             {
                 var lastTwoVerices = Shapes.GetSolitaryPoints().Skip(solitaryPointsCount - 2);
-                Drawer.DrawLine(lastTwoVerices.First(), lastTwoVerices.Last());
+                Drawer.DrawLine(lastTwoVerices.First().Location, lastTwoVerices.Last().Location);
             }
         }
 
