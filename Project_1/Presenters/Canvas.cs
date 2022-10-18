@@ -1,14 +1,15 @@
-﻿using Project_1.Models.Repositories;
+﻿using Project_1.Helpers.UI;
+using Project_1.Models.Relations;
+using Project_1.Models.Repositories;
 using Project_1.Models.Shapes;
 using Project_1.Views;
-using System.Linq;
+using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
+using System.Numerics;
 using System.Windows.Forms;
 using DrawerClass = Project_1.Views.Drawer;
-using System;
-using Project_1.Helpers.UI;
-using System.Numerics;
-using Project_1.Models.Relations;
 
 namespace Project_1.Presenters
 {
@@ -33,7 +34,7 @@ namespace Project_1.Presenters
             _drawer = drawer;
             _shapes = shapes;
             _relations = relations;
-            
+
             RedrawAll += Drawer.ClearArea;
             RedrawAll += DrawAllPolygons;
             RedrawAll += Drawer.RefreshArea;
@@ -153,7 +154,7 @@ namespace Project_1.Presenters
                     break;
 
                 case DrawerMode.MakePerpendicular:
-                    
+
                     break;
                 default:
                     break;
@@ -189,11 +190,24 @@ namespace Project_1.Presenters
                 };
                 ClickedPoint = e.Location;
 
-                if (MovedShape != default(Shape))
+                if (MovedShape is Point)
+                {
+                    MoveWithConstraints(MovedShape as Point, vector);
+                }
+                else if (MovedShape is Edge)
                 {
                     MovedShape.Move(vector);
-                    RedrawAll?.Invoke();
-                } 
+                }
+                else if (MovedShape is Polygon)
+                {
+                    MovedShape.Move(vector);
+                }
+                else
+                {
+                    return;
+                }
+
+                RedrawAll?.Invoke();
             }
         }
 
@@ -209,7 +223,7 @@ namespace Project_1.Presenters
                     DrawAllSolitaryPoints();
                     Drawer.DrawLine(solitaryPoints.Last().Location, e.Location);
                     Drawer.RefreshArea();
-                } 
+                }
             }
         }
 
@@ -226,15 +240,63 @@ namespace Project_1.Presenters
 
         private void SetSelectedEdgeLength(int length)
         {
-            var relation = Relations.AddFixedEdgeRelation(SelectedEdge, length);
-            var u = relation.FirstEdge.U;
-            var v = relation.FirstEdge.V;
+            var u = SelectedEdge.U;
+            var v = SelectedEdge.V;
 
-            var vector = new Vector2(v.X - u.X, v.Y - u.Y);
-            var newVector = vector * relation.Length / vector.Length();
-            u.Move(vector - newVector);
+            var relation = SelectedEdge.RelationIds.Select(x => Relations.GetFixedEdgeLengthRelationById(x)).SingleOrDefault();
+            if (relation != null)
+            {
+                Relations.RemoveFixedEdgeLength(relation.Id);
+            }
 
+            var uv = new Vector2(v.X - u.X, v.Y - u.Y);
+            var newVector = uv * length / uv.Length();
+            MoveWithConstraints(u, uv - newVector);
+
+            Relations.AddFixedEdgeRelation(SelectedEdge, length);
             RedrawAll?.Invoke();
+        }
+
+        private void MoveWithConstraints(Point root, Vector2 rootMove)
+        {
+            var polygon = Shapes.GetPolygonById(root.PolygonId);
+            var canBeProcessed = polygon.Vertices.ToHashSet();
+            var stack = new Stack<(Point, Vector2)>();
+
+            stack.Push((root, rootMove));
+            canBeProcessed.Remove(root);
+            while (stack.Any())
+            {
+                (var u, var move) = stack.Pop();
+
+                foreach (var v in GetFixedLengthRelated(u))
+                {
+                    if (v != null && canBeProcessed.Remove(v))
+                    {
+                        var vu = new Vector2(u.X - v.X, u.Y - v.Y);
+                        var vu_moved = vu + move;
+                        var vMove = vu_moved - vu_moved * vu.Length() / vu_moved.Length();
+                        stack.Push((v, vMove));
+                    }
+                }
+
+                u.Move(move);
+            }
+        }
+
+        private List<Point> GetFixedLengthRelated(Point u)
+        {
+            var fixedLengthRelations = u.RelationIds.Select(x => Relations.GetFixedEdgeLengthRelationById(x)).ToList();
+            
+            var neighbors = new List<Point>();
+            fixedLengthRelations.ForEach(x =>
+            {
+                neighbors.Add(x.FirstEdge.U);
+                neighbors.Add(x.FirstEdge.V);
+            });
+            neighbors.RemoveAll(x => x == u);
+
+            return neighbors;
         }
 
         private void HandleEdgePointInsert(object sender, EventArgs e)
@@ -268,7 +330,7 @@ namespace Project_1.Presenters
         private void DrawAllSolitaryPoints()
         {
             var solitaryPoints = Shapes.GetSolitaryPoints();
-            
+
             if (solitaryPoints.Count > 0)
             {
                 var prev = solitaryPoints.First();
