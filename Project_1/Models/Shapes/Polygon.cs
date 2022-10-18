@@ -2,39 +2,30 @@
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
+using System.Windows.Forms.VisualStyles;
 
 namespace Project_1.Models.Shapes
 {
     public class Polygon : Shape
     {
-        private List<Point> _vertices;
+        public List<Point> Vertices { get; set; }
+        public List<Edge> Edges { get; private set; }
 
-        public List<Point> Vertices {
-            get => _vertices;
-            set
-            {
-                _vertices = value;
-                _vertices.ForEach(x => x.Polygon = this);
-            }
-        }
-
-        public List<Edge> Edges
+        public Polygon(List<Point> vertices)
         {
-            get
+            Vertices = vertices.ToList();
+            Vertices.ForEach(x => x.Polygon = this);
+
+            Edges = new List<Edge>();
+
+            var first = Vertices.First();
+            var prev = first;
+            foreach (var v in Vertices.Skip(1))
             {
-                var edges = new List<Edge>();
-
-                var first = Vertices.First();
-                var prev = first;
-                foreach (var v in Vertices.Skip(1))
-                {
-                    edges.Add(new(prev, v));
-                    prev = v;
-                }
-                edges.Add(new(prev, first));
-
-                return edges;
+                Edges.Add(new(prev, v));
+                prev = v;
             }
+            Edges.Add(new(prev, first));
         }
 
         public override void Move(Vector2 vector)
@@ -44,17 +35,36 @@ namespace Project_1.Models.Shapes
 
         public void RemoveVertex(Point p)
         {
-            Vertices.Remove(p);
+            var idx = Vertices.IndexOf(p);
+            Vertices.RemoveAt(idx);
+
+            // remove neighboring edges
+            var prevIdx = (idx - 1 + Edges.Count) % Edges.Count;
+            var u = Edges.ElementAt(prevIdx).U;
+            var v = Edges.ElementAt(idx).V;
+
+            // insert newly created edge
+            Edges.Insert(prevIdx, new(u, v));
         }
 
         public void InsertPoint(Edge e, Point p)
         {
-            var vIdx = Vertices.IndexOf(e.V);
+            var idx = Edges.IndexOf(e);
+
+            // remove old edge
+            Edges.RemoveAt(idx);
+
+            // insert new edges
+            var newEdges = new List<Edge> { new(e.U, p), new(p, e.V) };
+            Edges.InsertRange(idx, newEdges);
+
+            // insert new point
             p.Polygon = this;
-            Vertices.Insert(vIdx, p);
+            Vertices.Insert(idx + 1, p);
         }
 
-        public PointF GravityCenterPoint {
+        public PointF GravityCenterPoint
+        {
             get
             {
                 var centerVector = Vertices.Aggregate(new Vector2(0, 0), (x, p) => x += new Vector2(p.X, p.Y)) / Vertices.Count;

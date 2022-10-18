@@ -21,10 +21,7 @@ namespace Project_1.Models.Repositories
 
         public Polygon AddPolygon(List<Point> vertices)
         {
-            var newPolygon = new Polygon()
-            {
-                Vertices = vertices
-            };
+            var newPolygon = new Polygon(vertices);
             Polygons.Add(newPolygon);
             return newPolygon;
         }
