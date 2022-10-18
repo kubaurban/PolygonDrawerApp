@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace Project_1.Models.Shapes
 {
@@ -14,6 +15,8 @@ namespace Project_1.Models.Shapes
         }
 
         public int PolygonId => U.PolygonId;
+
+        public int Length => (int)new Vector2(U.X - V.X, U.Y - V.Y).Length();
 
         public override void Move(Vector2 vector)
         {

@@ -15,9 +15,11 @@ namespace Project_1.Views
             }
         }
 
-        public LengthInputDialog()
+        public LengthInputDialog(int initValue)
         {
             InitializeComponent();
+
+            Input.Text = initValue.ToString();
         }
     }
 }

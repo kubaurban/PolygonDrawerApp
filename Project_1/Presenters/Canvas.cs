@@ -57,7 +57,7 @@ namespace Project_1.Presenters
         {
             Drawer.ModeChangedHandler += HandleModeChange;
             Drawer.EdgeInsertPointClickedHandler += HandleEdgePointInsert;
-            Drawer.EdgeSaveLengthClickedHandler += HandleEdgeLengthSave;
+            Drawer.EdgeSetLengthClickedHandler += HandleEdgeSetFixedLength;
         }
 
         public void InitModelChangedHandlers()
@@ -213,9 +213,20 @@ namespace Project_1.Presenters
             }
         }
 
-        private void HandleEdgeLengthSave(object sender, EventArgs e)
+        private void HandleEdgeSetFixedLength(object sender, EventArgs e)
         {
-            var relation = Relations.AddFixedEdgeRelation(SelectedEdge, (e as SaveLengthArgs).Length);
+            var lengthInputDialog = new LengthInputDialog(SelectedEdge.Length);
+            if (lengthInputDialog.ShowDialog() == DialogResult.OK && lengthInputDialog.InputLength > 0)
+            {
+                SetSelectedEdgeLength(lengthInputDialog.InputLength);
+            }
+            lengthInputDialog.Close();
+            lengthInputDialog.Dispose();
+        }
+
+        private void SetSelectedEdgeLength(int length)
+        {
+            var relation = Relations.AddFixedEdgeRelation(SelectedEdge, length);
             var u = relation.FirstEdge.U;
             var v = relation.FirstEdge.V;
 

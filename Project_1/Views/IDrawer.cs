@@ -12,7 +12,7 @@ namespace Project_1.Views
 
         event EventHandler ModeChangedHandler;
         event EventHandler EdgeInsertPointClickedHandler;
-        event EventHandler EdgeSaveLengthClickedHandler;
+        event EventHandler EdgeSetLengthClickedHandler;
 
         void DrawLine(PointF p1, PointF p2);
         void DrawPoint(PointF p);
