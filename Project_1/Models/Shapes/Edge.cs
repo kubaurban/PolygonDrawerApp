@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace Project_1.Models.Shapes
 {
+    /// <summary>
+    /// Wrapper for two points, which represents an edge
+    /// </summary>
     public class Edge : Shape
     {
         public Point U { get; set; }
@@ -17,6 +22,8 @@ namespace Project_1.Models.Shapes
         public int PolygonId => U.PolygonId;
 
         public int Length => (int)new Vector2(U.X - V.X, U.Y - V.Y).Length();
+
+        public List<int> RelationIds => U.RelationIds.Intersect(V.RelationIds).ToList();
 
         public override void Move(Vector2 vector)
         {
