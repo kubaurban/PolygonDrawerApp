@@ -9,10 +9,10 @@ namespace Project_1.Models.Shapes
         public float X { get; set; }
         public float Y { get; set; }
         public PointF Location => new(X, Y);
-        public int PolygonId { get; set; }
+        public Polygon Polygon { get; set; }
         public List<int> RelationIds { get; set; }
 
-        public Point(int id) : base(id) 
+        public Point()
         {
             RelationIds = new List<int>();
         }

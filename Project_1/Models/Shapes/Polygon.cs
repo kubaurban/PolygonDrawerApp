@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -15,7 +14,7 @@ namespace Project_1.Models.Shapes
             set
             {
                 _vertices = value;
-                _vertices.ForEach(x => x.PolygonId = Id);
+                _vertices.ForEach(x => x.Polygon = this);
             }
         }
 
@@ -38,8 +37,6 @@ namespace Project_1.Models.Shapes
             }
         }
 
-        public Polygon(int id) : base(id) { }
-
         public override void Move(Vector2 vector)
         {
             Vertices.ForEach(x => x.Move(vector));
@@ -53,7 +50,7 @@ namespace Project_1.Models.Shapes
         public void InsertPoint(Edge e, Point p)
         {
             var vIdx = Vertices.IndexOf(e.V);
-            p.PolygonId = Id;
+            p.Polygon = this;
             Vertices.Insert(vIdx, p);
         }
 

@@ -8,9 +8,6 @@ namespace Project_1.Models.Repositories
 {
     public class ShapeRepository : IShapeRepository
     {
-        private static int PolygonIdCounter { get; set; }
-        private static int PointIdCounter { get; set; }
-
         private List<Polygon> Polygons { get; set; }
         private ObservableCollection<Point> SolitaryPoints { get; set; }
         public NotifyCollectionChangedEventHandler OnSolitaryPointAdded { get; set; }
@@ -18,15 +15,13 @@ namespace Project_1.Models.Repositories
         public ShapeRepository()
         {
             Polygons = new List<Polygon>();
-            PolygonIdCounter = 0;
             SolitaryPoints = new ObservableCollection<Point>();
-            PointIdCounter = 0;
             SolitaryPoints.CollectionChanged += OnSolitaryPointsChanged;
         }
 
         public Polygon AddPolygon(List<Point> vertices)
         {
-            var newPolygon = new Polygon(++PolygonIdCounter)
+            var newPolygon = new Polygon()
             {
                 Vertices = vertices
             };
@@ -36,7 +31,7 @@ namespace Project_1.Models.Repositories
 
         public Point AddSolitaryPoint(System.Drawing.PointF point)
         {
-            var newPoint = new Point(++PointIdCounter)
+            var newPoint = new Point()
             {
                 X = point.X,
                 Y = point.Y
@@ -49,17 +44,7 @@ namespace Project_1.Models.Repositories
 
         public List<Polygon> GetAllPolygons() => Polygons.ToList();
 
-        public Polygon GetPolygonById(int id) => Polygons.Find(x => x.Id == id);
-
         public List<Point> GetSolitaryPoints() => SolitaryPoints.ToList();
-
-        public Polygon RemovePolygon(int id)
-        {
-            var polygon = GetPolygonById(id);
-            RemovePolygon(polygon);
-
-            return polygon;
-        }
 
         public bool RemovePolygon(Polygon polygon) => Polygons.Remove(polygon);
 

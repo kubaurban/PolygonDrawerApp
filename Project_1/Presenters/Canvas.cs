@@ -106,7 +106,7 @@ namespace Project_1.Presenters
 
                     if (selectedVertex != default(Point))
                     {
-                        var polygon = Shapes.GetPolygonById(selectedVertex.PolygonId);
+                        var polygon = selectedVertex.Polygon;
 
                         if (polygon.Vertices.Count > 3)
                         {
@@ -259,7 +259,7 @@ namespace Project_1.Presenters
 
         private void MoveWithConstraints(Point root, Vector2 rootMove)
         {
-            var polygon = Shapes.GetPolygonById(root.PolygonId);
+            var polygon = root.Polygon;
             var canBeProcessed = polygon.Vertices.ToHashSet();
             var stack = new Stack<(Point, Vector2)>();
 
@@ -301,10 +301,8 @@ namespace Project_1.Presenters
 
         private void HandleEdgePointInsert(object sender, EventArgs e)
         {
-            var polygon = Shapes.GetAllPolygons().Find(x => x.Id == SelectedEdge.PolygonId);
-
             var point = Shapes.AddSolitaryPoint(new((SelectedEdge.U.X + SelectedEdge.V.X) / 2, (SelectedEdge.U.Y + SelectedEdge.V.Y) / 2));
-            polygon.InsertPoint(SelectedEdge, point);
+            SelectedEdge.Polygon.InsertPoint(SelectedEdge, point);
             Shapes.ClearSolitaryPoints();
 
             RedrawAll?.Invoke();

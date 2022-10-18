@@ -13,13 +13,13 @@ namespace Project_1.Models.Shapes
         public Point U { get; set; }
         public Point V { get; set; }
 
-        public Edge(Point u, Point v) : base()
+        public Edge(Point u, Point v)
         {
             U = u;
             V = v;
         }
 
-        public int PolygonId => U.PolygonId;
+        public Polygon Polygon => U.Polygon;
 
         public int Length => (int)new Vector2(U.X - V.X, U.Y - V.Y).Length();
 
