@@ -12,8 +12,6 @@ namespace Project_1.Models.Repositories
         List<PerpendicularRelation> GetPerpendicularRelations();
         FixedEdgeLength GetFixedEdgeLengthRelationById(int id);
         PerpendicularRelation GetPerpendicularRelationById(int id);
-        bool Remove(FixedEdgeLength relation);
-        bool Remove(PerpendicularRelation relation);
         FixedEdgeLength RemoveFixedEdgeLength(int id);
         PerpendicularRelation RemovePerpendicularRelation(int id);
     }

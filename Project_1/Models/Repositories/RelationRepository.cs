@@ -55,6 +55,10 @@ namespace Project_1.Models.Repositories
         public FixedEdgeLength RemoveFixedEdgeLength(int id)
         {
             var relation = GetFixedEdgeLengthRelationById(id);
+            foreach (var v in new List<Point> { relation.FirstEdge.U, relation.FirstEdge.V })
+            {
+                v.RelationIds.Remove(id);
+            }
             Remove(relation);
 
             return relation;
@@ -62,12 +66,16 @@ namespace Project_1.Models.Repositories
         public PerpendicularRelation RemovePerpendicularRelation(int id)
         {
             var relation = GetPerpendicularRelationById(id);
+            foreach (var v in new List<Point> { relation.FirstEdge.U, relation.FirstEdge.V, relation.SecondEdge.U, relation.SecondEdge.V })
+            {
+                v.RelationIds.Remove(id);
+            }
             Remove(relation);
 
             return relation;
         }
 
-        public bool Remove(FixedEdgeLength relation) => FixedLengthRelations.Remove(relation);
-        public bool Remove(PerpendicularRelation relation) => PerpendicularRelations.Remove(relation);
+        private bool Remove(FixedEdgeLength relation) => FixedLengthRelations.Remove(relation);
+        private bool Remove(PerpendicularRelation relation) => PerpendicularRelations.Remove(relation);
     }
 }
