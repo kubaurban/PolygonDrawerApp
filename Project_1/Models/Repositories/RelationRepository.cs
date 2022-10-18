@@ -2,60 +2,72 @@
 using Project_1.Models.Shapes;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms.VisualStyles;
 
 namespace Project_1.Models.Repositories
 {
     public class RelationRepository : IRelationRepository
     {
-        private static int RelationIdCounter { get; set; }
-        private List<Relation> Relations { get; set; }
+        private static int FixedEdgeLengthRelationIdCounter { get; set; }
+        private static int PerpendicularRelationIdCounter { get; set; }
+        private List<PerpendicularRelation> PerpendicularRelations { get; set; }
+        private List<FixedEdgeLength> FixedLengthRelations { get; set; }
 
         public RelationRepository()
         {
-            Relations = new List<Relation>();
-            RelationIdCounter = 0;
+            FixedLengthRelations = new List<FixedEdgeLength>();
+            PerpendicularRelations = new List<PerpendicularRelation>();
+            FixedEdgeLengthRelationIdCounter = 0;
+            PerpendicularRelationIdCounter = 0;
         }
 
         public PerpendicularRelation AddPerpendicularRelation(Edge edge1, Edge edge2)
         {
-            var newRelation = new PerpendicularRelation(++RelationIdCounter)
+            var newRelation = new PerpendicularRelation(++PerpendicularRelationIdCounter)
             {
                 FirstEdge = edge1,
                 SecondEdge = edge2,
             };
-            edge1.AddRelation(RelationIdCounter);
-            edge2.AddRelation(RelationIdCounter);
+            edge1.AddRelation(PerpendicularRelationIdCounter);
+            edge2.AddRelation(PerpendicularRelationIdCounter);
 
-            Relations.Add(newRelation);
+            PerpendicularRelations.Add(newRelation);
             return newRelation;
         }
-
         public FixedEdgeLength AddFixedEdgeRelation(Edge edge, int length)
         {
-            var newRelation = new FixedEdgeLength(++RelationIdCounter)
+            var newRelation = new FixedEdgeLength(++FixedEdgeLengthRelationIdCounter)
             {
                 FirstEdge = edge,
                 Length = length,
             };
-            edge.AddRelation(RelationIdCounter);
+            edge.AddRelation(FixedEdgeLengthRelationIdCounter);
 
-            Relations.Add(newRelation);
+            FixedLengthRelations.Add(newRelation);
             return newRelation;
         }
 
-        public List<Relation> GetAll() => Relations.ToList();
+        public List<FixedEdgeLength> GetFixedRelations() => FixedLengthRelations.ToList();
+        public List<PerpendicularRelation> GetPerpendicularRelations() => PerpendicularRelations.ToList();
 
-        public Relation GetRelationById(int id) => Relations.Find(x => x.Id == id);
+        public FixedEdgeLength GetFixedEdgeLengthRelationById(int id) => FixedLengthRelations.Find(x => x.Id == id);
+        public PerpendicularRelation GetPerpendicularRelationById(int id) => PerpendicularRelations.Find(x => x.Id == id);
 
-        public Relation Remove(int id)
+        public FixedEdgeLength RemoveFixedEdgeLength(int id)
         {
-            var relation = GetRelationById(id);
+            var relation = GetFixedEdgeLengthRelationById(id);
+            Remove(relation);
+
+            return relation;
+        }
+        public PerpendicularRelation RemovePerpendicularRelation(int id)
+        {
+            var relation = GetPerpendicularRelationById(id);
             Remove(relation);
 
             return relation;
         }
 
-        public bool Remove(Relation relation) => Relations.Remove(relation);
+        public bool Remove(FixedEdgeLength relation) => FixedLengthRelations.Remove(relation);
+        public bool Remove(PerpendicularRelation relation) => PerpendicularRelations.Remove(relation);
     }
 }

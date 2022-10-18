@@ -6,11 +6,15 @@ namespace Project_1.Models.Repositories
 {
     public interface IRelationRepository
     {
-        List<Relation> GetAll();
-        Relation GetRelationById(int id);
-        PerpendicularRelation AddPerpendicularRelation(Edge edge1, Edge edge2);
         FixedEdgeLength AddFixedEdgeRelation(Edge edge, int length);
-        Relation Remove(int id);
-        bool Remove(Relation relation);
+        PerpendicularRelation AddPerpendicularRelation(Edge edge1, Edge edge2);
+        List<FixedEdgeLength> GetFixedRelations();
+        List<PerpendicularRelation> GetPerpendicularRelations();
+        FixedEdgeLength GetFixedEdgeLengthRelationById(int id);
+        PerpendicularRelation GetPerpendicularRelationById(int id);
+        bool Remove(FixedEdgeLength relation);
+        bool Remove(PerpendicularRelation relation);
+        FixedEdgeLength RemoveFixedEdgeLength(int id);
+        PerpendicularRelation RemovePerpendicularRelation(int id);
     }
 }
