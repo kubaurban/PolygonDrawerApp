@@ -1,5 +1,4 @@
 ﻿using Project_1.Helpers.UI;
-using Project_1.Models.Relations;
 using Project_1.Models.Repositories;
 using Project_1.Models.Shapes;
 using Project_1.Views;
@@ -17,11 +16,11 @@ namespace Project_1.Presenters
     {
         private readonly IDrawer _drawer;
         private readonly IShapeRepository _shapes;
-        private readonly IRelationRepository _relations;
+        private readonly IConstraintRepository _relations;
 
         public IDrawer Drawer { get => _drawer; }
         public IShapeRepository Shapes { get => _shapes; }
-        public IRelationRepository Relations { get => _relations; }
+        public IConstraintRepository Relations { get => _relations; }
 
         public Action RedrawAll { get; set; }
 
@@ -29,7 +28,7 @@ namespace Project_1.Presenters
         private Shape MovedShape { get; set; }
         private Edge SelectedEdge { get; set; }
 
-        public Canvas(IDrawer drawer, IShapeRepository shapes, IRelationRepository relations)
+        public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepository relations)
         {
             _drawer = drawer;
             _shapes = shapes;
@@ -192,7 +191,7 @@ namespace Project_1.Presenters
 
                 if (MovedShape is Point)
                 {
-                    MoveWithConstraints(MovedShape as Point, vector);
+                    PointMoveWithConstraints(MovedShape as Point, vector);
                 }
                 else if (MovedShape is Edge)
                 {
@@ -238,67 +237,6 @@ namespace Project_1.Presenters
             lengthInputDialog.Dispose();
         }
 
-        private void SetSelectedEdgeLength(int length)
-        {
-            var u = SelectedEdge.U;
-            var v = SelectedEdge.V;
-
-            var relation = SelectedEdge.RelationIds.Select(x => Relations.GetFixedEdgeLengthRelationById(x)).SingleOrDefault();
-            if (relation != null)
-            {
-                Relations.RemoveFixedEdgeLength(relation.Id);
-            }
-
-            var uv = new Vector2(v.X - u.X, v.Y - u.Y);
-            var newVector = uv * length / uv.Length();
-            MoveWithConstraints(u, uv - newVector);
-
-            Relations.AddFixedEdgeRelation(SelectedEdge, length);
-            RedrawAll?.Invoke();
-        }
-
-        private void MoveWithConstraints(Point root, Vector2 rootMove)
-        {
-            var polygon = root.Polygon;
-            var canBeProcessed = polygon.Vertices.ToHashSet();
-            var stack = new Stack<(Point, Vector2)>();
-
-            stack.Push((root, rootMove));
-            canBeProcessed.Remove(root);
-            while (stack.Any())
-            {
-                (var u, var move) = stack.Pop();
-
-                foreach (var v in GetFixedLengthRelated(u))
-                {
-                    if (v != null && canBeProcessed.Remove(v))
-                    {
-                        var vu = new Vector2(u.X - v.X, u.Y - v.Y);
-                        var vu_moved = vu + move;
-                        var vMove = vu_moved - vu_moved * vu.Length() / vu_moved.Length();
-                        stack.Push((v, vMove));
-                    }
-                }
-
-                u.Move(move);
-            }
-        }
-
-        private List<Point> GetFixedLengthRelated(Point u)
-        {
-            var fixedLengthRelations = u.RelationIds.Select(x => Relations.GetFixedEdgeLengthRelationById(x)).ToList();
-            
-            var neighbors = new List<Point>();
-            fixedLengthRelations.ForEach(x =>
-            {
-                neighbors.Add(x.FirstEdge.U);
-                neighbors.Add(x.FirstEdge.V);
-            });
-            neighbors.RemoveAll(x => x == u);
-
-            return neighbors;
-        }
-
         private void HandleEdgePointInsert(object sender, EventArgs e)
         {
             var point = Shapes.AddSolitaryPoint(new((SelectedEdge.U.X + SelectedEdge.V.X) / 2, (SelectedEdge.U.Y + SelectedEdge.V.Y) / 2));
@@ -342,5 +280,52 @@ namespace Project_1.Presenters
             }
         }
         #endregion
+
+
+        public static void PointMoveWithConstraints(Point root, Vector2 rootMove)
+        {
+            var polygon = root.Polygon;
+            var canBeProcessed = polygon.Vertices.ToHashSet();
+            var stack = new Stack<(Point, Vector2)>();
+
+            stack.Push((root, rootMove));
+            canBeProcessed.Remove(root);
+            while (stack.Any())
+            {
+                (var u, var move) = stack.Pop();
+
+                foreach (var v in ConstraintRepository.GetFixedLengthRelated(u))
+                {
+                    if (v != null && canBeProcessed.Remove(v))
+                    {
+                        var vu = new Vector2(u.X - v.X, u.Y - v.Y);
+                        var vu_moved = vu + move;
+                        var vMove = vu_moved - vu_moved * vu.Length() / vu_moved.Length();
+                        stack.Push((v, vMove));
+                    }
+                }
+
+                u.Move(move);
+            }
+        }
+
+        private void SetSelectedEdgeLength(int length)
+        {
+            var u = SelectedEdge.U;
+            var v = SelectedEdge.V;
+
+            var relation = SelectedEdge.FixedLength;
+            if (relation != null)
+            {
+                Relations.RemoveFixedLength(relation);
+            }
+
+            var uv = new Vector2(v.X - u.X, v.Y - u.Y);
+            var newVector = uv * length / uv.Length();
+            PointMoveWithConstraints(u, uv - newVector);
+
+            Relations.AddFixedLength(SelectedEdge, length);
+            RedrawAll?.Invoke();
+        }
     }
 }

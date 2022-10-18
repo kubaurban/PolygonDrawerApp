@@ -10,12 +10,6 @@ namespace Project_1.Models.Shapes
         public float Y { get; set; }
         public PointF Location => new(X, Y);
         public Polygon Polygon { get; set; }
-        public List<int> RelationIds { get; set; }
-
-        public Point()
-        {
-            RelationIds = new List<int>();
-        }
 
         public override void Move(Vector2 vector)
         {

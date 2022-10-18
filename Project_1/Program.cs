@@ -20,7 +20,7 @@ namespace Project_1
 
             var drawer = new Drawer();
             var shapesRepository = new ShapeRepository();
-            var relationsRepository = new RelationRepository();
+            var relationsRepository = new ConstraintRepository();
             
             new Canvas(drawer, shapesRepository, relationsRepository);
 
