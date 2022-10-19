@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using System.Windows.Forms.VisualStyles;
 
 namespace Project_1.Models.Shapes
 {
@@ -38,13 +37,16 @@ namespace Project_1.Models.Shapes
             var idx = Vertices.IndexOf(p);
             Vertices.RemoveAt(idx);
 
-            // remove neighboring edges
             var prevIdx = (idx - 1 + Edges.Count) % Edges.Count;
-            var u = Edges.ElementAt(prevIdx).U;
-            var v = Edges.ElementAt(idx).V;
+            var prevEdge = Edges.ElementAt(prevIdx);
+            var nextEdge = Edges.ElementAt(idx);
 
             // insert newly created edge
-            Edges.Insert(prevIdx, new(u, v));
+            Edges.Insert(prevIdx, new(prevEdge.U, nextEdge.V));
+
+            // remove neighboring edges
+            Edges.Remove(prevEdge);
+            Edges.Remove(nextEdge);
         }
 
         public void InsertPoint(Edge e, Point p)

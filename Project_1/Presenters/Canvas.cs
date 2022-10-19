@@ -16,11 +16,11 @@ namespace Project_1.Presenters
     {
         private readonly IDrawer _drawer;
         private readonly IShapeRepository _shapes;
-        private readonly IConstraintRepository _relations;
+        private readonly IConstraintRepository _constraints;
 
         public IDrawer Drawer { get => _drawer; }
         public IShapeRepository Shapes { get => _shapes; }
-        public IConstraintRepository Relations { get => _relations; }
+        public IConstraintRepository Constraints { get => _constraints; }
 
         public Action RedrawAll { get; set; }
 
@@ -32,7 +32,7 @@ namespace Project_1.Presenters
         {
             _drawer = drawer;
             _shapes = shapes;
-            _relations = relations;
+            _constraints = relations;
 
             RedrawAll += Drawer.ClearArea;
             RedrawAll += DrawAllPolygons;
@@ -109,10 +109,18 @@ namespace Project_1.Presenters
 
                         if (polygon.Vertices.Count > 3)
                         {
+                            polygon.Edges.Where(x => selectedVertex == x.U || selectedVertex == x.V).Select(x => x.FixedLength).Where(x => x != null).ToList().ForEach(x =>
+                            {
+                                Constraints.RemoveFixedLength(x);
+                            });
                             polygon.RemoveVertex(selectedVertex);
                         }
                         else
                         {
+                            polygon.Edges.Select(x => x.FixedLength).Where(x => x != null).ToList().ForEach(x =>
+                            {
+                                Constraints.RemoveFixedLength(x);
+                            });
                             Shapes.RemovePolygon(polygon);
                         }
 
@@ -317,14 +325,14 @@ namespace Project_1.Presenters
             var relation = SelectedEdge.FixedLength;
             if (relation != null)
             {
-                Relations.RemoveFixedLength(relation);
+                Constraints.RemoveFixedLength(relation);
             }
 
             var uv = new Vector2(v.X - u.X, v.Y - u.Y);
             var newVector = uv * length / uv.Length();
             PointMoveWithConstraints(u, uv - newVector);
 
-            Relations.AddFixedLength(SelectedEdge, length);
+            Constraints.AddFixedLength(SelectedEdge, length);
             RedrawAll?.Invoke();
         }
     }
