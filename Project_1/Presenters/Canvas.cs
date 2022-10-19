@@ -1,4 +1,5 @@
 ﻿using Project_1.Helpers.UI;
+using Project_1.Models.Constraints;
 using Project_1.Models.Repositories;
 using Project_1.Models.Shapes;
 using Project_1.Views;
@@ -248,6 +249,11 @@ namespace Project_1.Presenters
         private void HandleEdgePointInsert(object sender, EventArgs e)
         {
             var point = Shapes.AddSolitaryPoint(new((SelectedEdge.U.X + SelectedEdge.V.X) / 2, (SelectedEdge.U.Y + SelectedEdge.V.Y) / 2));
+            var constraint = SelectedEdge.FixedLength;
+            if (constraint != default(FixedLength))
+            {
+                Constraints.RemoveFixedLength(constraint); 
+            }
             SelectedEdge.Polygon.InsertPoint(SelectedEdge, point);
             Shapes.ClearSolitaryPoints();
 
