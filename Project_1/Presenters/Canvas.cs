@@ -300,12 +300,12 @@ namespace Project_1.Presenters
         {
             var polygon = root.Polygon;
             var canBeProcessed = polygon.Vertices.ToHashSet();
-            var stack = new Stack<(Point, Vector2)>();
+            var toBeProcessed = new Queue<(Point, Vector2)>();
 
-            stack.Push((root, rootMove));
-            while (stack.Any())
+            toBeProcessed.Enqueue((root, rootMove));
+            while (toBeProcessed.Any())
             {
-                (var u, var move) = stack.Pop();
+                (var u, var move) = toBeProcessed.Dequeue();
 
                 foreach (var v in ConstraintRepository.GetFixedLengthRelated(u))
                 {
@@ -314,7 +314,7 @@ namespace Project_1.Presenters
                         var vu = new Vector2(u.X - v.X, u.Y - v.Y);
                         var vu_moved = vu + move;
                         var vMove = vu_moved - vu_moved * vu.Length() / vu_moved.Length();
-                        stack.Push((v, vMove));
+                        toBeProcessed.Enqueue((v, vMove));
                     }
                 }
 
@@ -331,13 +331,13 @@ namespace Project_1.Presenters
             var rootV = root.V;
 
             var canBeProcessed = rootU.Polygon.Vertices.ToHashSet();
-            var stack = new Stack<(Point, Vector2)>();
+            var toBeProcessed = new Queue<(Point, Vector2)>();
 
-            stack.Push((rootU, rootMove));
-            stack.Push((rootV, rootMove));
-            while (stack.Any())
+            toBeProcessed.Enqueue((rootU, rootMove));
+            toBeProcessed.Enqueue((rootV, rootMove));
+            while (toBeProcessed.Any())
             {
-                (var u, var move) = stack.Pop();
+                (var u, var move) = toBeProcessed.Dequeue();
 
                 foreach (var v in ConstraintRepository.GetFixedLengthRelated(u))
                 {
@@ -346,7 +346,7 @@ namespace Project_1.Presenters
                         var vu = new Vector2(u.X - v.X, u.Y - v.Y);
                         var vu_moved = vu + move;
                         var vMove = vu_moved - vu_moved * vu.Length() / vu_moved.Length();
-                        stack.Push((v, vMove));
+                        toBeProcessed.Enqueue((v, vMove));
                     }
                 }
 
