@@ -197,13 +197,13 @@ namespace Project_1.Presenters
                 };
                 ClickedPoint = e.Location;
 
-                if (MovedShape is Point)
+                if (MovedShape is Point point)
                 {
-                    PointMoveWithConstraints(MovedShape as Point, vector);
+                    PointMoveWithConstraints(point, vector);
                 }
-                else if (MovedShape is Edge)
+                else if (MovedShape is Edge edge)
                 {
-                    MovedShape.Move(vector);
+                    EdgeMoveWithConstraints(edge, vector);
                 }
                 else if (MovedShape is Polygon)
                 {
@@ -297,14 +297,13 @@ namespace Project_1.Presenters
             var stack = new Stack<(Point, Vector2)>();
 
             stack.Push((root, rootMove));
-            canBeProcessed.Remove(root);
             while (stack.Any())
             {
                 (var u, var move) = stack.Pop();
 
                 foreach (var v in ConstraintRepository.GetFixedLengthRelated(u))
                 {
-                    if (v != null && canBeProcessed.Remove(v))
+                    if (v != null && canBeProcessed.Contains(v))
                     {
                         var vu = new Vector2(u.X - v.X, u.Y - v.Y);
                         var vu_moved = vu + move;
@@ -313,7 +312,42 @@ namespace Project_1.Presenters
                     }
                 }
 
-                u.Move(move);
+                if (canBeProcessed.Remove(u))
+                {
+                    u.Move(move); 
+                }
+            }
+        }
+
+        private void EdgeMoveWithConstraints(Edge root, Vector2 rootMove)
+        {
+            var rootU = root.U;
+            var rootV = root.V;
+
+            var canBeProcessed = rootU.Polygon.Vertices.ToHashSet();
+            var stack = new Stack<(Point, Vector2)>();
+
+            stack.Push((rootU, rootMove));
+            stack.Push((rootV, rootMove));
+            while (stack.Any())
+            {
+                (var u, var move) = stack.Pop();
+
+                foreach (var v in ConstraintRepository.GetFixedLengthRelated(u))
+                {
+                    if (v != null && canBeProcessed.Contains(v))
+                    {
+                        var vu = new Vector2(u.X - v.X, u.Y - v.Y);
+                        var vu_moved = vu + move;
+                        var vMove = vu_moved - vu_moved * vu.Length() / vu_moved.Length();
+                        stack.Push((v, vMove));
+                    }
+                }
+
+                if (canBeProcessed.Remove(u))
+                {
+                    u.Move(move);
+                }
             }
         }
 
