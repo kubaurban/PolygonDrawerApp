@@ -1,4 +1,5 @@
-﻿using Project_1.Models.Constraints;
+﻿using Project_1.Helpers.BL;
+using Project_1.Models.Constraints;
 using Project_1.Models.Shapes;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,26 +48,6 @@ namespace Project_1.Models.Repositories
             relation.Edge.Perpendiculars.Remove(relation);
             PerpendicularConstraints.Remove(relation);
             return relation;
-        }
-
-        public static List<Point> GetFixedLengthRelated(Point u)
-        {
-            var fixedLengths = u.Polygon.Edges.Where(x => x.U == u || x.V == u).Select(x => x.FixedLength).Where(x => x != null).ToList();
-
-            var neighbors = new List<Point>();
-            fixedLengths.ForEach(x =>
-            {
-                if (x.Edge.U != u)
-                {
-                    neighbors.Add(x.Edge.U);
-                }
-                else
-                {
-                    neighbors.Add(x.Edge.V);
-                }
-            });
-
-            return neighbors;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Project_1.Helpers.UI;
+﻿using Project_1.Helpers.BL;
+using Project_1.Helpers.UI;
 using Project_1.Models.Constraints;
 using Project_1.Models.Repositories;
 using Project_1.Models.Shapes;
@@ -110,7 +111,7 @@ namespace Project_1.Presenters
 
                         if (polygon.Vertices.Count > 3)
                         {
-                            polygon.Edges.Where(x => selectedVertex == x.U || selectedVertex == x.V).Select(x => x.FixedLength).Where(x => x != null).ToList().ForEach(x =>
+                            selectedVertex.GetEdges().Select(x => x.FixedLength).Where(x => x != null).ToList().ForEach(x =>
                             {
                                 Constraints.RemoveFixedLength(x);
                             });
@@ -307,9 +308,10 @@ namespace Project_1.Presenters
             {
                 (var u, var move) = toBeProcessed.Dequeue();
 
-                foreach (var v in ConstraintRepository.GetFixedLengthRelated(u))
+                foreach (var e in u.GetEdges())
                 {
-                    if (v != null && canBeProcessed.Contains(v))
+                    var v = u.GetNeighbor(e);
+                    if (e.FixedLength != null && canBeProcessed.Contains(v))
                     {
                         var vu = new Vector2(u.X - v.X, u.Y - v.Y);
                         var vu_moved = vu + move;
@@ -325,7 +327,7 @@ namespace Project_1.Presenters
             }
         }
 
-        private void EdgeMoveWithConstraints(Edge root, Vector2 rootMove)
+        private static void EdgeMoveWithConstraints(Edge root, Vector2 rootMove)
         {
             var rootU = root.U;
             var rootV = root.V;
@@ -339,9 +341,10 @@ namespace Project_1.Presenters
             {
                 (var u, var move) = toBeProcessed.Dequeue();
 
-                foreach (var v in ConstraintRepository.GetFixedLengthRelated(u))
+                foreach (var e in u.GetEdges())
                 {
-                    if (v != null && canBeProcessed.Contains(v))
+                    var v = u.GetNeighbor(e);
+                    if (e.FixedLength != null && canBeProcessed.Contains(v))
                     {
                         var vu = new Vector2(u.X - v.X, u.Y - v.Y);
                         var vu_moved = vu + move;
