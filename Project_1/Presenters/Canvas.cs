@@ -325,6 +325,35 @@ namespace Project_1.Presenters
                     u.Move(move); 
                 }
             }
+
+            (var last, var moveLast) = toBeProcessed.Dequeue();
+
+            if (allFixed)
+            {
+                var edges = Shapes.GetEdgesFor(last);
+                var u = last.GetNeighbor(edges.First());
+                var v = last.GetNeighbor(edges.Last());
+                var uv = v - u;
+                var uLast = last - u;
+
+                var x = (float)(uv.LengthSquared() + Math.Pow(edges.First().FixedLength.Value, 2) - Math.Pow(edges.Last().FixedLength.Value, 2)) / (2 * uv.Length());
+
+                var t = uLast - uv * Vector2.Dot(uLast, uv) / Vector2.Dot(-uv, -uv);
+
+                var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(edges.First().FixedLength.Value, 2) - Math.Pow(x, 2));
+
+                var X = Vector2.Normalize(uv) * x;
+
+                last.Move(-uLast + X + H);
+                if (last.X.Equals(float.NaN) || last.Y.Equals(float.NaN))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                last.Move(moveLast);
+            }
         }
 
         private static void EdgeMoveWithConstraints(Edge root, Vector2 rootMove)
@@ -373,7 +402,7 @@ namespace Project_1.Presenters
 
             var uv = new Vector2(v.X - u.X, v.Y - u.Y);
             var newVector = uv * length / uv.Length();
-            PointMoveWithConstraints(u, uv - newVector);
+            //PointMoveWithConstraints(u, uv - newVector);
 
             Constraints.AddFixedLength(SelectedEdge, length);
             RedrawAll?.Invoke();
