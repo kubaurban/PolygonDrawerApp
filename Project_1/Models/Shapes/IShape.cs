@@ -7,5 +7,6 @@ namespace Project_1.Models.Shapes
     {
         PointF Center { get; }
 
+        bool WasClicked(PointF click, int clickRadius);
     }
 }

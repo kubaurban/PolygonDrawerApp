@@ -85,7 +85,7 @@ namespace Project_1.Presenters
             switch (Drawer.Mode)
             {
                 case DrawerMode.Draw:
-                    selectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.Location, DrawerClass.PointWidth));
+                    selectedVertex = Shapes.GetSolitaryPoints().Find(x => x.WasClicked(ClickedPoint, DrawerClass.PointWidth));
 
                     if (selectedVertex == default(IPoint))
                     {
@@ -103,7 +103,7 @@ namespace Project_1.Presenters
                     break;
 
                 case DrawerMode.Delete:
-                    selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.Location, DrawerClass.PointWidth));
+                    selectedVertex = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(ClickedPoint, DrawerClass.PointWidth));
 
                     if (selectedVertex != default(IPoint))
                     {
@@ -133,7 +133,7 @@ namespace Project_1.Presenters
                 case DrawerMode.Move:
                     #region Vertex selection
 
-                    MovedShape = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.Location, DrawerClass.PointWidth));
+                    MovedShape = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(ClickedPoint, DrawerClass.PointWidth));
 
                     if (MovedShape != default(Point))
                     {
@@ -145,7 +145,7 @@ namespace Project_1.Presenters
                     #region Polygon selection
 
                     var allPolygons = Shapes.GetAllPolygons().ToList();
-                    MovedShape = allPolygons.Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.GravityCenterPoint, DrawerClass.MoveIconWidth));
+                    MovedShape = allPolygons.Find(x => x.WasClicked(ClickedPoint, DrawerClass.MoveIconWidth));
 
                     if (MovedShape != default(Polygon))
                     {
@@ -157,7 +157,7 @@ namespace Project_1.Presenters
                     #region Edge selection
 
                     var allEdges = Shapes.GetAllPolygonEdges().ToList();
-                    MovedShape = allEdges.Find(x => DrawerClass.IsInsideEdge(ClickedPoint, x));
+                    MovedShape = allEdges.Find(x => x.WasClicked(ClickedPoint, DrawerClass.PointWidth));
 
                     #endregion
                     break;
@@ -180,7 +180,7 @@ namespace Project_1.Presenters
             ClickedPoint = e.Location;
 
             var allEdges = Shapes.GetAllPolygonEdges().ToList();
-            SelectedEdge = allEdges.Find(x => DrawerClass.IsInsideEdge(ClickedPoint, x));
+            SelectedEdge = allEdges.Find(x => x.WasClicked(ClickedPoint, DrawerClass.PointWidth));
 
             if (SelectedEdge != default(IEdge))
             {

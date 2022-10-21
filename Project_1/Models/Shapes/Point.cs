@@ -18,5 +18,7 @@ namespace Project_1.Models.Shapes
             X += vector.X;
             Y += vector.Y;
         }
+
+        public bool WasClicked(PointF click, int clickRadius) => Math.Abs(X - click.X) <= clickRadius / 2 && Math.Abs(Y - click.Y) <= clickRadius / 2;
     }
 }

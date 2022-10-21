@@ -67,6 +67,12 @@ namespace Project_1.Models.Shapes
             Vertices.Insert(idx + 1, p);
         }
 
+        public bool WasClicked(PointF click, int clickRadius)
+        {
+            var center = Center;
+            return Math.Abs(center.X - click.X) <= clickRadius / 2 && Math.Abs(center.Y - click.Y) <= clickRadius / 2;
+        }
+
         public PointF Center
         {
             get
