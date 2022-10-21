@@ -6,11 +6,11 @@ namespace Project_1.Models.Repositories
 {
     public interface IConstraintRepository
     {
-        FixedLength AddFixedLength(Edge edge, int length);
-        Perpendicular AddPerpendicular(Edge constrained, Edge constraint);
+        FixedLength AddFixedLength(IEdge edge, int length);
+        Perpendicular AddPerpendicular(IEdge constrained, IEdge constraint);
         List<FixedLength> GetFixedLengths();
         List<Perpendicular> GetPerpendiculars();
         FixedLength RemoveFixedLength(FixedLength relation);
-        Perpendicular RemovePerpendicular(Perpendicular relation);
+        void RemovePerpendiculars(IList<Perpendicular> relations);
     }
 }

@@ -1,5 +1,4 @@
-﻿using Project_1.Helpers.BL;
-using Project_1.Models.Constraints;
+﻿using Project_1.Models.Constraints;
 using Project_1.Models.Shapes;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,26 +7,25 @@ namespace Project_1.Models.Repositories
 {
     public class ConstraintRepository : IConstraintRepository
     {
-        private List<Perpendicular> PerpendicularConstraints { get; set; }
-        private List<FixedLength> FixedLengthConstraints { get; set; }
+        private ISet<FixedLength> FixedLengthConstraints { get; set; }
+        private ISet<Perpendicular> PerpendicularConstraints { get; set; }
 
         public ConstraintRepository()
         {
-            FixedLengthConstraints = new List<FixedLength>();
-            PerpendicularConstraints = new List<Perpendicular>();
+            FixedLengthConstraints = new HashSet<FixedLength>();
+            PerpendicularConstraints = new HashSet<Perpendicular>();
         }
 
-        public Perpendicular AddPerpendicular(Edge constrained, Edge constraint)
+        public Perpendicular AddPerpendicular(IEdge constrained, IEdge constraint)
         {
             var newConstraint = new Perpendicular(constrained, constraint);
-
             PerpendicularConstraints.Add(newConstraint);
             return newConstraint;
         }
-        public FixedLength AddFixedLength(Edge edge, int length)
+
+        public FixedLength AddFixedLength(IEdge edge, int length)
         {
             var newConstraint = new FixedLength(edge, length);
-
             FixedLengthConstraints.Add(newConstraint);
             return newConstraint;
         }
@@ -37,15 +35,16 @@ namespace Project_1.Models.Repositories
 
         public FixedLength RemoveFixedLength(FixedLength relation)
         {
-            relation.Edge.FixedLength = null;
             FixedLengthConstraints.Remove(relation);
             return relation;
         }
-        public Perpendicular RemovePerpendicular(Perpendicular relation)
+
+        public void RemovePerpendiculars(IList<Perpendicular> relations)
         {
-            relation.Edge.Perpendiculars.Remove(relation);
-            PerpendicularConstraints.Remove(relation);
-            return relation;
+            foreach (var rel in relations)
+        {
+                PerpendicularConstraints.Remove(rel);
+            }
         }
     }
 }

@@ -8,24 +8,38 @@ namespace Project_1.Models.Repositories
 {
     public class ShapeRepository : IShapeRepository
     {
-        private List<Polygon> Polygons { get; set; }
-        private ObservableCollection<Point> SolitaryPoints { get; set; }
+        private ISet<IPolygon> Polygons { get; set; }
+        private ObservableCollection<IPoint> SolitaryPoints { get; set; }
         public NotifyCollectionChangedEventHandler OnSolitaryPointAdded { get; set; }
 
         public ShapeRepository()
         {
-            Polygons = new List<Polygon>();
-            SolitaryPoints = new ObservableCollection<Point>();
+            Polygons = new HashSet<IPolygon>();
+            SolitaryPoints = new ObservableCollection<IPoint>();
             SolitaryPoints.CollectionChanged += OnSolitaryPointsChanged;
         }
 
-        public Polygon AddPolygon(List<Point> vertices)
+        public Polygon AddPolygon(IList<IPoint> vertices)
         {
             var newPolygon = new Polygon(vertices);
             Polygons.Add(newPolygon);
             return newPolygon;
         }
 
+        #region Polygons
+        public bool RemovePolygon(IPolygon polygon) => Polygons.Remove(polygon);
+
+        public List<IPolygon> GetAllPolygons() => Polygons.ToList();
+        #endregion
+
+        #region Polygons helpers
+        public List<IEdge> GetAllPolygonEdges() => Polygons.SelectMany(x => x.Edges).ToList();
+
+        public List<IPoint> GetAllPolygonPoints() => Polygons.SelectMany(x => x.Vertices).ToList();
+
+        #endregion
+
+        #region Solitary points
         public Point AddSolitaryPoint(System.Drawing.PointF point)
         {
             var newPoint = new Point()
@@ -37,13 +51,9 @@ namespace Project_1.Models.Repositories
             return newPoint;
         }
 
+        public List<IPoint> GetSolitaryPoints() => SolitaryPoints.ToList();
+
         public void ClearSolitaryPoints() => SolitaryPoints.Clear();
-
-        public List<Polygon> GetAllPolygons() => Polygons.ToList();
-
-        public List<Point> GetSolitaryPoints() => SolitaryPoints.ToList();
-
-        public bool RemovePolygon(Polygon polygon) => Polygons.Remove(polygon);
 
         private void OnSolitaryPointsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -52,8 +62,6 @@ namespace Project_1.Models.Repositories
                 OnSolitaryPointAdded?.Invoke(sender, e);
             }
         }
-
-        public List<Point> GetAllPolygonPoints() => Polygons.SelectMany(x => x.Vertices).ToList();
-        public List<Edge> GetAllPolygonEdges() => Polygons.SelectMany(x => x.Edges).ToList();
+        #endregion
     }
 }

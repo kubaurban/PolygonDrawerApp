@@ -7,17 +7,19 @@ namespace Project_1.Models.Repositories
     public interface IShapeRepository
     {
         // shapes events
-        public NotifyCollectionChangedEventHandler OnSolitaryPointAdded { get; set; }
+        NotifyCollectionChangedEventHandler OnSolitaryPointAdded { get; set; }
 
         // polygons management
-        List<Polygon> GetAllPolygons();
-        List<Point> GetAllPolygonPoints();
-        List<Edge> GetAllPolygonEdges();
-        Polygon AddPolygon(List<Point> vertices);
-        bool RemovePolygon(Polygon polygon);
+        Polygon AddPolygon(IList<IPoint> vertices);
+        bool RemovePolygon(IPolygon polygon);
+        List<IPolygon> GetAllPolygons();
+
+        // polygons helpers
+        List<IPoint> GetAllPolygonPoints();
+        List<IEdge> GetAllPolygonEdges();
 
         // solitary points management
-        List<Point> GetSolitaryPoints();
+        List<IPoint> GetSolitaryPoints();
         Point AddSolitaryPoint(System.Drawing.PointF point);
         void ClearSolitaryPoints();
     }

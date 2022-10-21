@@ -2,8 +2,15 @@
 
 namespace Project_1.Models.Constraints
 {
-    public class Perpendicular : EdgeConstraint<Edge>
+    public class Perpendicular : IEdgeConstraint<IEdge>
     {
-        public Perpendicular(Edge constrained, Edge constraint) : base(constrained, constraint) { }
+        public IEdge Edge { get; private set; }
+        public IEdge Value { get; set; }
+
+        public Perpendicular(IEdge constrained, IEdge constraint) 
+        {
+            Edge = constrained;
+            Value = constraint;
+        }
     }
 }
