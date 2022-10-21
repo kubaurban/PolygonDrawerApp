@@ -27,8 +27,8 @@ namespace Project_1.Presenters
         public Action RedrawAll { get; set; }
 
         private System.Drawing.Point ClickedPoint { get; set; }
-        private Shape MovedShape { get; set; }
-        private Edge SelectedEdge { get; set; }
+        private IShape MovedShape { get; set; }
+        private IEdge SelectedEdge { get; set; }
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepository relations)
         {
@@ -80,14 +80,14 @@ namespace Project_1.Presenters
         public void HandleLeftMouseDown(object sender, MouseEventArgs e)
         {
             ClickedPoint = e.Location;
-            Point selectedVertex = default;
+            IPoint selectedVertex = default;
 
             switch (Drawer.Mode)
             {
                 case DrawerMode.Draw:
                     selectedVertex = Shapes.GetSolitaryPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.Location, DrawerClass.PointWidth));
 
-                    if (selectedVertex == default(Point))
+                    if (selectedVertex == default(IPoint))
                     {
                         Drawer.DrawPoint(ClickedPoint);
                         Shapes.AddSolitaryPoint(ClickedPoint);
@@ -105,7 +105,7 @@ namespace Project_1.Presenters
                 case DrawerMode.Delete:
                     selectedVertex = Shapes.GetAllPolygonPoints().Find(x => DrawerClass.IsInsidePoint(ClickedPoint, x.Location, DrawerClass.PointWidth));
 
-                    if (selectedVertex != default(Point))
+                    if (selectedVertex != default(IPoint))
                     {
                         var polygon = selectedVertex.Polygon;
 
@@ -182,7 +182,7 @@ namespace Project_1.Presenters
             var allEdges = Shapes.GetAllPolygonEdges().ToList();
             SelectedEdge = allEdges.Find(x => DrawerClass.IsInsideEdge(ClickedPoint, x));
 
-            if (SelectedEdge != default(Edge))
+            if (SelectedEdge != default(IEdge))
             {
                 Drawer.ShowManageEdgeMenu(ClickedPoint);
             }
@@ -230,7 +230,7 @@ namespace Project_1.Presenters
                     Drawer.ClearArea();
                     DrawAllPolygons();
                     DrawAllSolitaryPoints();
-                    Drawer.DrawLine(solitaryPoints.Last().Location, e.Location);
+                    Drawer.DrawLine(solitaryPoints.Last().Center, e.Location);
                     Drawer.RefreshArea();
                 }
             }
@@ -267,7 +267,7 @@ namespace Project_1.Presenters
             if (solitaryPointsCount > 1)
             {
                 var lastTwoVerices = Shapes.GetSolitaryPoints().Skip(solitaryPointsCount - 2);
-                Drawer.DrawLine(lastTwoVerices.First().Location, lastTwoVerices.Last().Location);
+                Drawer.DrawLine(lastTwoVerices.First().Center, lastTwoVerices.Last().Center);
             }
         }
         #endregion
@@ -285,11 +285,11 @@ namespace Project_1.Presenters
             if (solitaryPoints.Count > 0)
             {
                 var prev = solitaryPoints.First();
-                Drawer.DrawPoint(prev.Location);
+                Drawer.DrawPoint(prev.Center);
                 foreach (var p in solitaryPoints.Skip(1))
                 {
-                    Drawer.DrawPoint(p.Location);
-                    Drawer.DrawLine(prev.Location, p.Location);
+                    Drawer.DrawPoint(p.Center);
+                    Drawer.DrawLine(prev.Center, p.Center);
                     prev = p;
                 }
             }

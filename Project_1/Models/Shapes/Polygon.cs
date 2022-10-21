@@ -1,3 +1,4 @@
+﻿using System;
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -5,34 +6,36 @@ using System.Numerics;
 
 namespace Project_1.Models.Shapes
 {
-    public class Polygon : Shape
+    public class Polygon : IPolygon, IMovable
     {
-        public List<Point> Vertices { get; set; }
-        public List<Edge> Edges { get; private set; }
+        public IList<IPoint> Vertices { get; private set; }
+        public IList<IEdge> Edges { get; private set; }
 
-        public Polygon(List<Point> vertices)
+        public Polygon(IList<IPoint> vertices)
         {
             Vertices = vertices.ToList();
-            Vertices.ForEach(x => x.Polygon = this);
 
-            Edges = new List<Edge>();
+            Edges = new List<IEdge>();
 
             var first = Vertices.First();
             var prev = first;
             foreach (var v in Vertices.Skip(1))
             {
-                Edges.Add(new(prev, v));
+                Edges.Add(new Edge(prev, v));
                 prev = v;
             }
-            Edges.Add(new(prev, first));
+            Edges.Add(new Edge(prev, first));
         }
 
-        public override void Move(Vector2 vector)
+        public void Move(Vector2 vector)
         {
-            Vertices.ForEach(x => x.Move(vector));
+            foreach (var v in Vertices)
+            {
+                v.Move(vector);
+        }
         }
 
-        public void RemoveVertex(Point p)
+        public void RemoveVertex(IPoint p)
         {
             var idx = Vertices.IndexOf(p);
             Vertices.RemoveAt(idx);
@@ -42,14 +45,14 @@ namespace Project_1.Models.Shapes
             var nextEdge = Edges.ElementAt(idx);
 
             // insert newly created edge
-            Edges.Insert(prevIdx, new(prevEdge.U, nextEdge.V));
+            Edges.Insert(prevIdx, new Edge(prevEdge.U, nextEdge.V));
 
             // remove neighboring edges
             Edges.Remove(prevEdge);
             Edges.Remove(nextEdge);
         }
 
-        public void InsertPoint(Edge e, Point p)
+        public void InsertPoint(IEdge e, IPoint p)
         {
             var idx = Edges.IndexOf(e);
 
@@ -57,15 +60,14 @@ namespace Project_1.Models.Shapes
             Edges.RemoveAt(idx);
 
             // insert new edges
-            var newEdges = new List<Edge> { new(e.U, p), new(p, e.V) };
-            Edges.InsertRange(idx, newEdges);
+            var newEdges = new List<Edge> { new Edge(e.U, p), new Edge(p, e.V) };
+            Edges.ToList().InsertRange(idx, newEdges);
 
             // insert new point
-            p.Polygon = this;
             Vertices.Insert(idx + 1, p);
         }
 
-        public PointF GravityCenterPoint
+        public PointF Center
         {
             get
             {

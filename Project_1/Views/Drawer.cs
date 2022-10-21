@@ -245,7 +245,7 @@ namespace Project_1.Views
             g.FillRectangle(BlackBrush, p.X - PointWidth / 2, p.Y - PointWidth / 2, PointWidth, PointWidth);
         }
 
-        public void DrawPolygon(Polygon polygon)
+        public void DrawPolygon(IPolygon polygon)
         {
             using var g = Graphics;
 
@@ -267,7 +267,7 @@ namespace Project_1.Views
             }
         }
 
-        public void DrawPolygons(IEnumerable<Polygon> polygons)
+        public void DrawPolygons(IEnumerable<IPolygon> polygons)
         {
             foreach (var polygon in polygons)
             {

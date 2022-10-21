@@ -1,17 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Drawing;
 using System.Numerics;
 
 namespace Project_1.Models.Shapes
 {
-    public class Point : Shape
+    public class Point : IPoint
     {
         public float X { get; set; }
         public float Y { get; set; }
-        public PointF Location => new(X, Y);
-        public Polygon Polygon { get; set; }
 
-        public override void Move(Vector2 vector)
+        public PointF Center => new(X, Y);
+
+        public Point() { }
+
+        public void Move(Vector2 vector)
         {
             X += vector.X;
             Y += vector.Y;

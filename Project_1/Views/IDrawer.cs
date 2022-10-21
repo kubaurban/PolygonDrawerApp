@@ -16,8 +16,8 @@ namespace Project_1.Views
 
         void DrawLine(PointF p1, PointF p2);
         void DrawPoint(PointF p);
-        void DrawPolygon(Polygon polygon);
-        void DrawPolygons(IEnumerable<Polygon> polygons);
+        void DrawPolygon(IPolygon polygon);
+        void DrawPolygons(IEnumerable<IPolygon> polygons);
         void ClearArea();
         void RefreshArea();
         void ShowManageEdgeMenu(PointF point);

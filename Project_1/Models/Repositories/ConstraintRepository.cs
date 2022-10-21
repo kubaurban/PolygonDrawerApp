@@ -20,7 +20,6 @@ namespace Project_1.Models.Repositories
         public Perpendicular AddPerpendicular(Edge constrained, Edge constraint)
         {
             var newConstraint = new Perpendicular(constrained, constraint);
-            constrained.Perpendiculars.Add(newConstraint);
 
             PerpendicularConstraints.Add(newConstraint);
             return newConstraint;
@@ -28,7 +27,6 @@ namespace Project_1.Models.Repositories
         public FixedLength AddFixedLength(Edge edge, int length)
         {
             var newConstraint = new FixedLength(edge, length);
-            edge.FixedLength = newConstraint;
 
             FixedLengthConstraints.Add(newConstraint);
             return newConstraint;
