@@ -427,6 +427,16 @@ namespace Project_1.Presenters
             var u = SelectedEdge.U;
             var v = SelectedEdge.V;
 
+            var polygon = Shapes.GetPolygonByEdge(SelectedEdge);
+            var otherFixedLengths = polygon.Edges
+                .Where(x => x != SelectedEdge)
+                .SelectMany(x => Constraints.FixedLengthRepository.GetForEdge(x)).ToList();
+
+            if (otherFixedLengths.Count == polygon.Edges.Count - 1 && otherFixedLengths.Sum(x => x.Value) <= length)
+            {
+                return;
+            }
+
             Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
 
             var uv = new Vector2(v.X - u.X, v.Y - u.Y);
