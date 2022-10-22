@@ -96,7 +96,7 @@ namespace Project_1.Views
         }
         #endregion
 
-        #region Constraints box
+        #region Relations box
         public void EnableRelationsBoxVisibility() => RelationsBox.Visible = true;
 
         public void DisableRelationsBoxVisibility() => RelationsBox.Visible = false;
@@ -106,6 +106,11 @@ namespace Project_1.Views
 
         public IEdgeConstraint<IEdge> GetSelectedRelation() 
             => RelationsList.SelectedItem as IEdgeConstraint<IEdge>;
+
+        public void UnsetSelectedRelation()
+        {
+            RelationsList.ClearSelected();
+        }
         #endregion
 
         #region Bresenham logic
@@ -259,6 +264,14 @@ namespace Project_1.Views
             g.DrawIcon(new(MoveIconFilePath), new((int)point.X - MoveIconWidth / 2, (int)point.Y - MoveIconWidth / 2, MoveIconWidth, MoveIconWidth));
         }
 
+        public void Write(PointF center, string text)
+        {
+            var point = center;
+
+            using var g = Graphics;
+            g.DrawString(text, WrittingFont, BlackBrush, point);
+        }
+
         public void ClearArea()
         {
             using var g = Graphics;
@@ -357,18 +370,15 @@ namespace Project_1.Views
         {
             if (e.Button == MouseButtons.Right)
             {
-                // TODO: display proper context menu
-                RelationDeleteHandler?.Invoke(sender, e);
+                var clickedIndex = RelationsList.IndexFromPoint(e.Location);
+                if (clickedIndex != ListBox.NoMatches)
+                {
+                    RelationsList.SelectedItem = RelationsList.Items[clickedIndex];
+                    // TODO: display proper context menu
+                    RelationDeleteHandler?.Invoke(sender, e);
+                }
             }
         }
         #endregion
-
-        public void Write(PointF center, string text)
-        {
-            var point = center;
-
-            using var g = Graphics;
-            g.DrawString(text, WrittingFont, BlackBrush, point);
-        }
     }
 }

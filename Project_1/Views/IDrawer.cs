@@ -21,6 +21,7 @@ namespace Project_1.Views
         void DrawPoint(PointF p);
         void DrawPolygon(IPolygon polygon);
         void DrawPolygons(IEnumerable<IPolygon> polygons);
+        void Write(PointF pointF, string text);
         void ClearArea();
         void RefreshArea();
         void ShowManageEdgeMenu(PointF point);
@@ -28,6 +29,6 @@ namespace Project_1.Views
         void DisableRelationsBoxVisibility();
         void SetRelationsListDataSource(IList<IEdgeConstraint<IEdge>> relations);
         IEdgeConstraint<IEdge> GetSelectedRelation();
-        void Write(PointF pointF, string text);
+        void UnsetSelectedRelation();
     }
 }

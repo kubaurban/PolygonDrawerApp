@@ -40,18 +40,25 @@ namespace Project_1.Presenters
             set
             {
                 _selectedEdge = value;
-                if (value == null)
-                    Drawer.DisableRelationsBoxVisibility();
-                else
+                if (Drawer.Mode == DrawerMode.Move)
                 {
-                    Drawer.EnableRelationsBoxVisibility();
-                    var relations = Constraints.PerpendicularRepository.GetForEdge(value);
-                    Drawer.SetRelationsListDataSource(relations.AsEdgeConstraint().ToList());
+                    Drawer.UnsetSelectedRelation();
+                    if (value == null)
+                    {
+                        Drawer.DisableRelationsBoxVisibility();
+                    }
+                    else
+                    {
+                        RefreshRelationsList();
+                        Drawer.UnsetSelectedRelation();
+                        Drawer.EnableRelationsBoxVisibility();
+                    }
+                    RedrawAll?.Invoke(); 
                 }
             }
         }
-        private IEdgeConstraint<IEdge> SelectedRelation
-            => SelectedEdge is null ? null : Drawer.GetSelectedRelation();
+
+        private IEdgeConstraint<IEdge> SelectedRelation => Drawer.GetSelectedRelation();
 
         public System.Drawing.Color SpecialColor => _specialColor;
 
@@ -337,6 +344,8 @@ namespace Project_1.Presenters
         private void HandleRelationDelete(object sender, EventArgs e)
         {
             Constraints.PerpendicularRepository.Remove(SelectedRelation as Perpendicular);
+            Drawer.UnsetSelectedRelation();
+            RefreshRelationsList();
         }
 
         private void HandleSolitaryPointAdd(object sender, NotifyCollectionChangedEventArgs e)
@@ -402,6 +411,12 @@ namespace Project_1.Presenters
         }
         #endregion
 
+
+        private void RefreshRelationsList()
+        {
+            var relations = Constraints.PerpendicularRepository.GetForEdge(SelectedEdge);
+            Drawer.SetRelationsListDataSource(relations.AsEdgeConstraint().ToList());
+        }
 
         public void PointMoveWithConstraints(IPoint root, Vector2 rootMove)
         {
