@@ -117,87 +117,124 @@ namespace Project_1.Presenters
             switch (Drawer.Mode)
             {
                 case DrawerMode.Draw:
-                    selectedVertex = Shapes.GetSolitaryPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
-
-                    if (selectedVertex == default(IPoint))
                     {
-                        Drawer.DrawPoint(Click);
-                        Shapes.AddSolitaryPoint(Click);
-                        Drawer.RefreshArea();
-                    }
-                    else if (selectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
-                    {
-                        Shapes.AddPolygon(Shapes.GetSolitaryPoints());
+                        selectedVertex = Shapes.GetSolitaryPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
-                        Shapes.ClearSolitaryPoints();
-                        RedrawAll?.Invoke();
+                        if (selectedVertex == default(IPoint))
+                        {
+                            Drawer.DrawPoint(Click);
+                            Shapes.AddSolitaryPoint(Click);
+                            Drawer.RefreshArea();
+                        }
+                        else if (selectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
+                        {
+                            Shapes.AddPolygon(Shapes.GetSolitaryPoints());
+
+                            Shapes.ClearSolitaryPoints();
+                            RedrawAll?.Invoke();
+                        }
+                        break;
                     }
-                    break;
 
                 case DrawerMode.Delete:
-                    selectedVertex = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
-
-                    if (selectedVertex != default(IPoint))
                     {
-                        var polygon = Shapes.GetPolygonByPoint(selectedVertex);
+                        selectedVertex = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
-                        if (polygon.Edges.Count > 3)
+                        if (selectedVertex != default(IPoint))
                         {
-                            foreach (var edge in Shapes.GetEdgesByPoint(selectedVertex))
+                            var polygon = Shapes.GetPolygonByPoint(selectedVertex);
+
+                            if (polygon.Edges.Count > 3)
                             {
-                                Constraints.RemoveAllForEdge(edge);
+                                foreach (var edge in Shapes.GetEdgesByPoint(selectedVertex))
+                                {
+                                    Constraints.RemoveAllForEdge(edge);
+                                }
+
+                                polygon.RemoveVertex(selectedVertex);
+                            }
+                            else
+                            {
+                                foreach (var edge in polygon.Edges)
+                                {
+                                    Constraints.RemoveAllForEdge(edge);
+                                }
+                                Shapes.RemovePolygon(polygon);
                             }
 
-                            polygon.RemoveVertex(selectedVertex);
+                            RedrawAll?.Invoke();
                         }
-                        else
-                        {
-                            foreach (var edge in polygon.Edges)
-                            {
-                                Constraints.RemoveAllForEdge(edge);
-                            }
-                            Shapes.RemovePolygon(polygon);
-                        }
-
-                        RedrawAll?.Invoke();
+                        break;
                     }
-                    break;
 
                 case DrawerMode.Move:
-                    #region Vertex selection
-
-                    MovedShape = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
-
-                    if (MovedShape != default(Point))
                     {
-                        return;
+                        #region Vertex selection
+
+                        MovedShape = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+
+                        if (MovedShape != default(Point))
+                        {
+                            return;
+                        }
+
+                        #endregion
+
+                        #region Polygon selection
+
+                        var allPolygons = Shapes.GetAllPolygons().ToList();
+                        MovedShape = allPolygons.Find(x => x.WasClicked(Click, DrawerClass.MoveIconWidth));
+
+                        if (MovedShape != default(Polygon))
+                        {
+                            return;
+                        }
+
+                        #endregion
+
+                        #region Edge selection
+
+                        var allEdges = Shapes.GetAllPolygonEdges().ToList();
+                        MovedShape = SelectedEdge = allEdges.Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+
+                        #endregion
+                        break;
                     }
-
-                    #endregion
-
-                    #region Polygon selection
-
-                    var allPolygons = Shapes.GetAllPolygons().ToList();
-                    MovedShape = allPolygons.Find(x => x.WasClicked(Click, DrawerClass.MoveIconWidth));
-
-                    if (MovedShape != default(Polygon))
-                    {
-                        return;
-                    }
-
-                    #endregion
-
-                    #region Edge selection
-
-                    var allEdges = Shapes.GetAllPolygonEdges().ToList();
-                    MovedShape = SelectedEdge = allEdges.Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
-
-                    #endregion
-                    break;
 
                 case DrawerMode.MakePerpendicular:
+                    {
+                        var allEdges = Shapes.GetAllPolygonEdges().ToList();
+                        var preSelectedEdge = SelectedEdge;
+                        SelectedEdge = allEdges.Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
-                    break;
+                        if (preSelectedEdge != default(Edge))
+                        {
+                            if (SelectedEdge != default(Edge) && SelectedEdge != preSelectedEdge)
+                            {
+                                var relation = Constraints.PerpendicularRepository.Add(preSelectedEdge, SelectedEdge);
+                                //// first edge
+                                //var u = relation.Edge.U;
+                                //var v = relation.Edge.V;
+
+                                //// second edge
+                                //var w = relation.Value.U;
+                                //var z = relation.Value.V;
+
+                                //var minX = new List<IPoint>() { u, v, w, z }.MinBy(p => p.X);
+
+                                //var wz = new Vector2(w.X - z.X, w.Y - z.Y);
+
+                                //var perpendVector = new Vector2(u.Y - v.Y, v.X - u.X);
+                                //perpendVector *= wz.Length() / perpendVector.Length();
+                                //z.Move(wz - perpendVector);
+
+                                //RedrawAll?.Invoke();
+                            }
+
+                            SelectedEdge = default;
+                        }
+                        break;
+                    }
                 default:
                     break;
             }
@@ -360,7 +397,7 @@ namespace Project_1.Presenters
                 var secondEdge = SelectedRelation.Value;
 
                 Drawer.DrawLine(firstEdge.U.Center, firstEdge.V.Center, SpecialColor);
-                Drawer.DrawLine(secondEdge.U.Center, secondEdge.V.Center, SpecialColor); 
+                Drawer.DrawLine(secondEdge.U.Center, secondEdge.V.Center, SpecialColor);
             }
         }
         #endregion
