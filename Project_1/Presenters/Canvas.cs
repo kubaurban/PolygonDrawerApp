@@ -32,7 +32,7 @@ namespace Project_1.Presenters
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepository relations)
         {
-            _drawer = drawer;
+             _drawer = drawer;
             _shapes = shapes;
             _constraints = relations;
 
@@ -107,22 +107,23 @@ namespace Project_1.Presenters
 
                     if (selectedVertex != default(IPoint))
                     {
-                        var polygon = selectedVertex.Polygon;
+                        var polygon = Shapes.GetPolygonByPoint(selectedVertex);
 
                         if (polygon.Vertices.Count > 3)
                         {
-                            selectedVertex.GetEdges().Select(x => x.FixedLength).Where(x => x != null).ToList().ForEach(x =>
+                            foreach (var edge in Shapes.GetEdgesByPoint(selectedVertex))
                             {
-                                Constraints.RemoveFixedLength(x);
-                            });
+                                Constraints.RemoveFixedLengthFor(edge);
+                            }
+
                             polygon.RemoveVertex(selectedVertex);
                         }
                         else
                         {
-                            polygon.Edges.Select(x => x.FixedLength).Where(x => x != null).ToList().ForEach(x =>
+                            foreach (var edge in polygon.Edges)
                             {
-                                Constraints.RemoveFixedLength(x);
-                            });
+                                Constraints.RemoveFixedLengthFor(edge);
+                            }
                             Shapes.RemovePolygon(polygon);
                         }
 
@@ -250,12 +251,12 @@ namespace Project_1.Presenters
         private void HandleEdgePointInsert(object sender, EventArgs e)
         {
             var point = Shapes.AddSolitaryPoint(new((SelectedEdge.U.X + SelectedEdge.V.X) / 2, (SelectedEdge.U.Y + SelectedEdge.V.Y) / 2));
-            var constraint = SelectedEdge.FixedLength;
+            var constraint = Constraints.GetFixedLengthFor(SelectedEdge);
             if (constraint != default(FixedLength))
             {
-                Constraints.RemoveFixedLength(constraint); 
+                Constraints.RemoveFixedLength(constraint);
             }
-            SelectedEdge.Polygon.InsertPoint(SelectedEdge, point);
+            Shapes.GetPolygonByEdge(SelectedEdge).InsertPoint(SelectedEdge, point);
             Shapes.ClearSolitaryPoints();
 
             RedrawAll?.Invoke();
@@ -297,50 +298,84 @@ namespace Project_1.Presenters
         #endregion
 
 
-        public static void PointMoveWithConstraints(Point root, Vector2 rootMove)
+        public void PointMoveWithConstraints(IPoint root, Vector2 rootMove)
         {
-            var polygon = root.Polygon;
-            var canBeProcessed = polygon.Vertices.ToHashSet();
-            var toBeProcessed = new Queue<(Point, Vector2)>();
+            var polygon = Shapes.GetPolygonByPoint(root);
 
+            var verticesCopy = new List<IPoint>();
+            foreach (var item in polygon.Vertices)
+            {
+                verticesCopy.Add(item.Clone() as IPoint);
+            }
+
+            var toBeProcessed = new Queue<(IPoint, Vector2)>();
             toBeProcessed.Enqueue((root, rootMove));
-            while (toBeProcessed.Any())
+
+            if (!Algorithm(polygon, toBeProcessed))
+            {
+                // retrieve start vertices coordinates
+                var it = verticesCopy.GetEnumerator();
+                foreach (var v in polygon.Vertices)
+                {
+                    it.MoveNext();
+                    v.X = it.Current.X;
+                    v.Y = it.Current.Y;
+                }
+
+                // move entire polygon at last
+                polygon.Move(rootMove);
+            }
+        }
+
+        private bool Algorithm(IPolygon polygon, Queue<(IPoint, Vector2)> toBeProcessed)
+        {
+            var canBeProcessed = polygon.Vertices.ToHashSet();
+
+            while (toBeProcessed.Any() && canBeProcessed.Count > 0)
             {
                 (var u, var move) = toBeProcessed.Dequeue();
 
-                foreach (var e in u.GetEdges())
-                {
-                    var v = u.GetNeighbor(e);
-                    if (e.FixedLength != null && canBeProcessed.Contains(v))
-                    {
-                        var vu = new Vector2(u.X - v.X, u.Y - v.Y);
-                        var vu_moved = vu + move;
-                        var vMove = vu_moved - vu_moved * vu.Length() / vu_moved.Length();
-                        toBeProcessed.Enqueue((v, vMove));
-                    }
-                }
-
                 if (canBeProcessed.Remove(u))
                 {
-                    u.Move(move); 
+                    foreach (var e in polygon.GetNeighborEdges(u))
+                    {
+                        var v = u.GetNeighbor(e);
+                        if (Constraints.GetFixedLengthFor(e) != null && canBeProcessed.Contains(v))
+                        {
+                            var vu = new Vector2(u.X - v.X, u.Y - v.Y);
+                            var vu_moved = vu + move;
+                            var vMove = vu_moved - vu_moved * vu.Length() / vu_moved.Length();
+                            toBeProcessed.Enqueue((v, vMove));
+                        }
+                    }
+
+                    u.Move(move);
+                    if (u.X.Equals(float.NaN) || u.Y.Equals(float.NaN))
+                    {
+                        return false;
+                    } 
                 }
             }
 
-            (var last, var moveLast) = toBeProcessed.Dequeue();
-
-            if (allFixed)
+            if (toBeProcessed.Any())
             {
-                var edges = Shapes.GetEdgesFor(last);
-                var u = last.GetNeighbor(edges.First());
-                var v = last.GetNeighbor(edges.Last());
+                (var last, _) = toBeProcessed.Dequeue();
+
+                var edges = polygon.GetNeighborEdges(last);
+
+                var e = edges.First();
+                var f = edges.Last();
+
+                var u = last.GetNeighbor(e);
+                var v = last.GetNeighbor(f);
                 var uv = v - u;
                 var uLast = last - u;
 
-                var x = (float)(uv.LengthSquared() + Math.Pow(edges.First().FixedLength.Value, 2) - Math.Pow(edges.Last().FixedLength.Value, 2)) / (2 * uv.Length());
+                var x = (float)(uv.LengthSquared() + Math.Pow(Constraints.GetFixedLengthFor(e).Value, 2) - Math.Pow(Constraints.GetFixedLengthFor(f).Value, 2)) / (2 * uv.Length());
 
                 var t = uLast - uv * Vector2.Dot(uLast, uv) / Vector2.Dot(-uv, -uv);
 
-                var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(edges.First().FixedLength.Value, 2) - Math.Pow(x, 2));
+                var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(Constraints.GetFixedLengthFor(e).Value, 2) - Math.Pow(x, 2));
 
                 var X = Vector2.Normalize(uv) * x;
 
@@ -350,42 +385,37 @@ namespace Project_1.Presenters
                     return false;
                 }
             }
-            else
-            {
-                last.Move(moveLast);
-            }
+
+            return true;
         }
 
-        private static void EdgeMoveWithConstraints(Edge root, Vector2 rootMove)
+        private void EdgeMoveWithConstraints(IEdge root, Vector2 rootMove)
         {
-            var rootU = root.U;
-            var rootV = root.V;
+            var polygon = Shapes.GetPolygonByEdge(root);
 
-            var canBeProcessed = rootU.Polygon.Vertices.ToHashSet();
-            var toBeProcessed = new Queue<(Point, Vector2)>();
-
-            toBeProcessed.Enqueue((rootU, rootMove));
-            toBeProcessed.Enqueue((rootV, rootMove));
-            while (toBeProcessed.Any())
+            var verticesCopy = new List<IPoint>();
+            foreach (var item in polygon.Vertices)
             {
-                (var u, var move) = toBeProcessed.Dequeue();
+                verticesCopy.Add(item.Clone() as IPoint);
+            }
 
-                foreach (var e in u.GetEdges())
+            var toBeProcessed = new Queue<(IPoint, Vector2)>();
+            toBeProcessed.Enqueue((root.U, rootMove));
+            toBeProcessed.Enqueue((root.V, rootMove));
+
+            if (!Algorithm(polygon, toBeProcessed))
+            {
+                // retrieve start vertices coordinates
+                var it = verticesCopy.GetEnumerator();
+                foreach (var v in polygon.Vertices)
                 {
-                    var v = u.GetNeighbor(e);
-                    if (e.FixedLength != null && canBeProcessed.Contains(v))
-                    {
-                        var vu = new Vector2(u.X - v.X, u.Y - v.Y);
-                        var vu_moved = vu + move;
-                        var vMove = vu_moved - vu_moved * vu.Length() / vu_moved.Length();
-                        toBeProcessed.Enqueue((v, vMove));
-                    }
+                    it.MoveNext();
+                    v.X = it.Current.X;
+                    v.Y = it.Current.Y;
                 }
 
-                if (canBeProcessed.Remove(u))
-                {
-                    u.Move(move);
-                }
+                // move entire polygon at last
+                polygon.Move(rootMove);
             }
         }
 
@@ -394,7 +424,7 @@ namespace Project_1.Presenters
             var u = SelectedEdge.U;
             var v = SelectedEdge.V;
 
-            var relation = SelectedEdge.FixedLength;
+            var relation = Constraints.GetFixedLengthFor(SelectedEdge);
             if (relation != null)
             {
                 Constraints.RemoveFixedLength(relation);

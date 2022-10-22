@@ -209,20 +209,20 @@ namespace Project_1.Views
             using var g = Graphics;
 
             var first = polygon.Vertices.First();
-            DrawPoint(first.Location);
+            DrawPoint(first.Center);
             var prev = first;
             foreach (var v in polygon.Vertices.Skip(1))
             {
-                DrawPoint(v.Location);
-                DrawLineLibrary(prev.Location, v.Location);
+                DrawPoint(v.Center);
+                DrawLineLibrary(prev.Center, v.Center);
                 prev = v;
             }
-            DrawLineLibrary(prev.Location, first.Location);
+            DrawLineLibrary(prev.Center, first.Center);
 
             if (Mode == DrawerMode.Move)
             {
                 // draw gravity center point
-                DrawGrabIcon(polygon.GravityCenterPoint);
+                DrawGrabIcon(polygon.Center);
             }
         }
 
