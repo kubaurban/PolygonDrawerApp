@@ -176,6 +176,19 @@ namespace Project_1.Presenters
 
                 case DrawerMode.Move:
                     {
+                        #region Edge selection
+
+                        var allEdges = Shapes.GetAllPolygonEdges().ToList();
+                        SelectedEdge = allEdges.Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+                        MovedShape = SelectedEdge;
+
+                        if (MovedShape != default(Edge))
+                        {
+                            return;
+                        }
+
+                        #endregion
+
                         #region Vertex selection
 
                         MovedShape = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
@@ -191,18 +204,6 @@ namespace Project_1.Presenters
 
                         var allPolygons = Shapes.GetAllPolygons().ToList();
                         MovedShape = allPolygons.Find(x => x.WasClicked(Click, DrawerClass.MoveIconWidth));
-
-                        if (MovedShape != default(Polygon))
-                        {
-                            return;
-                        }
-
-                        #endregion
-
-                        #region Edge selection
-
-                        var allEdges = Shapes.GetAllPolygonEdges().ToList();
-                        MovedShape = SelectedEdge = allEdges.Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
                         #endregion
                         break;
