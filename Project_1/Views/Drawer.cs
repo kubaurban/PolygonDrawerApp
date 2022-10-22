@@ -42,6 +42,7 @@ namespace Project_1.Views
         public event EventHandler EdgeInsertPointClickedHandler;
         public event EventHandler EdgeSetLengthClickedHandler;
         public event EventHandler SelectedRelationChangedHandler;
+        public event EventHandler RelationDeleteHandler;
 
         #endregion
 
@@ -347,9 +348,18 @@ namespace Project_1.Views
             EdgeSetLengthClickedHandler?.Invoke(sender, e);
         }
 
-        private void SelectedRelationChanged(object sender, EventArgs e)
+        private void OnSelectedRelationChanged(object sender, EventArgs e)
         {
             SelectedRelationChangedHandler?.Invoke(sender, e);
+        }
+
+        private void OnRelationsListMouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                // TODO: display proper context menu
+                RelationDeleteHandler?.Invoke(sender, e);
+            }
         }
         #endregion
 

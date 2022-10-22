@@ -1,5 +1,6 @@
 ﻿using Project_1.Helpers.BL;
 using Project_1.Helpers.UI;
+using Project_1.Models.Constraints;
 using Project_1.Models.Constraints.Abstract;
 using Project_1.Models.Repositories.Abstract;
 using Project_1.Models.Shapes;
@@ -33,7 +34,8 @@ namespace Project_1.Presenters
 
         private System.Drawing.Point Click { get; set; }
         private IShape MovedShape { get; set; }
-        private IEdge SelectedEdge {
+        private IEdge SelectedEdge
+        {
             get => _selectedEdge;
             set
             {
@@ -89,6 +91,7 @@ namespace Project_1.Presenters
             Drawer.EdgeInsertPointClickedHandler += HandleEdgePointInsert;
             Drawer.EdgeSetLengthClickedHandler += HandleEdgeSetFixedLength;
             Drawer.SelectedRelationChangedHandler += HandleSelectedRelationChanged;
+            Drawer.RelationDeleteHandler += HandleRelationDelete;
         }
 
         public void InitModelChangedHandlers()
@@ -292,6 +295,11 @@ namespace Project_1.Presenters
         private void HandleSelectedRelationChanged(object sender, EventArgs e)
         {
             RedrawAll?.Invoke();
+        }
+
+        private void HandleRelationDelete(object sender, EventArgs e)
+        {
+            Constraints.PerpendicularRepository.Remove(SelectedRelation as Perpendicular);
         }
 
         private void HandleSolitaryPointAdd(object sender, NotifyCollectionChangedEventArgs e)

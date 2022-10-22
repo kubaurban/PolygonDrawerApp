@@ -165,7 +165,8 @@ namespace Project_1.Views
             this.RelationsList.Name = "RelationsList";
             this.RelationsList.Size = new System.Drawing.Size(1017, 64);
             this.RelationsList.TabIndex = 0;
-            this.RelationsList.SelectedValueChanged += new System.EventHandler(this.SelectedRelationChanged);
+            this.RelationsList.SelectedValueChanged += new System.EventHandler(this.OnSelectedRelationChanged);
+            this.RelationsList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.OnRelationsListMouseDown);
             // 
             // Drawer
             // 

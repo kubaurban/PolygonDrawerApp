@@ -15,6 +15,7 @@ namespace Project_1.Views
         event EventHandler EdgeInsertPointClickedHandler;
         event EventHandler EdgeSetLengthClickedHandler;
         event EventHandler SelectedRelationChangedHandler;
+        event EventHandler RelationDeleteHandler;
 
         void DrawLine(PointF p1, PointF p2, Color? color = null);
         void DrawPoint(PointF p);
