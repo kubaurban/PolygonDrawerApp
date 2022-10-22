@@ -21,6 +21,8 @@ namespace Project_1.Views
         void ClearArea();
         void RefreshArea();
         void ShowManageEdgeMenu(PointF point);
+        void EnableConstraintBoxVisibility();
+        void DisableConstraintBoxVisibility();
         void Write(PointF pointF, string text);
     }
 }

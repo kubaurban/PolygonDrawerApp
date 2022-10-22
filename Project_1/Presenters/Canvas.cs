@@ -20,21 +20,35 @@ namespace Project_1.Presenters
         private readonly IShapeRepository _shapes;
         private readonly IConstraintRepositories _constraintsRepositories;
 
+        private IEdge _selectedEdge;
+
         public IDrawer Drawer { get => _drawer; }
         public IShapeRepository Shapes { get => _shapes; }
         public IConstraintRepositories Constraints { get => _constraintsRepositories; }
 
         public Action RedrawAll { get; set; }
 
-        private System.Drawing.Point ClickedPoint { get; set; }
+        private System.Drawing.Point Click { get; set; }
         private IShape MovedShape { get; set; }
-        private IEdge SelectedEdge { get; set; }
+        private IEdge SelectedEdge {
+            get => _selectedEdge; 
+            set
+            {
+                _selectedEdge = value;
+                if (value == null)
+                    Drawer.DisableConstraintBoxVisibility();
+                else
+                    Drawer.EnableConstraintBoxVisibility();
+            }
+        }
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepositories constraintRepositories)
         {
             _drawer = drawer;
             _shapes = shapes;
             _constraintsRepositories = constraintRepositories;
+
+            _selectedEdge = null;
 
             RedrawAll += Drawer.ClearArea;
             RedrawAll += DrawAllPolygons;
@@ -72,7 +86,7 @@ namespace Project_1.Presenters
         #region Handlers
         private void HandleModeChange(object sender, EventArgs e)
         {
-            ClickedPoint = default;
+            Click = default;
             MovedShape = default;
             SelectedEdge = default;
             RedrawAll?.Invoke();
@@ -80,18 +94,18 @@ namespace Project_1.Presenters
 
         public void HandleLeftMouseDown(object sender, MouseEventArgs e)
         {
-            ClickedPoint = e.Location;
+            Click = e.Location;
             IPoint selectedVertex = default;
 
             switch (Drawer.Mode)
             {
                 case DrawerMode.Draw:
-                    selectedVertex = Shapes.GetSolitaryPoints().Find(x => x.WasClicked(ClickedPoint, DrawerClass.PointWidth));
+                    selectedVertex = Shapes.GetSolitaryPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
                     if (selectedVertex == default(IPoint))
                     {
-                        Drawer.DrawPoint(ClickedPoint);
-                        Shapes.AddSolitaryPoint(ClickedPoint);
+                        Drawer.DrawPoint(Click);
+                        Shapes.AddSolitaryPoint(Click);
                         Drawer.RefreshArea();
                     }
                     else if (selectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
@@ -104,7 +118,7 @@ namespace Project_1.Presenters
                     break;
 
                 case DrawerMode.Delete:
-                    selectedVertex = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(ClickedPoint, DrawerClass.PointWidth));
+                    selectedVertex = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
                     if (selectedVertex != default(IPoint))
                     {
@@ -135,7 +149,7 @@ namespace Project_1.Presenters
                 case DrawerMode.Move:
                     #region Vertex selection
 
-                    MovedShape = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(ClickedPoint, DrawerClass.PointWidth));
+                    MovedShape = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
                     if (MovedShape != default(Point))
                     {
@@ -147,7 +161,7 @@ namespace Project_1.Presenters
                     #region Polygon selection
 
                     var allPolygons = Shapes.GetAllPolygons().ToList();
-                    MovedShape = allPolygons.Find(x => x.WasClicked(ClickedPoint, DrawerClass.MoveIconWidth));
+                    MovedShape = allPolygons.Find(x => x.WasClicked(Click, DrawerClass.MoveIconWidth));
 
                     if (MovedShape != default(Polygon))
                     {
@@ -159,7 +173,7 @@ namespace Project_1.Presenters
                     #region Edge selection
 
                     var allEdges = Shapes.GetAllPolygonEdges().ToList();
-                    MovedShape = allEdges.Find(x => x.WasClicked(ClickedPoint, DrawerClass.PointWidth));
+                    MovedShape = SelectedEdge = allEdges.Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
                     #endregion
                     break;
@@ -179,14 +193,14 @@ namespace Project_1.Presenters
 
         public void HandleRightMouseDown(object sender, MouseEventArgs e)
         {
-            ClickedPoint = e.Location;
+            Click = e.Location;
 
             var allEdges = Shapes.GetAllPolygonEdges().ToList();
-            SelectedEdge = allEdges.Find(x => x.WasClicked(ClickedPoint, DrawerClass.PointWidth));
+            SelectedEdge = allEdges.Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
             if (SelectedEdge != default(IEdge))
             {
-                Drawer.ShowManageEdgeMenu(ClickedPoint);
+                Drawer.ShowManageEdgeMenu(Click);
             }
         }
 
@@ -196,10 +210,10 @@ namespace Project_1.Presenters
             {
                 var vector = new Vector2
                 {
-                    X = e.Location.X - ClickedPoint.X,
-                    Y = e.Location.Y - ClickedPoint.Y
+                    X = e.Location.X - Click.X,
+                    Y = e.Location.Y - Click.Y
                 };
-                ClickedPoint = e.Location;
+                Click = e.Location;
 
                 if (MovedShape is Point point)
                 {

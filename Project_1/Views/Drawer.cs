@@ -93,6 +93,18 @@ namespace Project_1.Views
         }
         #endregion
 
+        #region Constraints box
+        public void EnableConstraintBoxVisibility()
+        {
+            RelationsBox.Visible = true;
+        }
+
+        public void DisableConstraintBoxVisibility()
+        {
+            RelationsBox.Visible = false;
+        }
+        #endregion
+
         #region Bresenham logic
         private void DisableBresenhamAlgorithm()
         {

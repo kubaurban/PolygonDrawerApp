@@ -38,8 +38,11 @@ namespace Project_1.Views
             this.DeleteMode = new System.Windows.Forms.RadioButton();
             this.DrawingMode = new System.Windows.Forms.RadioButton();
             this.ManageEdgeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.RelationsBox = new System.Windows.Forms.GroupBox();
+            this.RelationsList = new System.Windows.Forms.ListBox();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.OptionsBox.SuspendLayout();
+            this.RelationsBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // IsBresenham
@@ -141,11 +144,34 @@ namespace Project_1.Views
             this.ManageEdgeMenu.Name = "ManageEdgeMenu";
             this.ManageEdgeMenu.Size = new System.Drawing.Size(61, 4);
             // 
+            // RelationsBox
+            // 
+            this.RelationsBox.Controls.Add(this.RelationsList);
+            this.RelationsBox.Location = new System.Drawing.Point(512, 5);
+            this.RelationsBox.Name = "RelationsBox";
+            this.RelationsBox.Size = new System.Drawing.Size(1056, 100);
+            this.RelationsBox.TabIndex = 4;
+            this.RelationsBox.TabStop = false;
+            this.RelationsBox.Text = "Relations";
+            this.RelationsBox.Visible = false;
+            // 
+            // RelationsList
+            // 
+            this.RelationsList.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            this.RelationsList.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.RelationsList.FormattingEnabled = true;
+            this.RelationsList.ItemHeight = 20;
+            this.RelationsList.Location = new System.Drawing.Point(19, 24);
+            this.RelationsList.Name = "RelationsList";
+            this.RelationsList.Size = new System.Drawing.Size(1017, 64);
+            this.RelationsList.TabIndex = 0;
+            // 
             // Drawer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1582, 881);
+            this.Controls.Add(this.RelationsBox);
             this.Controls.Add(this.OptionsBox);
             this.Controls.Add(this.PictureBox);
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -154,6 +180,7 @@ namespace Project_1.Views
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).EndInit();
             this.OptionsBox.ResumeLayout(false);
             this.OptionsBox.PerformLayout();
+            this.RelationsBox.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -168,5 +195,7 @@ namespace Project_1.Views
         private System.Windows.Forms.RadioButton MoveMode;
         private System.Windows.Forms.ContextMenuStrip ManageEdgeMenu;
         private System.Windows.Forms.RadioButton MakePerpendicularMode;
+        private System.Windows.Forms.GroupBox RelationsBox;
+        private System.Windows.Forms.ListBox RelationsList;
     }
 }
