@@ -30,8 +30,26 @@ namespace Project_1.Models.Repositories
             return newConstraint;
         }
 
-        public List<FixedLength> GetFixedLengths() => FixedLengthConstraints.ToList();
-        public List<Perpendicular> GetPerpendiculars() => PerpendicularConstraints.ToList();
+        public List<FixedLength> GetAllFixedLengths() => FixedLengthConstraints.ToList();
+
+        public FixedLength GetFixedLengthFor(IEdge edge) => FixedLengthConstraints.SingleOrDefault(x => x.Edge.Equals(edge));
+
+        public List<Perpendicular> GetAllPerpendiculars() => PerpendicularConstraints.ToList();
+
+        public List<Perpendicular> GetPerpendicularsFor(IEdge edge) => PerpendicularConstraints.Where(x => x.Edge == edge || x.Value == edge).ToList();
+
+        public void RemoveFixedLengthFor(IEdge edge)
+        {
+            FixedLengthConstraints.Remove(GetFixedLengthFor(edge));
+        }
+
+        public void RemovePerpendicularsFor(IEdge edge)
+        {
+            foreach (var rel in GetPerpendicularsFor(edge))
+            {
+                PerpendicularConstraints.Remove(rel);
+            }
+        }
 
         public FixedLength RemoveFixedLength(FixedLength relation)
         {
@@ -42,7 +60,7 @@ namespace Project_1.Models.Repositories
         public void RemovePerpendiculars(IList<Perpendicular> relations)
         {
             foreach (var rel in relations)
-        {
+            {
                 PerpendicularConstraints.Remove(rel);
             }
         }
