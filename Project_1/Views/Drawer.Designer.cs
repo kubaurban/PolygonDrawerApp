@@ -34,7 +34,7 @@ namespace Project_1.Views
             this.PictureBox = new System.Windows.Forms.PictureBox();
             this.OptionsBox = new System.Windows.Forms.GroupBox();
             this.MakePerpendicularMode = new System.Windows.Forms.RadioButton();
-            this.MoveMode = new System.Windows.Forms.RadioButton();
+            this.ModifyMode = new System.Windows.Forms.RadioButton();
             this.DeleteMode = new System.Windows.Forms.RadioButton();
             this.DrawingMode = new System.Windows.Forms.RadioButton();
             this.ManageEdgeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -72,7 +72,7 @@ namespace Project_1.Views
             // OptionsBox
             // 
             this.OptionsBox.Controls.Add(this.MakePerpendicularMode);
-            this.OptionsBox.Controls.Add(this.MoveMode);
+            this.OptionsBox.Controls.Add(this.ModifyMode);
             this.OptionsBox.Controls.Add(this.DeleteMode);
             this.OptionsBox.Controls.Add(this.DrawingMode);
             this.OptionsBox.Controls.Add(this.IsBresenham);
@@ -98,18 +98,18 @@ namespace Project_1.Views
             this.MakePerpendicularMode.UseVisualStyleBackColor = true;
             this.MakePerpendicularMode.CheckedChanged += new System.EventHandler(this.MakePerpendicularModeChecked);
             // 
-            // MoveMode
+            // ModifyMode
             // 
-            this.MoveMode.AutoSize = true;
-            this.MoveMode.Location = new System.Drawing.Point(211, 29);
-            this.MoveMode.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.MoveMode.Name = "MoveMode";
-            this.MoveMode.Size = new System.Drawing.Size(67, 24);
-            this.MoveMode.TabIndex = 4;
-            this.MoveMode.TabStop = true;
-            this.MoveMode.Text = "Move";
-            this.MoveMode.UseVisualStyleBackColor = true;
-            this.MoveMode.CheckedChanged += new System.EventHandler(this.MoveModeChecked);
+            this.ModifyMode.AutoSize = true;
+            this.ModifyMode.Location = new System.Drawing.Point(211, 29);
+            this.ModifyMode.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.ModifyMode.Name = "ModifyMode";
+            this.ModifyMode.Size = new System.Drawing.Size(77, 24);
+            this.ModifyMode.TabIndex = 4;
+            this.ModifyMode.TabStop = true;
+            this.ModifyMode.Text = "Modify";
+            this.ModifyMode.UseVisualStyleBackColor = true;
+            this.ModifyMode.CheckedChanged += new System.EventHandler(this.ModifyModeChecked);
             // 
             // DeleteMode
             // 
@@ -194,7 +194,7 @@ namespace Project_1.Views
         private System.Windows.Forms.GroupBox OptionsBox;
         private System.Windows.Forms.RadioButton DeleteMode;
         private System.Windows.Forms.RadioButton DrawingMode;
-        private System.Windows.Forms.RadioButton MoveMode;
+        private System.Windows.Forms.RadioButton ModifyMode;
         private System.Windows.Forms.ContextMenuStrip ManageEdgeMenu;
         private System.Windows.Forms.RadioButton MakePerpendicularMode;
         private System.Windows.Forms.GroupBox RelationsBox;

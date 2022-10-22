@@ -74,7 +74,7 @@ namespace Project_1.Views
             LineDrawer = DrawLineLibrary;
             DrawingMode.CheckedChanged += OnDrawingModeChecked;
             DeleteMode.CheckedChanged += OnDeleteModeChecked;
-            MoveMode.CheckedChanged += OnMoveModeChecked;
+            ModifyMode.CheckedChanged += OnModifyModeChecked;
             MakePerpendicularMode.CheckedChanged += OnMakePerpendicularModeChecked;
 
             PictureBox.Image = DrawArea;
@@ -134,7 +134,7 @@ namespace Project_1.Views
             EnableBresenhamAlgorithm();
         }
 
-        private void MoveModeChecked(object sender, EventArgs e)
+        private void ModifyModeChecked(object sender, EventArgs e)
         {
             DisableBresenhamAlgorithm();
         }
@@ -243,7 +243,7 @@ namespace Project_1.Views
             }
             DrawLineLibrary(prev.Center, first.Center);
 
-            if (Mode == DrawerMode.Move)
+            if (Mode == DrawerMode.Modify)
             {
                 // draw gravity center point
                 DrawGrabIcon(polygon.Center);
@@ -334,9 +334,9 @@ namespace Project_1.Views
             OnModeChanged(sender, e);
         }
 
-        private void OnMoveModeChecked(object sender, EventArgs e)
+        private void OnModifyModeChecked(object sender, EventArgs e)
         {
-            Mode = DrawerMode.Move;
+            Mode = DrawerMode.Modify;
             OnModeChanged(sender, e);
         }
 

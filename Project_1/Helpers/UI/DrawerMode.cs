@@ -4,7 +4,7 @@
     {
         Draw = 0,
         Delete = 1,
-        Move = 2,
+        Modify = 2,
         MakePerpendicular = 3
     }
 }

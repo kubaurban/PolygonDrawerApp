@@ -40,7 +40,7 @@ namespace Project_1.Presenters
             set
             {
                 _selectedEdge = value;
-                if (Drawer.Mode == DrawerMode.Move)
+                if (Drawer.Mode == DrawerMode.Modify)
                 {
                     Drawer.UnsetSelectedRelation();
                     if (value == null)
@@ -174,7 +174,7 @@ namespace Project_1.Presenters
                         break;
                     }
 
-                case DrawerMode.Move:
+                case DrawerMode.Modify:
                     {
                         #region Edge selection
 
@@ -268,7 +268,7 @@ namespace Project_1.Presenters
 
         public void HandleMouseDownMove(object sender, MouseEventArgs e)
         {
-            if (Drawer.Mode == DrawerMode.Move)
+            if (Drawer.Mode == DrawerMode.Modify)
             {
                 var vector = new Vector2
                 {
