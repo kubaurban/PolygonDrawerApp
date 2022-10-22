@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Numerics;
 using System.Windows.Forms;
 
 namespace Project_1.Views
@@ -18,10 +17,10 @@ namespace Project_1.Views
         private static readonly int _pointWidth = 8;
         private static readonly int _edgeWidth = 4;
         private static readonly int _moveIconWidth = 20;
-        
+
         private readonly Bitmap _drawArea;
         private readonly Pen _blackPen;
-        private readonly Brush _blackBrush; 
+        private readonly Brush _blackBrush;
 
         #endregion
 
@@ -39,8 +38,8 @@ namespace Project_1.Views
 
         public event EventHandler ModeChangedHandler;
         public event EventHandler EdgeInsertPointClickedHandler;
-        public event EventHandler EdgeSetLengthClickedHandler; 
-        
+        public event EventHandler EdgeSetLengthClickedHandler;
+
         #endregion
 
         public Bitmap DrawArea => _drawArea;

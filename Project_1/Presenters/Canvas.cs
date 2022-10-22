@@ -1,6 +1,5 @@
 ﻿using Project_1.Helpers.BL;
 using Project_1.Helpers.UI;
-using Project_1.Models.Constraints;
 using Project_1.Models.Repositories.Abstract;
 using Project_1.Models.Shapes;
 using Project_1.Models.Shapes.Abstract;
@@ -35,7 +34,7 @@ namespace Project_1.Presenters
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepositories constraintRepositories)
         {
-             _drawer = drawer;
+            _drawer = drawer;
             _shapes = shapes;
             _constraintsRepositories = constraintRepositories;
 
@@ -354,7 +353,7 @@ namespace Project_1.Presenters
                     if (u.X.Equals(float.NaN) || u.Y.Equals(float.NaN))
                     {
                         return false;
-                    } 
+                    }
                 }
             }
 

@@ -8,9 +8,10 @@ namespace Project_1.Views
         {
             get
             {
-                try {
+                try
+                {
                     return int.Parse(Input.Text);
-                } 
+                }
                 catch { return -1; }
             }
         }
