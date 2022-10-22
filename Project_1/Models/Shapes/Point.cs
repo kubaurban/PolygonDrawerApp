@@ -20,5 +20,14 @@ namespace Project_1.Models.Shapes
         }
 
         public bool WasClicked(PointF click, int clickRadius) => Math.Abs(X - click.X) <= clickRadius / 2 && Math.Abs(Y - click.Y) <= clickRadius / 2;
+
+        public object Clone()
+        {
+            return new Point()
+            {
+                X = X,
+                Y = Y
+            };
+        }
     }
 }

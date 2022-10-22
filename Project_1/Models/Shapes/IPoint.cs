@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Project_1.Models.Shapes
 {
-    public interface IPoint : IShape
+    public interface IPoint : IShape, ICloneable
     {
         float X { get; set; }
         float Y { get; set; }
