@@ -10,5 +10,7 @@ namespace Project_1.Models.Shapes
 
         void InsertPoint(IEdge e, IPoint p);
         void RemoveVertex(IPoint p);
+
+        List<IEdge> GetNeighborEdges(IPoint p);
     }
 }

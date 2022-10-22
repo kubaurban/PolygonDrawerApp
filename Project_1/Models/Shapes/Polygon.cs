@@ -1,5 +1,5 @@
 ﻿using System;
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -32,7 +32,7 @@ namespace Project_1.Models.Shapes
             foreach (var v in Vertices)
             {
                 v.Move(vector);
-        }
+            }
         }
 
         public void RemoveVertex(IPoint p)
@@ -72,6 +72,8 @@ namespace Project_1.Models.Shapes
             var center = Center;
             return Math.Abs(center.X - click.X) <= clickRadius / 2 && Math.Abs(center.Y - click.Y) <= clickRadius / 2;
         }
+
+        public List<IEdge> GetNeighborEdges(IPoint p) => Edges.Where(x => x.U == p || x.V == p).ToList();
 
         public PointF Center
         {

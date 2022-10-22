@@ -17,6 +17,9 @@ namespace Project_1.Models.Repositories
         // polygons helpers
         List<IPoint> GetAllPolygonPoints();
         List<IEdge> GetAllPolygonEdges();
+        IPolygon GetPolygonByPoint(IPoint u);
+        IPolygon GetPolygonByEdge(IEdge e);
+        List<IEdge> GetEdgesByPoint(IPoint u);
 
         // solitary points management
         List<IPoint> GetSolitaryPoints();

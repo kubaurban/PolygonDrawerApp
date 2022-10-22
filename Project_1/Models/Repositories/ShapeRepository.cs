@@ -37,6 +37,11 @@ namespace Project_1.Models.Repositories
 
         public List<IPoint> GetAllPolygonPoints() => Polygons.SelectMany(x => x.Vertices).ToList();
 
+        public List<IEdge> GetEdgesByPoint(IPoint u) => GetPolygonByPoint(u).GetNeighborEdges(u);
+
+        public IPolygon GetPolygonByPoint(IPoint u) => Polygons.SingleOrDefault(x => x.Vertices.Contains(u)); 
+
+        public IPolygon GetPolygonByEdge(IEdge u) => Polygons.SingleOrDefault(x => x.Edges.Contains(u)); 
         #endregion
 
         #region Solitary points
