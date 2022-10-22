@@ -25,7 +25,7 @@ namespace Project_1.Models.Repositories
 
         public IEnumerable<Perpendicular> Get() => _perpendiculars.AsEnumerable();
 
-        public IEnumerable<Perpendicular> GetForEdge(IEdge edge) => _perpendiculars.Where(x => x.Edge == edge);
+        public IEnumerable<Perpendicular> GetForEdge(IEdge edge) => _perpendiculars.Where(x => x.Edge == edge || x.Value == edge);
 
         public Perpendicular Remove(Perpendicular constraint)
         {
@@ -33,8 +33,8 @@ namespace Project_1.Models.Repositories
             return constraint;
         }
 
-        public void RemoveForEdge(IEdge edge) => _perpendiculars.RemoveWhere(x => x.Edge == edge);
+        public void RemoveForEdge(IEdge edge) => _perpendiculars.RemoveWhere(x => x.Edge == edge || x.Value == edge);
 
-        public bool HasConstraint(IEdge edge) => _perpendiculars.Any(x => x.Edge == edge);
+        public bool HasConstraint(IEdge edge) => _perpendiculars.Any(x => x.Edge == edge || x.Value == edge);
     }
 }
