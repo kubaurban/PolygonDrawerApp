@@ -13,5 +13,7 @@ namespace Project_1.Models.Constraints
             Edge = constrained;
             Value = constraint;
         }
+
+        public override string ToString() => "Perpendicular";
     }
 }

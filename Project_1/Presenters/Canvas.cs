@@ -1,5 +1,7 @@
 ﻿using Project_1.Helpers.BL;
 using Project_1.Helpers.UI;
+using Project_1.Models.Constraints;
+using Project_1.Models.Constraints.Abstract;
 using Project_1.Models.Repositories.Abstract;
 using Project_1.Models.Shapes;
 using Project_1.Models.Shapes.Abstract;
@@ -36,9 +38,13 @@ namespace Project_1.Presenters
             {
                 _selectedEdge = value;
                 if (value == null)
-                    Drawer.DisableConstraintBoxVisibility();
+                    Drawer.DisableRelationsBoxVisibility();
                 else
-                    Drawer.EnableConstraintBoxVisibility();
+                {
+                    Drawer.EnableRelationsBoxVisibility();
+                    var relations = Constraints.PerpendicularRepository.GetForEdge(value);
+                    Drawer.SetRelationsListDataSource(relations.AsEdgeConstraint().ToList());
+                }
             }
         }
 

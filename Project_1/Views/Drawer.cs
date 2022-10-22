@@ -1,4 +1,5 @@
 ﻿using Project_1.Helpers.UI;
+using Project_1.Models.Constraints.Abstract;
 using Project_1.Models.Shapes.Abstract;
 using System;
 using System.Collections.Generic;
@@ -94,15 +95,13 @@ namespace Project_1.Views
         #endregion
 
         #region Constraints box
-        public void EnableConstraintBoxVisibility()
-        {
-            RelationsBox.Visible = true;
-        }
+        public void EnableRelationsBoxVisibility() => RelationsBox.Visible = true;
 
-        public void DisableConstraintBoxVisibility()
-        {
-            RelationsBox.Visible = false;
-        }
+        public void DisableRelationsBoxVisibility() => RelationsBox.Visible = false;
+
+        public void SetRelationsListDataSource(IList<IEdgeConstraint<IEdge>> relations)
+            => RelationsList.DataSource = relations;
+
         #endregion
 
         #region Bresenham logic

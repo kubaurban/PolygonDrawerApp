@@ -1,4 +1,5 @@
 ﻿using Project_1.Helpers.UI;
+using Project_1.Models.Constraints.Abstract;
 using Project_1.Models.Shapes.Abstract;
 using System;
 using System.Collections.Generic;
@@ -21,8 +22,9 @@ namespace Project_1.Views
         void ClearArea();
         void RefreshArea();
         void ShowManageEdgeMenu(PointF point);
-        void EnableConstraintBoxVisibility();
-        void DisableConstraintBoxVisibility();
+        void EnableRelationsBoxVisibility();
+        void DisableRelationsBoxVisibility();
+        void SetRelationsListDataSource(IList<IEdgeConstraint<IEdge>> relations);
         void Write(PointF pointF, string text);
     }
 }
