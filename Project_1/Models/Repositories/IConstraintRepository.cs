@@ -1,24 +1,15 @@
 ﻿using Project_1.Models.Constraints;
 using Project_1.Models.Shapes;
-using System.Collections.Generic;
 
 namespace Project_1.Models.Repositories
 {
-    public interface IConstraintRepository
+    public interface IConstraintRepositories
     {
-        // managing fixed length constraints
-        FixedLength AddFixedLength(IEdge edge, int length);
-        FixedLength RemoveFixedLength(FixedLength relation);
-        void RemoveFixedLengthFor(IEdge edge);
-        List<FixedLength> GetAllFixedLengths();
-        FixedLength GetFixedLengthFor(IEdge edge);
+        IEdgeConstraintRepository<FixedLength, int> FixedLengthRepository { get; }
+        IEdgeConstraintRepository<Perpendicular, IEdge> PerpendicularRepository { get; }
 
-        // managing perpendicular constraints
-        Perpendicular AddPerpendicular(IEdge constrained, IEdge constraint);
-        void RemovePerpendiculars(IList<Perpendicular> relations);
-        void RemovePerpendicularsFor(IEdge edge);
-        List<Perpendicular> GetAllPerpendiculars();
-        List<Perpendicular> GetPerpendicularsFor(IEdge edge);
+        void RemoveAllForEdge(IEdge edge);
+        bool HasAnyConstraint(IEdge edge);
     }
 }
 

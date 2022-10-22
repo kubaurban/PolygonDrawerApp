@@ -18,11 +18,13 @@ namespace Project_1.Presenters
     {
         private readonly IDrawer _drawer;
         private readonly IShapeRepository _shapes;
-        private readonly IConstraintRepository _constraints;
+        private readonly IConstraintRepositories _constraintsRepositories;
 
         public IDrawer Drawer { get => _drawer; }
         public IShapeRepository Shapes { get => _shapes; }
-        public IConstraintRepository Constraints { get => _constraints; }
+        public IConstraintRepositories Constraints { get => _constraintsRepositories; }
+        //public IEdgeConstraintRepository<FixedLength, int> FixedLengths { get => Constraints.FixedLengthRepository; }
+        //public IEdgeConstraintRepository<Perpendicular, IEdge> Perpendiculars { get => Constraints.PerpendicularRepository; }
 
         public Action RedrawAll { get; set; }
 
@@ -30,11 +32,11 @@ namespace Project_1.Presenters
         private IShape MovedShape { get; set; }
         private IEdge SelectedEdge { get; set; }
 
-        public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepository relations)
+        public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepositories constraintRepositories)
         {
              _drawer = drawer;
             _shapes = shapes;
-            _constraints = relations;
+            _constraintsRepositories = constraintRepositories;
 
             RedrawAll += Drawer.ClearArea;
             RedrawAll += DrawAllPolygons;
@@ -113,7 +115,7 @@ namespace Project_1.Presenters
                         {
                             foreach (var edge in Shapes.GetEdgesByPoint(selectedVertex))
                             {
-                                Constraints.RemoveFixedLengthFor(edge);
+                                Constraints.RemoveAllForEdge(edge);
                             }
 
                             polygon.RemoveVertex(selectedVertex);
@@ -122,7 +124,7 @@ namespace Project_1.Presenters
                         {
                             foreach (var edge in polygon.Edges)
                             {
-                                Constraints.RemoveFixedLengthFor(edge);
+                                Constraints.RemoveAllForEdge(edge);
                             }
                             Shapes.RemovePolygon(polygon);
                         }
@@ -251,11 +253,9 @@ namespace Project_1.Presenters
         private void HandleEdgePointInsert(object sender, EventArgs e)
         {
             var point = Shapes.AddSolitaryPoint(new((SelectedEdge.U.X + SelectedEdge.V.X) / 2, (SelectedEdge.U.Y + SelectedEdge.V.Y) / 2));
-            var constraint = Constraints.GetFixedLengthFor(SelectedEdge);
-            if (constraint != default(FixedLength))
-            {
-                Constraints.RemoveFixedLength(constraint);
-            }
+
+            Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
+
             Shapes.GetPolygonByEdge(SelectedEdge).InsertPoint(SelectedEdge, point);
             Shapes.ClearSolitaryPoints();
 
@@ -340,7 +340,7 @@ namespace Project_1.Presenters
                     foreach (var e in polygon.GetNeighborEdges(u))
                     {
                         var v = u.GetNeighbor(e);
-                        if (Constraints.GetFixedLengthFor(e) != null && canBeProcessed.Contains(v))
+                        if (Constraints.FixedLengthRepository.HasConstraint(e) && canBeProcessed.Contains(v))
                         {
                             var vu = new Vector2(u.X - v.X, u.Y - v.Y);
                             var vu_moved = vu + move;
@@ -371,11 +371,14 @@ namespace Project_1.Presenters
                 var uv = v - u;
                 var uLast = last - u;
 
-                var x = (float)(uv.LengthSquared() + Math.Pow(Constraints.GetFixedLengthFor(e).Value, 2) - Math.Pow(Constraints.GetFixedLengthFor(f).Value, 2)) / (2 * uv.Length());
+                var eLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(e).Single().Value;
+                var fLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(f).Single().Value;
+
+                var x = (float)(uv.LengthSquared() + Math.Pow(eLengthConstraint, 2) - Math.Pow(fLengthConstraint, 2)) / (2 * uv.Length());
 
                 var t = uLast - uv * Vector2.Dot(uLast, uv) / Vector2.Dot(-uv, -uv);
 
-                var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(Constraints.GetFixedLengthFor(e).Value, 2) - Math.Pow(x, 2));
+                var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(eLengthConstraint, 2) - Math.Pow(x, 2));
 
                 var X = Vector2.Normalize(uv) * x;
 
@@ -424,17 +427,13 @@ namespace Project_1.Presenters
             var u = SelectedEdge.U;
             var v = SelectedEdge.V;
 
-            var relation = Constraints.GetFixedLengthFor(SelectedEdge);
-            if (relation != null)
-            {
-                Constraints.RemoveFixedLength(relation);
-            }
+            Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
 
             var uv = new Vector2(v.X - u.X, v.Y - u.Y);
             var newVector = uv * length / uv.Length();
             //PointMoveWithConstraints(u, uv - newVector);
 
-            Constraints.AddFixedLength(SelectedEdge, length);
+            Constraints.FixedLengthRepository.Add(SelectedEdge, length);
             RedrawAll?.Invoke();
         }
     }

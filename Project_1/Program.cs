@@ -20,9 +20,9 @@ namespace Project_1
 
             var drawer = new Drawer();
             var shapesRepository = new ShapeRepository();
-            var relationsRepository = new ConstraintRepository();
-            
-            new Canvas(drawer, shapesRepository, relationsRepository);
+            var relationsRepository = new ConstraintRepositories(new FixedLengthRepository(), new PerpendicularRepository());
+
+            _ = new Canvas(drawer, shapesRepository, relationsRepository);
 
             Application.Run(drawer);
         }

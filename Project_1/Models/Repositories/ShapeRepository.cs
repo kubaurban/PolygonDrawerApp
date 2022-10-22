@@ -8,7 +8,7 @@ namespace Project_1.Models.Repositories
 {
     public class ShapeRepository : IShapeRepository
     {
-        private ISet<IPolygon> Polygons { get; set; }
+        private HashSet<IPolygon> Polygons { get; set; }
         private ObservableCollection<IPoint> SolitaryPoints { get; set; }
         public NotifyCollectionChangedEventHandler OnSolitaryPointAdded { get; set; }
 
