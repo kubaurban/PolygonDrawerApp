@@ -5,8 +5,8 @@ namespace Project_1.Models.Shapes
 {
     public interface IPolygon : IShape
     {
-        IList<IPoint> Vertices { get; }
         IList<IEdge> Edges { get; }
+        IEnumerable<IPoint> Vertices { get; }
 
         void InsertPoint(IEdge e, IPoint p);
         void RemoveVertex(IPoint p);

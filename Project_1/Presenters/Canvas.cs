@@ -111,7 +111,7 @@ namespace Project_1.Presenters
                     {
                         var polygon = Shapes.GetPolygonByPoint(selectedVertex);
 
-                        if (polygon.Vertices.Count > 3)
+                        if (polygon.Edges.Count > 3)
                         {
                             foreach (var edge in Shapes.GetEdgesByPoint(selectedVertex))
                             {
@@ -431,7 +431,7 @@ namespace Project_1.Presenters
 
             var uv = new Vector2(v.X - u.X, v.Y - u.Y);
             var newVector = uv * length / uv.Length();
-            //PointMoveWithConstraints(u, uv - newVector);
+            PointMoveWithConstraints(u, uv - newVector);
 
             Constraints.FixedLengthRepository.Add(SelectedEdge, length);
             RedrawAll?.Invoke();

@@ -8,18 +8,16 @@ namespace Project_1.Models.Shapes
 {
     public class Polygon : IPolygon, IMovable
     {
-        public IList<IPoint> Vertices { get; private set; }
         public IList<IEdge> Edges { get; private set; }
+        public IEnumerable<IPoint> Vertices => Edges.Select(x => x.U);
 
         public Polygon(IList<IPoint> vertices)
         {
-            Vertices = vertices.ToList();
-
             Edges = new List<IEdge>();
 
-            var first = Vertices.First();
+            var first = vertices.First();
             var prev = first;
-            foreach (var v in Vertices.Skip(1))
+            foreach (var v in vertices.Skip(1))
             {
                 Edges.Add(new Edge(prev, v));
                 prev = v;
@@ -37,8 +35,7 @@ namespace Project_1.Models.Shapes
 
         public void RemoveVertex(IPoint p)
         {
-            var idx = Vertices.IndexOf(p);
-            Vertices.RemoveAt(idx);
+            var idx = Vertices.ToList().IndexOf(p);
 
             var prevIdx = (idx - 1 + Edges.Count) % Edges.Count;
             var prevEdge = Edges.ElementAt(prevIdx);
@@ -60,11 +57,8 @@ namespace Project_1.Models.Shapes
             Edges.RemoveAt(idx);
 
             // insert new edges
-            var newEdges = new List<Edge> { new Edge(e.U, p), new Edge(p, e.V) };
-            Edges.ToList().InsertRange(idx, newEdges);
-
-            // insert new point
-            Vertices.Insert(idx + 1, p);
+            Edges.Insert(idx, new Edge(p, e.V));
+            Edges.Insert(idx, new Edge(e.U, p));
         }
 
         public bool WasClicked(PointF click, int clickRadius)
@@ -79,7 +73,7 @@ namespace Project_1.Models.Shapes
         {
             get
             {
-                var centerVector = Vertices.Aggregate(new Vector2(0, 0), (x, p) => x += new Vector2(p.X, p.Y)) / Vertices.Count;
+                var centerVector = Vertices.Aggregate(new Vector2(0, 0), (x, p) => x += new Vector2(p.X, p.Y)) / Edges.Count;
                 return new(centerVector.X, centerVector.Y);
             }
         }
