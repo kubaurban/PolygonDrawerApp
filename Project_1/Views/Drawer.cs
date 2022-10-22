@@ -1,5 +1,5 @@
 ﻿using Project_1.Helpers.UI;
-using Project_1.Models.Shapes;
+using Project_1.Models.Shapes.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

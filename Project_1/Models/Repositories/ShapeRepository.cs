@@ -1,4 +1,6 @@
-﻿using Project_1.Models.Shapes;
+﻿using Project_1.Models.Repositories.Abstract;
+using Project_1.Models.Shapes;
+using Project_1.Models.Shapes.Abstract;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -39,9 +41,9 @@ namespace Project_1.Models.Repositories
 
         public List<IEdge> GetEdgesByPoint(IPoint u) => GetPolygonByPoint(u).GetNeighborEdges(u);
 
-        public IPolygon GetPolygonByPoint(IPoint u) => Polygons.SingleOrDefault(x => x.Vertices.Contains(u)); 
+        public IPolygon GetPolygonByPoint(IPoint u) => Polygons.SingleOrDefault(x => x.Vertices.Contains(u));
 
-        public IPolygon GetPolygonByEdge(IEdge u) => Polygons.SingleOrDefault(x => x.Edges.Contains(u)); 
+        public IPolygon GetPolygonByEdge(IEdge u) => Polygons.SingleOrDefault(x => x.Edges.Contains(u));
         #endregion
 
         #region Solitary points

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Project_1.Models.Shapes
+namespace Project_1.Models.Shapes.Abstract
 {
     public interface IPolygon : IShape
     {

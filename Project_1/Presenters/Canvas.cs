@@ -1,8 +1,9 @@
 ﻿using Project_1.Helpers.BL;
 using Project_1.Helpers.UI;
 using Project_1.Models.Constraints;
-using Project_1.Models.Repositories;
+using Project_1.Models.Repositories.Abstract;
 using Project_1.Models.Shapes;
+using Project_1.Models.Shapes.Abstract;
 using Project_1.Views;
 using System;
 using System.Collections.Generic;

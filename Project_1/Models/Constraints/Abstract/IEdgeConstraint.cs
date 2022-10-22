@@ -1,6 +1,6 @@
-﻿using Project_1.Models.Shapes;
+﻿using Project_1.Models.Shapes.Abstract;
 
-namespace Project_1.Models.Constraints
+namespace Project_1.Models.Constraints.Abstract
 {
     public interface IEdgeConstraint<T>
     {

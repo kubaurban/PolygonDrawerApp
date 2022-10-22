@@ -1,7 +1,7 @@
 ﻿using Project_1.Models.Constraints;
-using Project_1.Models.Shapes;
+using Project_1.Models.Shapes.Abstract;
 
-namespace Project_1.Models.Repositories
+namespace Project_1.Models.Repositories.Abstract
 {
     public interface IConstraintRepositories
     {

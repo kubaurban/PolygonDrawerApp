@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace Project_1.Models.Shapes
+namespace Project_1.Models.Shapes.Abstract
 {
     public interface IPoint : IShape, ICloneable
     {

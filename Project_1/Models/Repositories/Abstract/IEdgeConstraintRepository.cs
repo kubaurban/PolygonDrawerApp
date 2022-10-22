@@ -1,8 +1,8 @@
-﻿using Project_1.Models.Constraints;
-using Project_1.Models.Shapes;
+﻿using Project_1.Models.Constraints.Abstract;
+using Project_1.Models.Shapes.Abstract;
 using System.Collections.Generic;
 
-namespace Project_1.Models.Repositories
+namespace Project_1.Models.Repositories.Abstract
 {
     public interface IEdgeConstraintRepository<T, U> where T : IEdgeConstraint<U>
     {

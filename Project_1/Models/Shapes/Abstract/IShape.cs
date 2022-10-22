@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Project_1.Models.Shapes
+namespace Project_1.Models.Shapes.Abstract
 {
     public interface IShape : IMovable
     {

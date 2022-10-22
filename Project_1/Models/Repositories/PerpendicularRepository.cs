@@ -1,5 +1,6 @@
 ﻿using Project_1.Models.Constraints;
-using Project_1.Models.Shapes;
+using Project_1.Models.Repositories.Abstract;
+using Project_1.Models.Shapes.Abstract;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
