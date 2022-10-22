@@ -21,5 +21,6 @@ namespace Project_1.Views
         void ClearArea();
         void RefreshArea();
         void ShowManageEdgeMenu(PointF point);
+        void Write(PointF pointF, string text);
     }
 }

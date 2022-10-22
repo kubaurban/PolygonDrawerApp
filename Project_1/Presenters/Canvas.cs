@@ -23,8 +23,6 @@ namespace Project_1.Presenters
         public IDrawer Drawer { get => _drawer; }
         public IShapeRepository Shapes { get => _shapes; }
         public IConstraintRepositories Constraints { get => _constraintsRepositories; }
-        //public IEdgeConstraintRepository<FixedLength, int> FixedLengths { get => Constraints.FixedLengthRepository; }
-        //public IEdgeConstraintRepository<Perpendicular, IEdge> Perpendiculars { get => Constraints.PerpendicularRepository; }
 
         public Action RedrawAll { get; set; }
 
@@ -40,6 +38,7 @@ namespace Project_1.Presenters
 
             RedrawAll += Drawer.ClearArea;
             RedrawAll += DrawAllPolygons;
+            RedrawAll += WriteEdgesFixedLengths;
             RedrawAll += Drawer.RefreshArea;
 
             InitModelChangedHandlers();
@@ -294,6 +293,22 @@ namespace Project_1.Presenters
                     prev = p;
                 }
             }
+        }
+
+        public void WriteEdgesFixedLengths()
+        {
+            foreach (var e in Shapes.GetAllPolygonEdges())
+            {
+                if (Constraints.FixedLengthRepository.HasConstraint(e))
+                {
+                    WriteEdgeLength(e);
+                }
+            }
+        }
+
+        private void WriteEdgeLength(IEdge edge)
+        {
+            Drawer.Write(edge.Center, edge.Length.ToString());
         }
         #endregion
 

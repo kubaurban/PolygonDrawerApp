@@ -21,6 +21,7 @@ namespace Project_1.Views
         private readonly Bitmap _drawArea;
         private readonly Pen _blackPen;
         private readonly Brush _blackBrush;
+        private readonly Font _font;
 
         #endregion
 
@@ -46,6 +47,7 @@ namespace Project_1.Views
         public Graphics Graphics => Graphics.FromImage(DrawArea);
         public Pen BlackPen => _blackPen;
         public Brush BlackBrush => _blackBrush;
+        public Font WrittingFont => _font;
         public DrawerMode Mode { get; set; }
         public bool IsLeftMouseDown { get; set; }
         private LineDrawer LineDrawer { get; set; }
@@ -62,6 +64,7 @@ namespace Project_1.Views
             _drawArea = new Bitmap(PictureBox.Width, PictureBox.Height);
             _blackPen = new Pen(Color.Black);
             _blackBrush = new SolidBrush(Color.Black);
+            _font = new Font("Arial", 8);
 
             Mode = DrawerMode.Draw;
             IsLeftMouseDown = false;
@@ -328,5 +331,13 @@ namespace Project_1.Views
             EdgeSetLengthClickedHandler?.Invoke(sender, e);
         }
         #endregion
+
+        public void Write(PointF center, string text)
+        {
+            var point = center;
+
+            using var g = Graphics;
+            g.DrawString(text, WrittingFont, BlackBrush, point);
+        }
     }
 }
