@@ -14,8 +14,9 @@ namespace Project_1.Views
         event EventHandler ModeChangedHandler;
         event EventHandler EdgeInsertPointClickedHandler;
         event EventHandler EdgeSetLengthClickedHandler;
+        event EventHandler SelectedRelationChangedHandler;
 
-        void DrawLine(PointF p1, PointF p2);
+        void DrawLine(PointF p1, PointF p2, Color? color = null);
         void DrawPoint(PointF p);
         void DrawPolygon(IPolygon polygon);
         void DrawPolygons(IEnumerable<IPolygon> polygons);
@@ -25,6 +26,7 @@ namespace Project_1.Views
         void EnableRelationsBoxVisibility();
         void DisableRelationsBoxVisibility();
         void SetRelationsListDataSource(IList<IEdgeConstraint<IEdge>> relations);
+        IEdgeConstraint<IEdge> GetSelectedRelation();
         void Write(PointF pointF, string text);
     }
 }

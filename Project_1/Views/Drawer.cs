@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace Project_1.Views
 {
-    delegate void LineDrawer(PointF p1, PointF p2);
+    delegate void LineDrawer(PointF p1, PointF p2, Color? color);
 
     public partial class Drawer : Form, IDrawer
     {
@@ -41,6 +41,7 @@ namespace Project_1.Views
         public event EventHandler ModeChangedHandler;
         public event EventHandler EdgeInsertPointClickedHandler;
         public event EventHandler EdgeSetLengthClickedHandler;
+        public event EventHandler SelectedRelationChangedHandler;
 
         #endregion
 
@@ -102,6 +103,8 @@ namespace Project_1.Views
         public void SetRelationsListDataSource(IList<IEdgeConstraint<IEdge>> relations)
             => RelationsList.DataSource = relations;
 
+        public IEdgeConstraint<IEdge> GetSelectedRelation() 
+            => RelationsList.SelectedItem as IEdgeConstraint<IEdge>;
         #endregion
 
         #region Bresenham logic
@@ -149,19 +152,21 @@ namespace Project_1.Views
         #endregion
 
         #region Drawing shapes
-        public void DrawLine(PointF p1, PointF p2)
+        public void DrawLine(PointF p1, PointF p2, Color? color = null)
         {
-            LineDrawer?.Invoke(p1, p2);
+            LineDrawer?.Invoke(p1, p2, color ?? Color.Black);
         }
 
-        private void DrawLineLibrary(PointF p1, PointF p2)
+        private void DrawLineLibrary(PointF p1, PointF p2, Color? color = null)
         {
             using var g = Graphics;
-            g.DrawLine(BlackPen, p1, p2);
+            g.DrawLine(new(color ?? Color.Black), p1, p2);
         }
 
-        private void DrawLineBresenham(PointF p1, PointF p2)
+        private void DrawLineBresenham(PointF p1, PointF p2, Color? color = null)
         {
+            var drawColor = color is null ? Color.Black : color.Value;
+
             var dx = Math.Abs((int)p2.X - (int)p1.X);
             var dy = Math.Abs((int)p2.Y - (int)p1.Y);
             var d_horizontal = (p1.X < p2.X) ? 1 : p1.X == p2.X ? 0 : -1;
@@ -169,7 +174,7 @@ namespace Project_1.Views
 
             var x = (int)p1.X;
             var y = (int)p1.Y;
-            DrawArea.SetPixel(x, y, Color.Black);
+            DrawArea.SetPixel(x, y, drawColor);
 
             if (dx > dy)
             {
@@ -187,7 +192,7 @@ namespace Project_1.Views
                         x += d_horizontal;
                         y += d_vertical;
                     }
-                    DrawArea.SetPixel(x, y, Color.Black);
+                    DrawArea.SetPixel(x, y, drawColor);
                 }
             }
             else
@@ -206,7 +211,7 @@ namespace Project_1.Views
                         x += d_horizontal;
                         y += d_vertical;
                     }
-                    DrawArea.SetPixel(x, y, Color.Black);
+                    DrawArea.SetPixel(x, y, drawColor);
                 }
             }
         }
@@ -340,6 +345,11 @@ namespace Project_1.Views
         private void OnEdgeSetFixedLength(object sender, EventArgs e)
         {
             EdgeSetLengthClickedHandler?.Invoke(sender, e);
+        }
+
+        private void SelectedRelationChanged(object sender, EventArgs e)
+        {
+            SelectedRelationChangedHandler?.Invoke(sender, e);
         }
         #endregion
 

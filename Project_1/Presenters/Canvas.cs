@@ -1,6 +1,5 @@
 ﻿using Project_1.Helpers.BL;
 using Project_1.Helpers.UI;
-using Project_1.Models.Constraints;
 using Project_1.Models.Constraints.Abstract;
 using Project_1.Models.Repositories.Abstract;
 using Project_1.Models.Shapes;
@@ -22,6 +21,8 @@ namespace Project_1.Presenters
         private readonly IShapeRepository _shapes;
         private readonly IConstraintRepositories _constraintsRepositories;
 
+        private readonly System.Drawing.Color _specialColor;
+
         private IEdge _selectedEdge;
 
         public IDrawer Drawer { get => _drawer; }
@@ -33,7 +34,7 @@ namespace Project_1.Presenters
         private System.Drawing.Point Click { get; set; }
         private IShape MovedShape { get; set; }
         private IEdge SelectedEdge {
-            get => _selectedEdge; 
+            get => _selectedEdge;
             set
             {
                 _selectedEdge = value;
@@ -47,6 +48,10 @@ namespace Project_1.Presenters
                 }
             }
         }
+        private IEdgeConstraint<IEdge> SelectedRelation
+            => SelectedEdge is null ? null : Drawer.GetSelectedRelation();
+
+        public System.Drawing.Color SpecialColor => _specialColor;
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepositories constraintRepositories)
         {
@@ -55,10 +60,12 @@ namespace Project_1.Presenters
             _constraintsRepositories = constraintRepositories;
 
             _selectedEdge = null;
+            _specialColor = System.Drawing.Color.BlueViolet;
 
             RedrawAll += Drawer.ClearArea;
             RedrawAll += DrawAllPolygons;
             RedrawAll += WriteEdgesFixedLengths;
+            RedrawAll += RecolorSelectedRelationEdges;
             RedrawAll += Drawer.RefreshArea;
 
             InitModelChangedHandlers();
@@ -81,6 +88,7 @@ namespace Project_1.Presenters
             Drawer.ModeChangedHandler += HandleModeChange;
             Drawer.EdgeInsertPointClickedHandler += HandleEdgePointInsert;
             Drawer.EdgeSetLengthClickedHandler += HandleEdgeSetFixedLength;
+            Drawer.SelectedRelationChangedHandler += HandleSelectedRelationChanged;
         }
 
         public void InitModelChangedHandlers()
@@ -281,6 +289,11 @@ namespace Project_1.Presenters
             RedrawAll?.Invoke();
         }
 
+        private void HandleSelectedRelationChanged(object sender, EventArgs e)
+        {
+            RedrawAll?.Invoke();
+        }
+
         private void HandleSolitaryPointAdd(object sender, NotifyCollectionChangedEventArgs e)
         {
             var solitaryPointsCount = Shapes.GetSolitaryPoints().Count;
@@ -329,6 +342,18 @@ namespace Project_1.Presenters
         private void WriteEdgeLength(IEdge edge)
         {
             Drawer.Write(edge.Center, edge.Length.ToString());
+        }
+
+        private void RecolorSelectedRelationEdges()
+        {
+            if (SelectedRelation is not null)
+            {
+                var firstEdge = SelectedRelation.Edge;
+                var secondEdge = SelectedRelation.Value;
+
+                Drawer.DrawLine(firstEdge.U.Center, firstEdge.V.Center, SpecialColor);
+                Drawer.DrawLine(secondEdge.U.Center, secondEdge.V.Center, SpecialColor); 
+            }
         }
         #endregion
 
