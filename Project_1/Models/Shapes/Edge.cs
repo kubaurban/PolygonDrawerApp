@@ -1,9 +1,7 @@
-﻿using Project_1.Helpers.BL;
-using Project_1.Models.Shapes.Abstract;
+﻿using Project_1.Models.Shapes.Abstract;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
-using System.Windows.Forms.VisualStyles;
 
 namespace Project_1.Models.Shapes
 {
@@ -73,7 +71,7 @@ namespace Project_1.Models.Shapes
             ConstrainedMove?.Invoke(this, vector);
         }
 
-        public void MakePerpendicularTo(IEdge edge)
+        public (IPoint toMove, Vector2 move) GetMakePerpendicularInstruction(IEdge edge)
         {
             IPoint u, v, w, z;
 
@@ -124,7 +122,36 @@ namespace Project_1.Models.Shapes
                 P = Vector2.Negate(P);
             }
 
-            u.Move(uv + P);
+            return (u, uv + P);
+        }
+
+        public void MakePerpendicularWithConstraints(IEdge edge)
+        {
+            IPoint z;
+
+            // check intersection
+            if (U == edge.U)
+            {
+                z = edge.V;
+            }
+            else if (U == edge.V)
+            {
+                z = edge.U;
+            }
+            else if (V == edge.U)
+            {
+                z = edge.V;
+            }
+            else if (V == edge.V)
+            {
+                z = edge.U;
+            }
+            else
+            {
+                z = edge.V;
+            }
+
+            z.MoveWithConstraints(Vector2.Zero);
         }
     }
 }

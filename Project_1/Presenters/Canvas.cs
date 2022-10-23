@@ -321,7 +321,7 @@ namespace Project_1.Presenters
                             {
                                 var relation = Constraints.PerpendicularRepository.Add(preSelectedEdge, MakePerpendicularEdge);
 
-                                relation.Edge.MakePerpendicularTo(relation.Value);
+                                relation.Edge.MakePerpendicularWithConstraints(relation.Value);
 
                                 RedrawAll?.Invoke();
                                 Drawer.RefreshArea();
@@ -501,6 +501,9 @@ namespace Project_1.Presenters
         private bool Algorithm(IPolygon polygon, Queue<(IPoint, Vector2)> toBeProcessed)
         {
             var canBeProcessed = polygon.Vertices.ToHashSet();
+            
+            var queuedPerpendiculars = new HashSet<Perpendicular>();
+            var perpendicularsToBeProcessed = new Dictionary<IEdge, IEdge>();
 
             while (toBeProcessed.Any() && canBeProcessed.Count > 0)
             {
@@ -511,12 +514,36 @@ namespace Project_1.Presenters
                     foreach (var e in polygon.GetNeighborEdges(u))
                     {
                         var v = u.GetNeighbor(e);
-                        if (Constraints.FixedLengthRepository.HasConstraint(e) && canBeProcessed.Contains(v))
+
+                        if (canBeProcessed.Contains(v))
                         {
-                            var vu = u - v;
-                            var vu_moved = vu + move;
-                            var vMove = vu_moved - Vector2.Normalize(vu_moved) * vu.Length();
-                            toBeProcessed.Enqueue((v, vMove));
+                            if (perpendicularsToBeProcessed.TryGetValue(e, out IEdge relative)) // it preserves length constraint
+                            {
+                                var instruction = e.GetMakePerpendicularInstruction(relative);
+                                toBeProcessed.Enqueue(instruction);
+                                perpendicularsToBeProcessed.Remove(e);
+                            }
+                            else if (Constraints.FixedLengthRepository.HasConstraint(e))
+                            {
+                                var vu = u - v;
+                                var vu_moved = vu + move;
+                                var vMove = vu_moved - Vector2.Normalize(vu_moved) * vu.Length();
+                                toBeProcessed.Enqueue((v, vMove));
+                            }
+
+                            if (Constraints.PerpendicularRepository.HasConstraint(e))
+                            {
+                                foreach (var rel in Constraints.PerpendicularRepository.GetForEdge(e))
+                                {
+                                    // for now we assume max one loop (one neighboring perpendicular edge)
+                                    if (!queuedPerpendiculars.Contains(rel))
+                                    {
+                                        perpendicularsToBeProcessed.Add(rel.Edge == e ? rel.Value : rel.Edge, e);
+                                    }
+                                    queuedPerpendiculars.Add(rel);
+                                    toBeProcessed.Enqueue((v, Vector2.Zero));
+                                }
+                            }
                         }
                     }
 
