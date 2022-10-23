@@ -10,5 +10,6 @@ namespace Project_1.Models.Shapes.Abstract
         IPoint V { get; set; }
 
         int Length { get; }
+        void MakePerpendicularTo(IEdge edge);
     }
 }

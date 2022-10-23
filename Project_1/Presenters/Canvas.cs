@@ -320,24 +320,11 @@ namespace Project_1.Presenters
                             if (MakePerpendicularEdge != default(Edge) && MakePerpendicularEdge != preSelectedEdge)
                             {
                                 var relation = Constraints.PerpendicularRepository.Add(preSelectedEdge, MakePerpendicularEdge);
-                                //// first edge
-                                //var u = relation.Edge.U;
-                                //var v = relation.Edge.V;
 
-                                //// second edge
-                                //var w = relation.Value.U;
-                                //var z = relation.Value.V;
+                                relation.Edge.MakePerpendicularTo(relation.Value);
 
-                                //var minX = new List<IPoint>() { u, v, w, z }.MinBy(p => p.X);
-
-                                //var wz = w - z;
-
-                                //var perpendVector = u - v;
-                                //perpendVector *= wz.Length() / perpendVector.Length();
-                                //z.Move(wz - perpendVector);
-
-                                //RedrawAll?.Invoke();
-                                //Drawer.RefreshArea();
+                                RedrawAll?.Invoke();
+                                Drawer.RefreshArea();
                             }
 
                             MakePerpendicularEdge = null;
