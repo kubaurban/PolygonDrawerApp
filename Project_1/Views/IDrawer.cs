@@ -9,7 +9,7 @@ namespace Project_1.Views
 {
     public interface IDrawer : IUserActionHandler
     {
-        DrawerMode Mode { get; set; }
+        DrawerMode Mode { get; }
 
         event EventHandler ModeChangedHandler;
         event EventHandler EdgeInsertPointClickedHandler;

@@ -18,64 +18,68 @@ namespace Project_1.Presenters
 {
     public class Canvas
     {
-        private readonly IDrawer _drawer;
-        private readonly IShapeRepository _shapes;
-        private readonly IConstraintRepositories _constraintsRepositories;
+        #region Injected components
+        private IDrawer Drawer { get; }
+        private IShapeRepository Shapes { get; }
+        private IConstraintRepositories Constraints { get; }
+        #endregion
 
-        private readonly System.Drawing.Color _specialColor;
+        #region Settings
+        public System.Drawing.Color SpecialColor { get; }
+        #endregion
 
-        private IEdge _selectedEdge;
-
-        public IDrawer Drawer { get => _drawer; }
-        public IShapeRepository Shapes { get => _shapes; }
-        public IConstraintRepositories Constraints { get => _constraintsRepositories; }
-
-        public Action RedrawAll { get; set; }
+        private Action RedrawAll { get; set; }
 
         private System.Drawing.Point Click { get; set; }
+
         private IShape MovedShape { get; set; }
+
+        private IEdge _selectedEdge;
         private IEdge SelectedEdge
         {
             get => _selectedEdge;
             set
             {
                 _selectedEdge = value;
-                if (Drawer.Mode == DrawerMode.Modify)
+
+                Drawer.UnsetSelectedRelation();
+                if (value == null)
                 {
-                    Drawer.UnsetSelectedRelation();
-                    if (value == null)
-                    {
-                        Drawer.DisableRelationsBoxVisibility();
-                    }
-                    else
-                    {
-                        RefreshRelationsList();
-                        Drawer.UnsetSelectedRelation();
-                        Drawer.EnableRelationsBoxVisibility();
-                    }
-                    RedrawAll?.Invoke(); 
+                    Drawer.DisableRelationsBoxVisibility();
                 }
+                else
+                {
+                    RefreshRelationsList();
+                    Drawer.UnsetSelectedRelation();
+                    Drawer.EnableRelationsBoxVisibility();
+                }
+                RedrawAll?.Invoke();
             }
         }
+        private IEdge MakePerpendicularEdge { get; set; }
 
         private IEdgeConstraint<IEdge> SelectedRelation => Drawer.GetSelectedRelation();
 
-        public System.Drawing.Color SpecialColor => _specialColor;
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepositories constraintRepositories)
         {
-            _drawer = drawer;
-            _shapes = shapes;
-            _constraintsRepositories = constraintRepositories;
+            Drawer = drawer;
+            Shapes = shapes;
+            Constraints = constraintRepositories;
 
             _selectedEdge = null;
-            _specialColor = System.Drawing.Color.BlueViolet;
 
+            #region Settings
+            SpecialColor = System.Drawing.Color.BlueViolet;
+            #endregion
+
+            #region RedrawAll delegate
             RedrawAll += Drawer.ClearArea;
             RedrawAll += DrawAllPolygons;
             RedrawAll += WriteEdgesFixedLengths;
             RedrawAll += RecolorSelectedRelationEdges;
             RedrawAll += Drawer.RefreshArea;
+            #endregion
 
             InitModelChangedHandlers();
             InitActionHandlers();
@@ -83,7 +87,7 @@ namespace Project_1.Presenters
         }
 
         #region Init handler functions
-        public void InitActionHandlers()
+        private void InitActionHandlers()
         {
             Drawer.LeftMouseDownHandler += HandleLeftMouseDown;
             Drawer.LeftMouseUpHandler += HandleLeftMouseUp;
@@ -92,7 +96,7 @@ namespace Project_1.Presenters
             Drawer.MouseUpMoveHandler += HandleMouseUpMove;
         }
 
-        public void InitBusinessLogicHandlers()
+        private void InitBusinessLogicHandlers()
         {
             Drawer.ModeChangedHandler += HandleModeChange;
             Drawer.EdgeInsertPointClickedHandler += HandleEdgePointInsert;
@@ -101,31 +105,115 @@ namespace Project_1.Presenters
             Drawer.RelationDeleteHandler += HandleRelationDelete;
         }
 
-        public void InitModelChangedHandlers()
+        private void InitModelChangedHandlers()
         {
             Shapes.OnSolitaryPointAdded += HandleSolitaryPointAdd;
         }
         #endregion
 
-        #region Handlers
+        #region BL handlers
         private void HandleModeChange(object sender, EventArgs e)
         {
             Click = default;
-            MovedShape = default;
-            SelectedEdge = default;
+            MovedShape = null;
+            SelectedEdge = null;
+            MakePerpendicularEdge = null;
+
             RedrawAll?.Invoke();
         }
 
-        public void HandleLeftMouseDown(object sender, MouseEventArgs e)
+        private void HandleSolitaryPointAdd(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            var solitaryPointsCount = Shapes.GetSolitaryPoints().Count;
+            if (solitaryPointsCount > 1)
+            {
+                var lastTwoVerices = Shapes.GetSolitaryPoints().Skip(solitaryPointsCount - 2);
+                Drawer.DrawLine(lastTwoVerices.First().Center, lastTwoVerices.Last().Center);
+            }
+        }
+
+        private void HandleEdgeSetFixedLength(object sender, EventArgs e)
+        {
+            var lengthInputDialog = new LengthInputDialog(SelectedEdge.Length);
+            if (lengthInputDialog.ShowDialog() == DialogResult.OK && lengthInputDialog.InputLength > 0)
+            {
+                SetSelectedEdgeLength(lengthInputDialog.InputLength);
+            }
+            lengthInputDialog.Close();
+            lengthInputDialog.Dispose();
+        }
+
+        private void HandleEdgePointInsert(object sender, EventArgs e)
+        {
+            Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
+
+            Shapes.GetPolygonByEdge(SelectedEdge).InsertPoint(SelectedEdge, new Point()
+            {
+                X = (SelectedEdge.U.X + SelectedEdge.V.X) / 2,
+                Y = (SelectedEdge.U.Y + SelectedEdge.V.Y) / 2
+            });
+
+            RedrawAll?.Invoke();
+        }
+
+        private void HandleSelectedRelationChanged(object sender, EventArgs e)
+        {
+            RedrawAll?.Invoke();
+        }
+
+        private void HandleRelationDelete(object sender, EventArgs e)
+        {
+            Constraints.PerpendicularRepository.Remove(SelectedRelation as Perpendicular);
+
+            Drawer.UnsetSelectedRelation();
+            RefreshRelationsList();
+        }
+        #endregion
+
+        #region BL helpers
+
+        private void SetSelectedEdgeLength(int length)
+        {
+            var u = SelectedEdge.U;
+            var v = SelectedEdge.V;
+
+            var polygon = Shapes.GetPolygonByEdge(SelectedEdge);
+            var otherFixedLengths = polygon.Edges
+                .Where(x => x != SelectedEdge)
+                .SelectMany(x => Constraints.FixedLengthRepository.GetForEdge(x)).ToList();
+
+            if (otherFixedLengths.Count == polygon.Edges.Count - 1 && otherFixedLengths.Sum(x => x.Value) <= length)
+            {
+                return;
+            }
+
+            Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
+
+            var uv = v - u;
+            var newVector = uv * length / uv.Length();
+            PointMoveWithConstraints(u, uv - newVector);
+
+            Constraints.FixedLengthRepository.Add(SelectedEdge, length);
+            RedrawAll?.Invoke();
+        }
+
+        private void RefreshRelationsList()
+        {
+            var relations = Constraints.PerpendicularRepository.GetForEdge(SelectedEdge);
+            Drawer.SetRelationsListDataSource(relations.AsEdgeConstraint().ToList());
+        }
+        #endregion
+
+        #region User action handlers
+        private void HandleLeftMouseDown(object sender, MouseEventArgs e)
         {
             Click = e.Location;
-            IPoint selectedVertex = default;
 
             switch (Drawer.Mode)
             {
                 case DrawerMode.Draw:
                     {
-                        selectedVertex = Shapes.GetSolitaryPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+                        var selectedVertex = Shapes.GetSolitaryPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
                         if (selectedVertex == default(IPoint))
                         {
@@ -145,7 +233,7 @@ namespace Project_1.Presenters
 
                 case DrawerMode.Delete:
                     {
-                        selectedVertex = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+                        var selectedVertex = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
                         if (selectedVertex != default(IPoint))
                         {
@@ -178,8 +266,7 @@ namespace Project_1.Presenters
                     {
                         #region Edge selection
 
-                        var allEdges = Shapes.GetAllPolygonEdges().ToList();
-                        SelectedEdge = allEdges.Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+                        SelectedEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
                         MovedShape = SelectedEdge;
 
                         if (MovedShape != default(Edge))
@@ -188,8 +275,7 @@ namespace Project_1.Presenters
                         }
 
                         #endregion
-
-                        #region Vertex selection
+                        #region Vertex selection - move
 
                         MovedShape = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
@@ -199,11 +285,9 @@ namespace Project_1.Presenters
                         }
 
                         #endregion
+                        #region Polygon selection - move
 
-                        #region Polygon selection
-
-                        var allPolygons = Shapes.GetAllPolygons().ToList();
-                        MovedShape = allPolygons.Find(x => x.WasClicked(Click, DrawerClass.MoveIconWidth));
+                        MovedShape = Shapes.GetAllPolygons().Find(x => x.WasClicked(Click, DrawerClass.MoveIconWidth));
 
                         #endregion
                         break;
@@ -211,15 +295,14 @@ namespace Project_1.Presenters
 
                 case DrawerMode.MakePerpendicular:
                     {
-                        var allEdges = Shapes.GetAllPolygonEdges().ToList();
-                        var preSelectedEdge = SelectedEdge;
-                        SelectedEdge = allEdges.Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+                        var preSelectedEdge = MakePerpendicularEdge;
+                        MakePerpendicularEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
                         if (preSelectedEdge != default(Edge))
                         {
-                            if (SelectedEdge != default(Edge) && SelectedEdge != preSelectedEdge)
+                            if (MakePerpendicularEdge != default(Edge) && MakePerpendicularEdge != preSelectedEdge)
                             {
-                                var relation = Constraints.PerpendicularRepository.Add(preSelectedEdge, SelectedEdge);
+                                var relation = Constraints.PerpendicularRepository.Add(preSelectedEdge, MakePerpendicularEdge);
                                 //// first edge
                                 //var u = relation.Edge.U;
                                 //var v = relation.Edge.V;
@@ -230,16 +313,16 @@ namespace Project_1.Presenters
 
                                 //var minX = new List<IPoint>() { u, v, w, z }.MinBy(p => p.X);
 
-                                //var wz = new Vector2(w.X - z.X, w.Y - z.Y);
+                                //var wz = w - z;
 
-                                //var perpendVector = new Vector2(u.Y - v.Y, v.X - u.X);
+                                //var perpendVector = u - v;
                                 //perpendVector *= wz.Length() / perpendVector.Length();
                                 //z.Move(wz - perpendVector);
 
                                 //RedrawAll?.Invoke();
                             }
 
-                            SelectedEdge = default;
+                            MakePerpendicularEdge = null;
                         }
                         break;
                     }
@@ -248,17 +331,16 @@ namespace Project_1.Presenters
             }
         }
 
-        public void HandleLeftMouseUp(object sender, MouseEventArgs e)
+        private void HandleLeftMouseUp(object sender, MouseEventArgs e)
         {
-            MovedShape = default;
+            MovedShape = null;
         }
 
-        public void HandleRightMouseDown(object sender, MouseEventArgs e)
+        private void HandleRightMouseDown(object sender, MouseEventArgs e)
         {
             Click = e.Location;
 
-            var allEdges = Shapes.GetAllPolygonEdges().ToList();
-            SelectedEdge = allEdges.Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+            SelectedEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
             if (SelectedEdge != default(IEdge))
             {
@@ -266,7 +348,7 @@ namespace Project_1.Presenters
             }
         }
 
-        public void HandleMouseDownMove(object sender, MouseEventArgs e)
+        private void HandleMouseDownMove(object sender, MouseEventArgs e)
         {
             if (Drawer.Mode == DrawerMode.Modify)
             {
@@ -311,51 +393,6 @@ namespace Project_1.Presenters
                     Drawer.DrawLine(solitaryPoints.Last().Center, e.Location);
                     Drawer.RefreshArea();
                 }
-            }
-        }
-
-        private void HandleEdgeSetFixedLength(object sender, EventArgs e)
-        {
-            var lengthInputDialog = new LengthInputDialog(SelectedEdge.Length);
-            if (lengthInputDialog.ShowDialog() == DialogResult.OK && lengthInputDialog.InputLength > 0)
-            {
-                SetSelectedEdgeLength(lengthInputDialog.InputLength);
-            }
-            lengthInputDialog.Close();
-            lengthInputDialog.Dispose();
-        }
-
-        private void HandleEdgePointInsert(object sender, EventArgs e)
-        {
-            var point = Shapes.AddSolitaryPoint(new((SelectedEdge.U.X + SelectedEdge.V.X) / 2, (SelectedEdge.U.Y + SelectedEdge.V.Y) / 2));
-
-            Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
-
-            Shapes.GetPolygonByEdge(SelectedEdge).InsertPoint(SelectedEdge, point);
-            Shapes.ClearSolitaryPoints();
-
-            RedrawAll?.Invoke();
-        }
-
-        private void HandleSelectedRelationChanged(object sender, EventArgs e)
-        {
-            RedrawAll?.Invoke();
-        }
-
-        private void HandleRelationDelete(object sender, EventArgs e)
-        {
-            Constraints.PerpendicularRepository.Remove(SelectedRelation as Perpendicular);
-            Drawer.UnsetSelectedRelation();
-            RefreshRelationsList();
-        }
-
-        private void HandleSolitaryPointAdd(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            var solitaryPointsCount = Shapes.GetSolitaryPoints().Count;
-            if (solitaryPointsCount > 1)
-            {
-                var lastTwoVerices = Shapes.GetSolitaryPoints().Skip(solitaryPointsCount - 2);
-                Drawer.DrawLine(lastTwoVerices.First().Center, lastTwoVerices.Last().Center);
             }
         }
         #endregion
@@ -407,19 +444,13 @@ namespace Project_1.Presenters
                 var secondEdge = SelectedRelation.Value;
 
                 Drawer.DrawLine(firstEdge.U.Center, firstEdge.V.Center, SpecialColor);
-                Drawer.DrawLine(secondEdge.U.Center, secondEdge.V.Center, SpecialColor);
+                Drawer.DrawLine(secondEdge.U.Center, secondEdge.V.Center, SpecialColor); 
             }
         }
         #endregion
 
-
-        private void RefreshRelationsList()
-        {
-            var relations = Constraints.PerpendicularRepository.GetForEdge(SelectedEdge);
-            Drawer.SetRelationsListDataSource(relations.AsEdgeConstraint().ToList());
-        }
-
-        public void PointMoveWithConstraints(IPoint root, Vector2 rootMove)
+        #region Move with constraints functions
+        private void PointMoveWithConstraints(IPoint root, Vector2 rootMove)
         {
             var polygon = Shapes.GetPolygonByPoint(root);
 
@@ -446,71 +477,6 @@ namespace Project_1.Presenters
                 // move entire polygon at last
                 polygon.Move(rootMove);
             }
-        }
-
-        private bool Algorithm(IPolygon polygon, Queue<(IPoint, Vector2)> toBeProcessed)
-        {
-            var canBeProcessed = polygon.Vertices.ToHashSet();
-
-            while (toBeProcessed.Any() && canBeProcessed.Count > 0)
-            {
-                (var u, var move) = toBeProcessed.Dequeue();
-
-                if (canBeProcessed.Remove(u))
-                {
-                    foreach (var e in polygon.GetNeighborEdges(u))
-                    {
-                        var v = u.GetNeighbor(e);
-                        if (Constraints.FixedLengthRepository.HasConstraint(e) && canBeProcessed.Contains(v))
-                        {
-                            var vu = new Vector2(u.X - v.X, u.Y - v.Y);
-                            var vu_moved = vu + move;
-                            var vMove = vu_moved - vu_moved * vu.Length() / vu_moved.Length();
-                            toBeProcessed.Enqueue((v, vMove));
-                        }
-                    }
-
-                    u.Move(move);
-                    if (u.X.Equals(float.NaN) || u.Y.Equals(float.NaN))
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            if (toBeProcessed.Any())
-            {
-                (var last, _) = toBeProcessed.Dequeue();
-
-                var edges = polygon.GetNeighborEdges(last);
-
-                var e = edges.First();
-                var f = edges.Last();
-
-                var u = last.GetNeighbor(e);
-                var v = last.GetNeighbor(f);
-                var uv = v - u;
-                var uLast = last - u;
-
-                var eLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(e).Single().Value;
-                var fLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(f).Single().Value;
-
-                var x = (float)(uv.LengthSquared() + Math.Pow(eLengthConstraint, 2) - Math.Pow(fLengthConstraint, 2)) / (2 * uv.Length());
-
-                var t = uLast - uv * Vector2.Dot(uLast, uv) / Vector2.Dot(-uv, -uv);
-
-                var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(eLengthConstraint, 2) - Math.Pow(x, 2));
-
-                var X = Vector2.Normalize(uv) * x;
-
-                last.Move(-uLast + X + H);
-                if (last.X.Equals(float.NaN) || last.Y.Equals(float.NaN))
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         private void EdgeMoveWithConstraints(IEdge root, Vector2 rootMove)
@@ -543,29 +509,70 @@ namespace Project_1.Presenters
             }
         }
 
-        private void SetSelectedEdgeLength(int length)
+        private bool Algorithm(IPolygon polygon, Queue<(IPoint, Vector2)> toBeProcessed)
         {
-            var u = SelectedEdge.U;
-            var v = SelectedEdge.V;
+            var canBeProcessed = polygon.Vertices.ToHashSet();
 
-            var polygon = Shapes.GetPolygonByEdge(SelectedEdge);
-            var otherFixedLengths = polygon.Edges
-                .Where(x => x != SelectedEdge)
-                .SelectMany(x => Constraints.FixedLengthRepository.GetForEdge(x)).ToList();
-
-            if (otherFixedLengths.Count == polygon.Edges.Count - 1 && otherFixedLengths.Sum(x => x.Value) <= length)
+            while (toBeProcessed.Any() && canBeProcessed.Count > 0)
             {
-                return;
+                (var u, var move) = toBeProcessed.Dequeue();
+
+                if (canBeProcessed.Remove(u))
+                {
+                    foreach (var e in polygon.GetNeighborEdges(u))
+                    {
+                        var v = u.GetNeighbor(e);
+                        if (Constraints.FixedLengthRepository.HasConstraint(e) && canBeProcessed.Contains(v))
+                        {
+                            var vu = u - v;
+                            var vu_moved = vu + move;
+                            var vMove = vu_moved - Vector2.Normalize(vu_moved) * vu.Length();
+                            toBeProcessed.Enqueue((v, vMove));
+                        }
+                    }
+
+                    u.Move(move);
+                    if (u.X.Equals(float.NaN) || u.Y.Equals(float.NaN))
+                    {
+                        return false;
+                    }
+                }
             }
 
-            Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
+            if (toBeProcessed.Any())
+            {
+                (var last, _) = toBeProcessed.Dequeue();
 
-            var uv = new Vector2(v.X - u.X, v.Y - u.Y);
-            var newVector = uv * length / uv.Length();
-            PointMoveWithConstraints(u, uv - newVector);
+                var edges = polygon.GetNeighborEdges(last);
 
-            Constraints.FixedLengthRepository.Add(SelectedEdge, length);
-            RedrawAll?.Invoke();
+                var e = edges.First();
+                var f = edges.Last();
+                var u = last.GetNeighbor(e);
+                var v = last.GetNeighbor(f);
+
+                var uv = v - u;
+                var uLast = last - u;
+
+                var eLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(e).Single().Value;
+                var fLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(f).Single().Value;
+
+                var x = (float)(uv.LengthSquared() + Math.Pow(eLengthConstraint, 2) - Math.Pow(fLengthConstraint, 2)) / (2 * uv.Length());
+
+                var t = uLast - uv * Vector2.Dot(uLast, uv) / Vector2.Dot(-uv, -uv);
+
+                var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(eLengthConstraint, 2) - Math.Pow(x, 2));
+
+                var X = Vector2.Normalize(uv) * x;
+
+                last.Move(-uLast + X + H);
+                if (last.X.Equals(float.NaN) || last.Y.Equals(float.NaN))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
+        #endregion
     }
 }

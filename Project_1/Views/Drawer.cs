@@ -19,11 +19,6 @@ namespace Project_1.Views
         private static readonly int _edgeWidth = 4;
         private static readonly int _moveIconWidth = 20;
 
-        private readonly Bitmap _drawArea;
-        private readonly Pen _blackPen;
-        private readonly Brush _blackBrush;
-        private readonly Font _font;
-
         #endregion
 
         #region User action handlers
@@ -46,40 +41,55 @@ namespace Project_1.Views
 
         #endregion
 
-        public Bitmap DrawArea => _drawArea;
-        public Graphics Graphics => Graphics.FromImage(DrawArea);
-        public Pen BlackPen => _blackPen;
-        public Brush BlackBrush => _blackBrush;
-        public Font WrittingFont => _font;
-        public DrawerMode Mode { get; set; }
-        public bool IsLeftMouseDown { get; set; }
-        private LineDrawer LineDrawer { get; set; }
         public static int PointWidth => _pointWidth;
         public static int EdgeWidth => _edgeWidth;
         public static int MoveIconWidth => _moveIconWidth;
-        public string MoveIconFilePath => "../../../../Resources/move.ico";
+        public static string MoveIconFilePath => "../../../../Resources/move.ico";
+
+        private Bitmap DrawArea { get; }
+        private Graphics Graphics => Graphics.FromImage(DrawArea);
+        private Color DefaultColor { get; }
+        private Brush DefaultBrush { get; }
+        private Font DefaultWrittingFont { get; }
+        private LineDrawer LineDrawer { get; set; }
+
+        public DrawerMode Mode { get; private set; }
+        private bool IsLeftMouseDown { get; set; }
 
         public Drawer()
         {
             InitializeComponent();
             InitManageEdgeMenuItems();
 
-            _drawArea = new Bitmap(PictureBox.Width, PictureBox.Height);
-            _blackPen = new Pen(Color.Black);
-            _blackBrush = new SolidBrush(Color.Black);
-            _font = new Font("Arial", 8);
+            DrawArea = new Bitmap(PictureBox.Width, PictureBox.Height);
+            PictureBox.Image = DrawArea;
 
-            Mode = DrawerMode.Draw;
-            IsLeftMouseDown = false;
-            LineDrawer = DrawLineLibrary;
+            #region Default settings
+            DefaultColor = Color.Black;
+            DefaultBrush = new SolidBrush(DefaultColor);
+            DefaultWrittingFont = new Font("Arial", 8);
+            #endregion
+
+            InitDefaultState();
+
+            #region Mode checked handlers
+
             DrawingMode.CheckedChanged += OnDrawingModeChecked;
             DeleteMode.CheckedChanged += OnDeleteModeChecked;
             ModifyMode.CheckedChanged += OnModifyModeChecked;
             MakePerpendicularMode.CheckedChanged += OnMakePerpendicularModeChecked;
 
-            PictureBox.Image = DrawArea;
+            #endregion
+
             ClearArea();
             RefreshArea();
+        }
+
+        private void InitDefaultState()
+        {
+            Mode = DrawerMode.Draw;
+            IsLeftMouseDown = false;
+            LineDrawer = DrawLineLibrary;
         }
 
         #region Manage edge menu
@@ -94,6 +104,16 @@ namespace Project_1.Views
         {
             ManageEdgeMenu.Show(PictureBox, new System.Drawing.Point((int)point.X, (int)point.Y));
         }
+
+        private void OnEdgeInsertPoint(object sender, EventArgs e)
+        {
+            EdgeInsertPointClickedHandler?.Invoke(sender, e);
+        }
+
+        private void OnEdgeSetFixedLength(object sender, EventArgs e)
+        {
+            EdgeSetLengthClickedHandler?.Invoke(sender, e);
+        }
         #endregion
 
         #region Relations box
@@ -102,27 +122,38 @@ namespace Project_1.Views
         public void DisableRelationsBoxVisibility() => RelationsBox.Visible = false;
 
         public void SetRelationsListDataSource(IList<IEdgeConstraint<IEdge>> relations)
-            => RelationsList.DataSource = relations;
-
-        public IEdgeConstraint<IEdge> GetSelectedRelation() 
-            => RelationsList.SelectedItem as IEdgeConstraint<IEdge>;
-
-        public void UnsetSelectedRelation()
         {
-            RelationsList.ClearSelected();
+            RelationsList.DataSource = relations;
+        }
+
+        public IEdgeConstraint<IEdge> GetSelectedRelation() => RelationsList.SelectedItem as IEdgeConstraint<IEdge>;
+
+        public void UnsetSelectedRelation() => RelationsList.ClearSelected();
+
+        private void OnSelectedRelationChanged(object sender, EventArgs e)
+        {
+            SelectedRelationChangedHandler?.Invoke(sender, e);
+        }
+
+        private void OnRelationsListMouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                var clickedIndex = RelationsList.IndexFromPoint(e.Location);
+                if (clickedIndex != ListBox.NoMatches)
+                {
+                    RelationsList.SelectedItem = RelationsList.Items[clickedIndex];
+                    // TODO: display proper context menu
+                    RelationDeleteHandler?.Invoke(sender, e);
+                }
+            }
         }
         #endregion
 
         #region Bresenham logic
-        private void DisableBresenhamAlgorithm()
-        {
-            IsBresenham.Enabled = false;
-        }
+        private void DisableBresenhamAlgorithm() => IsBresenham.Enabled = false;
 
-        private void EnableBresenhamAlgorithm()
-        {
-            IsBresenham.Enabled = true;
-        }
+        private void EnableBresenhamAlgorithm() => IsBresenham.Enabled = true;
 
         private void DeleteModeChecked(object sender, EventArgs e)
         {
@@ -160,18 +191,18 @@ namespace Project_1.Views
         #region Drawing shapes
         public void DrawLine(PointF p1, PointF p2, Color? color = null)
         {
-            LineDrawer?.Invoke(p1, p2, color ?? Color.Black);
+            LineDrawer?.Invoke(p1, p2, color ?? DefaultColor);
         }
 
         private void DrawLineLibrary(PointF p1, PointF p2, Color? color = null)
         {
             using var g = Graphics;
-            g.DrawLine(new(color ?? Color.Black), p1, p2);
+            g.DrawLine(new(color ?? DefaultColor), p1, p2);
         }
 
         private void DrawLineBresenham(PointF p1, PointF p2, Color? color = null)
         {
-            var drawColor = color is null ? Color.Black : color.Value;
+            var drawColor = color is null ? DefaultColor : color.Value;
 
             var dx = Math.Abs((int)p2.X - (int)p1.X);
             var dy = Math.Abs((int)p2.Y - (int)p1.Y);
@@ -225,7 +256,7 @@ namespace Project_1.Views
         public void DrawPoint(PointF p)
         {
             using var g = Graphics;
-            g.FillRectangle(BlackBrush, p.X - PointWidth / 2, p.Y - PointWidth / 2, PointWidth, PointWidth);
+            g.FillRectangle(DefaultBrush, p.X - PointWidth / 2, p.Y - PointWidth / 2, PointWidth, PointWidth);
         }
 
         public void DrawPolygon(IPolygon polygon)
@@ -269,7 +300,7 @@ namespace Project_1.Views
             var point = center;
 
             using var g = Graphics;
-            g.DrawString(text, WrittingFont, BlackBrush, point);
+            g.DrawString(text, DefaultWrittingFont, DefaultBrush, point);
         }
 
         public void ClearArea()
@@ -284,7 +315,7 @@ namespace Project_1.Views
         }
         #endregion
 
-        #region Event handling functions
+        #region User action event handling functions
         private void OnMouseDown(object sender, MouseEventArgs e)
         {
             switch (e.Button)
@@ -349,35 +380,6 @@ namespace Project_1.Views
         private void OnModeChanged(object sender, EventArgs e)
         {
             ModeChangedHandler?.Invoke(sender, e);
-        }
-
-        private void OnEdgeInsertPoint(object sender, EventArgs e)
-        {
-            EdgeInsertPointClickedHandler?.Invoke(sender, e);
-        }
-
-        private void OnEdgeSetFixedLength(object sender, EventArgs e)
-        {
-            EdgeSetLengthClickedHandler?.Invoke(sender, e);
-        }
-
-        private void OnSelectedRelationChanged(object sender, EventArgs e)
-        {
-            SelectedRelationChangedHandler?.Invoke(sender, e);
-        }
-
-        private void OnRelationsListMouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                var clickedIndex = RelationsList.IndexFromPoint(e.Location);
-                if (clickedIndex != ListBox.NoMatches)
-                {
-                    RelationsList.SelectedItem = RelationsList.Items[clickedIndex];
-                    // TODO: display proper context menu
-                    RelationDeleteHandler?.Invoke(sender, e);
-                }
-            }
         }
         #endregion
     }
