@@ -321,6 +321,7 @@ namespace Project_1.Presenters
                             {
                                 var relation = Constraints.PerpendicularRepository.Add(preSelectedEdge, MakePerpendicularEdge);
 
+                                // TODO: some assertion needed (if can make perpendicular) + implement assumption of not making perpendicular edges that are not neighbors
                                 relation.Edge.MakePerpendicularWithConstraints(relation.Value);
 
                                 RedrawAll?.Invoke();
@@ -519,7 +520,8 @@ namespace Project_1.Presenters
                         {
                             if (perpendicularsToBeProcessed.TryGetValue(e, out IEdge relative)) // it preserves length constraint
                             {
-                                var instruction = e.GetMakePerpendicularInstruction(relative);
+                                var fixedLength = Constraints.FixedLengthRepository.GetForEdge(e).SingleOrDefault()?.Value;
+                                var instruction = e.GetMakePerpendicularInstruction(relative, fixedLength);
                                 toBeProcessed.Enqueue(instruction);
                                 perpendicularsToBeProcessed.Remove(e);
                             }
@@ -535,7 +537,6 @@ namespace Project_1.Presenters
                             {
                                 foreach (var rel in Constraints.PerpendicularRepository.GetForEdge(e))
                                 {
-                                    // for now we assume max one loop (one neighboring perpendicular edge)
                                     if (!queuedPerpendiculars.Contains(rel))
                                     {
                                         perpendicularsToBeProcessed.Add(rel.Edge == e ? rel.Value : rel.Edge, e);

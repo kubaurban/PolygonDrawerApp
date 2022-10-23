@@ -71,7 +71,7 @@ namespace Project_1.Models.Shapes
             ConstrainedMove?.Invoke(this, vector);
         }
 
-        public (IPoint toMove, Vector2 move) GetMakePerpendicularInstruction(IEdge edge)
+        public (IPoint toMove, Vector2 move) GetMakePerpendicularInstruction(IEdge edge, int? fixedLength = null)
         {
             IPoint u, v, w, z;
 
@@ -112,11 +112,13 @@ namespace Project_1.Models.Shapes
             var uv = v - u;
             var wz = z - w;
 
+            var uvLength = fixedLength ?? uv.Length();
+
             var P = new Vector2(wz.Y, -wz.X);
-            P = Vector2.Normalize(P) * uv.Length();
+            P = Vector2.Normalize(P) * uvLength;
 
             // check better direction
-            var direction = Vector2.Dot(uv, P) / (uv.Length() * P.Length());
+            var direction = Vector2.Dot(uv, P) / (uvLength * P.Length());
             if (direction > 0)
             {
                 P = Vector2.Negate(P);

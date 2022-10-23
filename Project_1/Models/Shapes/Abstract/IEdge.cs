@@ -11,6 +11,6 @@ namespace Project_1.Models.Shapes.Abstract
 
         int Length { get; }
         void MakePerpendicularWithConstraints(IEdge edge);
-        (IPoint toMove, Vector2 move) GetMakePerpendicularInstruction(IEdge edge);
+        (IPoint toMove, Vector2 move) GetMakePerpendicularInstruction(IEdge edge, int? fixedLength = null);
     }
 }
