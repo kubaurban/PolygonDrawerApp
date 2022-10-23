@@ -368,7 +368,7 @@ namespace Project_1.Presenters
                 };
                 Click = e.Location;
 
-                MovingItem.MoveWithConstraints(vector);
+                MovingItem?.MoveWithConstraints(vector);
 
                 RedrawAll?.Invoke();
             }
