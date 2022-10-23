@@ -12,6 +12,8 @@ namespace Project_1.Models.Shapes
 
         public PointF Center => new(X, Y);
 
+        public static PointMoveWithConstraints ConstrainedMove { get; set; }
+
         public Point() { }
 
         public void Move(Vector2 vector)
@@ -29,6 +31,11 @@ namespace Project_1.Models.Shapes
                 X = X,
                 Y = Y
             };
+        }
+
+        public void MoveWithConstraints(Vector2 vector)
+        {
+            ConstrainedMove?.Invoke(this, vector);
         }
     }
 }

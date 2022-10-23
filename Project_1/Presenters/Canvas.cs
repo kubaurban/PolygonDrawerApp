@@ -32,8 +32,6 @@ namespace Project_1.Presenters
 
         private System.Drawing.Point Click { get; set; }
 
-        private IShape MovedShape { get; set; }
-
         private IEdge _selectedEdge;
         private IEdge SelectedEdge
         {
@@ -56,10 +54,9 @@ namespace Project_1.Presenters
                 RedrawAll?.Invoke();
             }
         }
+        private IMovable MovingItem { get; set; }
         private IEdge MakePerpendicularEdge { get; set; }
-
         private IEdgeConstraint<IEdge> SelectedRelation => Drawer.GetSelectedRelation();
-
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepositories constraintRepositories)
         {
@@ -79,6 +76,11 @@ namespace Project_1.Presenters
             RedrawAll += WriteEdgesFixedLengths;
             RedrawAll += RecolorSelectedRelationEdges;
             RedrawAll += Drawer.RefreshArea;
+            #endregion
+
+            #region Assign move with constraints functions to shapes
+            Point.ConstrainedMove += PointMoveWithConstraints;
+            Edge.ConstrainedMove += EdgeMoveWithConstraints;
             #endregion
 
             InitModelChangedHandlers();
@@ -115,7 +117,7 @@ namespace Project_1.Presenters
         private void HandleModeChange(object sender, EventArgs e)
         {
             Click = default;
-            MovedShape = null;
+            MovingItem = null;
             SelectedEdge = null;
             MakePerpendicularEdge = null;
 
@@ -267,9 +269,9 @@ namespace Project_1.Presenters
                         #region Edge selection
 
                         SelectedEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
-                        MovedShape = SelectedEdge;
+                        MovingItem = SelectedEdge;
 
-                        if (MovedShape != default(Edge))
+                        if (MovingItem != default(Edge))
                         {
                             return;
                         }
@@ -277,9 +279,9 @@ namespace Project_1.Presenters
                         #endregion
                         #region Vertex selection - move
 
-                        MovedShape = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+                        MovingItem = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
 
-                        if (MovedShape != default(Point))
+                        if (MovingItem != default(Point))
                         {
                             return;
                         }
@@ -287,7 +289,7 @@ namespace Project_1.Presenters
                         #endregion
                         #region Polygon selection - move
 
-                        MovedShape = Shapes.GetAllPolygons().Find(x => x.WasClicked(Click, DrawerClass.MoveIconWidth));
+                        MovingItem = Shapes.GetAllPolygons().Find(x => x.WasClicked(Click, DrawerClass.MoveIconWidth));
 
                         #endregion
                         break;
@@ -333,7 +335,7 @@ namespace Project_1.Presenters
 
         private void HandleLeftMouseUp(object sender, MouseEventArgs e)
         {
-            MovedShape = null;
+            MovingItem = null;
         }
 
         private void HandleRightMouseDown(object sender, MouseEventArgs e)
@@ -359,22 +361,7 @@ namespace Project_1.Presenters
                 };
                 Click = e.Location;
 
-                if (MovedShape is Point point)
-                {
-                    PointMoveWithConstraints(point, vector);
-                }
-                else if (MovedShape is Edge edge)
-                {
-                    EdgeMoveWithConstraints(edge, vector);
-                }
-                else if (MovedShape is Polygon)
-                {
-                    MovedShape.Move(vector);
-                }
-                else
-                {
-                    return;
-                }
+                MovingItem.MoveWithConstraints(vector);
 
                 RedrawAll?.Invoke();
             }

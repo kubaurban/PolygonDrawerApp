@@ -3,6 +3,8 @@ using System.Numerics;
 
 namespace Project_1.Models.Shapes.Abstract
 {
+    public delegate void PointMoveWithConstraints(IPoint shape, Vector2 vector);
+
     public interface IPoint : IShape, ICloneable
     {
         float X { get; set; }

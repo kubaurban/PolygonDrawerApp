@@ -12,6 +12,8 @@ namespace Project_1.Models.Shapes
 
         public PointF Center => new((U.X + V.X) / 2, (U.Y + V.Y) / 2);
 
+        public static EdgeMoveWithConstraints ConstrainedMove { get; set; }
+
         public Edge(IPoint u, IPoint v)
         {
             U = u;
@@ -62,6 +64,11 @@ namespace Project_1.Models.Shapes
                 j = i;
             }
             return result;
+        }
+
+        public void MoveWithConstraints(Vector2 vector)
+        {
+            ConstrainedMove?.Invoke(this, vector);
         }
     }
 }

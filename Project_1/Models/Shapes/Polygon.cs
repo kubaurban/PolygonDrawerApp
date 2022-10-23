@@ -70,6 +70,11 @@ namespace Project_1.Models.Shapes
 
         public List<IEdge> GetNeighborEdges(IPoint p) => Edges.Where(x => x.U == p || x.V == p).ToList();
 
+        public void MoveWithConstraints(Vector2 vector)
+        {
+            Move(vector);
+        }
+
         public PointF Center
         {
             get
