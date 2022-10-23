@@ -58,6 +58,7 @@ namespace Project_1.Presenters
         private IMovable MovingItem { get; set; }
         private IEdge MakePerpendicularEdge { get; set; }
         private IEdgeConstraint<IEdge> SelectedRelation => Drawer.GetSelectedRelation();
+        private HashSet<Perpendicular> QueuedPerpendiculars { get; }
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepositories constraintRepositories)
         {
@@ -66,6 +67,7 @@ namespace Project_1.Presenters
             Constraints = constraintRepositories;
 
             _selectedEdge = null;
+            QueuedPerpendiculars = new HashSet<Perpendicular>();
 
             #region Settings
             SpecialColor = System.Drawing.Color.BlueViolet;
@@ -442,6 +444,7 @@ namespace Project_1.Presenters
         #region Move with constraints functions
         private void PointMoveWithConstraints(IPoint root, Vector2 rootMove)
         {
+            QueuedPerpendiculars.Clear();
             var polygon = Shapes.GetPolygonByPoint(root);
 
             var verticesCopy = new List<IPoint>();
@@ -503,7 +506,6 @@ namespace Project_1.Presenters
         {
             var canBeProcessed = polygon.Vertices.ToHashSet();
 
-            var queuedPerpendiculars = new HashSet<Perpendicular>();
             var perpendicularsToBeProcessed = new Dictionary<IEdge, IEdge>();
 
             while (toBeProcessed.Any() && canBeProcessed.Count > 0)
@@ -537,13 +539,23 @@ namespace Project_1.Presenters
                             {
                                 foreach (var rel in Constraints.PerpendicularRepository.GetForEdge(e))
                                 {
-                                    if (!queuedPerpendiculars.Contains(rel))
+                                    if (!QueuedPerpendiculars.Contains(rel))
                                     {
-                                        perpendicularsToBeProcessed.Add(rel.Edge == e ? rel.Value : rel.Edge, e);
+                                        QueuedPerpendiculars.Add(rel);
+                                        var relatedEdge = rel.Edge == e ? rel.Value : rel.Edge;
+                                        if (polygon.Edges.Contains(relatedEdge))
+                                        {
+                                            perpendicularsToBeProcessed.Add(relatedEdge, e);
+                                        }
+                                        else
+                                        {
+                                            var toBeProcessedInAnotherPolygon = new Queue<(IPoint, Vector2)>();
+                                            toBeProcessedInAnotherPolygon.Enqueue(relatedEdge.GetMakePerpendicularInstruction(e));
+                                            Algorithm(Shapes.GetPolygonByEdge(relatedEdge), toBeProcessedInAnotherPolygon);
+                                        }
                                     }
-                                    queuedPerpendiculars.Add(rel);
                                 }
-                                toBeProcessed.Enqueue((v, Vector2.Zero));
+                                toBeProcessed.Enqueue((v, Vector2.Zero)); // only for case when perpendicular relation is the only relation on 'e'
                             }
                         }
                     }
