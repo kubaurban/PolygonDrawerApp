@@ -105,6 +105,13 @@ namespace Project_1.Presenters
             Drawer.EdgeSetLengthClickedHandler += HandleEdgeSetFixedLength;
             Drawer.SelectedRelationChangedHandler += HandleSelectedRelationChanged;
             Drawer.RelationDeleteHandler += HandleRelationDelete;
+            Drawer.EdgeDeleteFixedLengthHandler += HandleEdgeDeleteFixedLength;
+        }
+
+        private void HandleEdgeDeleteFixedLength(object sender, EventArgs e)
+        {
+            Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
+            RedrawAll?.Invoke();
         }
 
         private void InitModelChangedHandlers()

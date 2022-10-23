@@ -38,6 +38,7 @@ namespace Project_1.Views
         public event EventHandler EdgeSetLengthClickedHandler;
         public event EventHandler SelectedRelationChangedHandler;
         public event EventHandler RelationDeleteHandler;
+        public event EventHandler EdgeDeleteFixedLengthHandler;
 
         #endregion
 
@@ -97,12 +98,16 @@ namespace Project_1.Views
         {
             var addMiddle = new ToolStripMenuItem("Insert point", null, new EventHandler(OnEdgeInsertPoint));
             var setLength = new ToolStripMenuItem("Set fixed length", null, new EventHandler(OnEdgeSetFixedLength));
-            ManageEdgeMenu.Items.AddRange(new ToolStripItem[] { addMiddle, setLength });
+            var deleteFixedLength = new ToolStripMenuItem("Delete fixed length", null, new EventHandler(OnEdgeDeleteFixedLength))
+            {
+                Enabled = false
+            };
+            ManageEdgeMenu.Items.AddRange(new ToolStripItem[] { addMiddle, setLength, deleteFixedLength });
         }
 
         public void ShowManageEdgeMenu(PointF point)
         {
-            ManageEdgeMenu.Show(PictureBox, new System.Drawing.Point((int)point.X, (int)point.Y));
+            ManageEdgeMenu.Show(PictureBox, new Point((int)point.X, (int)point.Y));
         }
 
         private void OnEdgeInsertPoint(object sender, EventArgs e)
@@ -113,6 +118,15 @@ namespace Project_1.Views
         private void OnEdgeSetFixedLength(object sender, EventArgs e)
         {
             EdgeSetLengthClickedHandler?.Invoke(sender, e);
+            ManageEdgeMenu.Items[2].Enabled = true;
+        }
+
+        private void OnEdgeDeleteFixedLength(object sender, EventArgs e)
+        {
+            EdgeDeleteFixedLengthHandler?.Invoke(sender, e);
+            ManageEdgeMenu.Items[2].Enabled = false;
+        }
+
         }
         #endregion
 
