@@ -438,7 +438,7 @@ namespace Project_1.Presenters
                 var secondEdge = SelectedRelation.Value;
 
                 Drawer.DrawLine(firstEdge.U.Center, firstEdge.V.Center, SpecialColor);
-                Drawer.DrawLine(secondEdge.U.Center, secondEdge.V.Center, SpecialColor); 
+                Drawer.DrawLine(secondEdge.U.Center, secondEdge.V.Center, SpecialColor);
             }
         }
         #endregion

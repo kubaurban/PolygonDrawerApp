@@ -40,6 +40,7 @@ namespace Project_1.Views
             this.ManageEdgeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.RelationsBox = new System.Windows.Forms.GroupBox();
             this.RelationsList = new System.Windows.Forms.ListBox();
+            this.ManageEdgeRelationMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.OptionsBox.SuspendLayout();
             this.RelationsBox.SuspendLayout();
@@ -168,6 +169,12 @@ namespace Project_1.Views
             this.RelationsList.SelectedValueChanged += new System.EventHandler(this.OnSelectedRelationChanged);
             this.RelationsList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.OnRelationsListMouseDown);
             // 
+            // ManageEdgeRelationMenu
+            // 
+            this.ManageEdgeRelationMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ManageEdgeRelationMenu.Name = "ManageEdgeRelationMenu";
+            this.ManageEdgeRelationMenu.Size = new System.Drawing.Size(211, 32);
+            // 
             // Drawer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -199,5 +206,6 @@ namespace Project_1.Views
         private System.Windows.Forms.RadioButton MakePerpendicularMode;
         private System.Windows.Forms.GroupBox RelationsBox;
         private System.Windows.Forms.ListBox RelationsList;
+        private System.Windows.Forms.ContextMenuStrip ManageEdgeRelationMenu;
     }
 }

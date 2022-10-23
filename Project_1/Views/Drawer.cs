@@ -60,7 +60,11 @@ namespace Project_1.Views
         public Drawer()
         {
             InitializeComponent();
+
+            #region Init UI components
             InitManageEdgeMenuItems();
+            InitManageEdgeRelationMenuItems();
+            #endregion
 
             DrawArea = new Bitmap(PictureBox.Width, PictureBox.Height);
             PictureBox.Image = DrawArea;
@@ -126,7 +130,23 @@ namespace Project_1.Views
             EdgeDeleteFixedLengthHandler?.Invoke(sender, e);
             ManageEdgeMenu.Items[2].Enabled = false;
         }
+        #endregion
 
+        #region Manage relation menu
+        private void InitManageEdgeRelationMenuItems()
+        {
+            var deleteRelation = new ToolStripMenuItem("Delete", null, new EventHandler(OnEdgeRelationDelete));
+            ManageEdgeRelationMenu.Items.Add(deleteRelation);
+        }
+
+        public void ShowManageEdgeRelationMenu(PointF point)
+        {
+            ManageEdgeRelationMenu.Show(RelationsList, new Point((int)point.X, (int)point.Y));
+        }
+
+        private void OnEdgeRelationDelete(object sender, EventArgs e)
+        {
+            RelationDeleteHandler?.Invoke(sender, e);
         }
         #endregion
 
@@ -157,8 +177,7 @@ namespace Project_1.Views
                 if (clickedIndex != ListBox.NoMatches)
                 {
                     RelationsList.SelectedItem = RelationsList.Items[clickedIndex];
-                    // TODO: display proper context menu
-                    RelationDeleteHandler?.Invoke(sender, e);
+                    ShowManageEdgeRelationMenu(e.Location);
                 }
             }
         }
