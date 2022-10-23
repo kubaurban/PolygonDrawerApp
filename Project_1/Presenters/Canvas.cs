@@ -502,7 +502,7 @@ namespace Project_1.Presenters
         private bool Algorithm(IPolygon polygon, Queue<(IPoint, Vector2)> toBeProcessed)
         {
             var canBeProcessed = polygon.Vertices.ToHashSet();
-            
+
             var queuedPerpendiculars = new HashSet<Perpendicular>();
             var perpendicularsToBeProcessed = new Dictionary<IEdge, IEdge>();
 
@@ -542,8 +542,8 @@ namespace Project_1.Presenters
                                         perpendicularsToBeProcessed.Add(rel.Edge == e ? rel.Value : rel.Edge, e);
                                     }
                                     queuedPerpendiculars.Add(rel);
-                                    toBeProcessed.Enqueue((v, Vector2.Zero));
                                 }
+                                toBeProcessed.Enqueue((v, Vector2.Zero));
                             }
                         }
                     }
@@ -558,33 +558,46 @@ namespace Project_1.Presenters
 
             if (toBeProcessed.Any())
             {
-                (var last, _) = toBeProcessed.Dequeue();
-
-                var edges = polygon.GetNeighborEdges(last);
-
-                var e = edges.First();
-                var f = edges.Last();
-                var u = last.GetNeighbor(e);
-                var v = last.GetNeighbor(f);
-
-                var uv = v - u;
-                var uLast = last - u;
-
-                var eLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(e).Single().Value;
-                var fLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(f).Single().Value;
-
-                var x = (float)(uv.LengthSquared() + Math.Pow(eLengthConstraint, 2) - Math.Pow(fLengthConstraint, 2)) / (2 * uv.Length());
-
-                var t = uLast - uv * Vector2.Dot(uLast, uv) / Vector2.Dot(-uv, -uv);
-
-                var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(eLengthConstraint, 2) - Math.Pow(x, 2));
-
-                var X = Vector2.Normalize(uv) * x;
-
-                last.Move(-uLast + X + H);
-                if (last.X.Equals(float.NaN) || last.Y.Equals(float.NaN))
+                var allFixed = true;
+                foreach (var e in polygon.Edges)
                 {
-                    return false;
+                    if (!Constraints.FixedLengthRepository.HasConstraint(e))
+                    {
+                        allFixed = false;
+                        break;
+                    }
+                }
+
+                if (allFixed)
+                {
+                    (var last, _) = toBeProcessed.Dequeue();
+
+                    var edges = polygon.GetNeighborEdges(last);
+
+                    var e = edges.First();
+                    var f = edges.Last();
+                    var u = last.GetNeighbor(e);
+                    var v = last.GetNeighbor(f);
+
+                    var uv = v - u;
+                    var uLast = last - u;
+
+                    var eLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(e).Single().Value;
+                    var fLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(f).Single().Value;
+
+                    var x = (float)(uv.LengthSquared() + Math.Pow(eLengthConstraint, 2) - Math.Pow(fLengthConstraint, 2)) / (2 * uv.Length());
+
+                    var t = uLast - uv * Vector2.Dot(uLast, uv) / Vector2.Dot(-uv, -uv);
+
+                    var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(eLengthConstraint, 2) - Math.Pow(x, 2));
+
+                    var X = Vector2.Normalize(uv) * x;
+
+                    last.Move(-uLast + X + H);
+                    if (last.X.Equals(float.NaN) || last.Y.Equals(float.NaN))
+                    {
+                        return false;
+                    }
                 }
             }
 
