@@ -52,6 +52,7 @@ namespace Project_1.Presenters
                     Drawer.EnableRelationsBoxVisibility();
                 }
                 RedrawAll?.Invoke();
+                Drawer.RefreshArea();
             }
         }
         private IMovable MovingItem { get; set; }
@@ -73,9 +74,9 @@ namespace Project_1.Presenters
             #region RedrawAll delegate
             RedrawAll += Drawer.ClearArea;
             RedrawAll += DrawAllPolygons;
+            RedrawAll += DrawAllSolitaryPoints;
             RedrawAll += WriteEdgesFixedLengths;
             RedrawAll += RecolorSelectedRelationEdges;
-            RedrawAll += Drawer.RefreshArea;
             #endregion
 
             #region Assign move with constraints functions to shapes
@@ -112,6 +113,7 @@ namespace Project_1.Presenters
         {
             Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
             RedrawAll?.Invoke();
+            Drawer.RefreshArea();
         }
 
         private void InitModelChangedHandlers()
@@ -129,6 +131,7 @@ namespace Project_1.Presenters
             MakePerpendicularEdge = null;
 
             RedrawAll?.Invoke();
+            Drawer.RefreshArea();
         }
 
         private void HandleSolitaryPointAdd(object sender, NotifyCollectionChangedEventArgs e)
@@ -163,11 +166,13 @@ namespace Project_1.Presenters
             });
 
             RedrawAll?.Invoke();
+            Drawer.RefreshArea();
         }
 
         private void HandleSelectedRelationChanged(object sender, EventArgs e)
         {
             RedrawAll?.Invoke();
+            Drawer.RefreshArea();
         }
 
         private void HandleRelationDelete(object sender, EventArgs e)
@@ -204,6 +209,7 @@ namespace Project_1.Presenters
 
             Constraints.FixedLengthRepository.Add(SelectedEdge, length);
             RedrawAll?.Invoke();
+            Drawer.RefreshArea();
         }
 
         private void RefreshRelationsList()
@@ -233,9 +239,10 @@ namespace Project_1.Presenters
                         else if (selectedVertex == Shapes.GetSolitaryPoints().First() && Shapes.GetSolitaryPoints().Count > 2)
                         {
                             Shapes.AddPolygon(Shapes.GetSolitaryPoints());
-
                             Shapes.ClearSolitaryPoints();
+
                             RedrawAll?.Invoke();
+                            Drawer.RefreshArea();
                         }
                         break;
                     }
@@ -267,6 +274,7 @@ namespace Project_1.Presenters
                             }
 
                             RedrawAll?.Invoke();
+                            Drawer.RefreshArea();
                         }
                         break;
                     }
@@ -329,6 +337,7 @@ namespace Project_1.Presenters
                                 //z.Move(wz - perpendVector);
 
                                 //RedrawAll?.Invoke();
+                                //Drawer.RefreshArea();
                             }
 
                             MakePerpendicularEdge = null;
@@ -371,6 +380,7 @@ namespace Project_1.Presenters
                 MovingItem?.MoveWithConstraints(vector);
 
                 RedrawAll?.Invoke();
+                Drawer.RefreshArea();
             }
         }
 
@@ -381,9 +391,7 @@ namespace Project_1.Presenters
                 var solitaryPoints = Shapes.GetSolitaryPoints();
                 if (solitaryPoints.Count > 0)
                 {
-                    Drawer.ClearArea();
-                    DrawAllPolygons();
-                    DrawAllSolitaryPoints();
+                    RedrawAll?.Invoke();
                     Drawer.DrawLine(solitaryPoints.Last().Center, e.Location);
                     Drawer.RefreshArea();
                 }
