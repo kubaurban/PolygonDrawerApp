@@ -295,6 +295,16 @@ namespace Project_1.Presenters
 
                 case DrawerMode.Modify:
                     {
+                        #region Polygon selection - move
+
+                        MovingItem = Shapes.GetAllPolygons().Find(x => x.WasClicked(Click, DrawerClass.MoveIconWidth));
+
+                        if (MovingItem != default(Polygon))
+                        {
+                            return;
+                        }
+
+                        #endregion
                         #region Edge selection
 
                         SelectedEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.EdgeWidth));
@@ -323,11 +333,6 @@ namespace Project_1.Presenters
 
                             return;
                         }
-
-                        #endregion
-                        #region Polygon selection - move
-
-                        MovingItem = Shapes.GetAllPolygons().Find(x => x.WasClicked(Click, DrawerClass.MoveIconWidth));
 
                         #endregion
                         break;
