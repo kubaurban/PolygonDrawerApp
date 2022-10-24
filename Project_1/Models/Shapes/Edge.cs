@@ -20,7 +20,7 @@ namespace Project_1.Models.Shapes
             V = v;
         }
 
-        public int Length => (int)new Vector2(U.X - V.X, U.Y - V.Y).Length();
+        public float Length => new Vector2(U.X - V.X, U.Y - V.Y).Length();
 
         public void Move(Vector2 vector)
         {
@@ -71,7 +71,7 @@ namespace Project_1.Models.Shapes
             ConstrainedMove?.Invoke(this, vector);
         }
 
-        public (IPoint toMove, Vector2 move) GetMakePerpendicularInstruction(IEdge edge, int? fixedLength = null)
+        public (IPoint toMove, Vector2 move) GetMakePerpendicularInstruction(IEdge edge, float? fixedLength = null)
         {
             IPoint u, v, w, z;
 

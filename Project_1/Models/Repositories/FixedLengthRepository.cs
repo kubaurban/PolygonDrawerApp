@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Project_1.Models.Repositories
 {
-    public class FixedLengthRepository : IEdgeConstraintRepository<FixedLength, int>
+    public class FixedLengthRepository : IEdgeConstraintRepository<FixedLength, float>
     {
         private readonly HashSet<FixedLength> _fixedLength;
 
@@ -15,7 +15,7 @@ namespace Project_1.Models.Repositories
             _fixedLength = new HashSet<FixedLength>();
         }
 
-        public FixedLength Add(IEdge edge, int length)
+        public FixedLength Add(IEdge edge, float length)
         {
             var newConstraint = new FixedLength(edge, length);
             _fixedLength.Add(newConstraint);

@@ -4,19 +4,19 @@ namespace Project_1.Views
 {
     public partial class LengthInputDialog : Form
     {
-        public int InputLength
+        public float InputLength
         {
             get
             {
                 try
                 {
-                    return int.Parse(Input.Text);
+                    return float.Parse(Input.Text);
                 }
                 catch { return -1; }
             }
         }
 
-        public LengthInputDialog(int initValue)
+        public LengthInputDialog(float initValue)
         {
             InitializeComponent();
 

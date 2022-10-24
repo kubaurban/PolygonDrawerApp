@@ -6,11 +6,11 @@ namespace Project_1.Models.Repositories
 {
     public class ConstraintRepositories : IConstraintRepositories
     {
-        public IEdgeConstraintRepository<FixedLength, int> FixedLengthRepository { get; }
+        public IEdgeConstraintRepository<FixedLength, float> FixedLengthRepository { get; }
         public IEdgeConstraintRepository<Perpendicular, IEdge> PerpendicularRepository { get; }
 
         public ConstraintRepositories(
-            IEdgeConstraintRepository<FixedLength, int> fixedLengthRepository,
+            IEdgeConstraintRepository<FixedLength, float> fixedLengthRepository,
             IEdgeConstraintRepository<Perpendicular, IEdge> perpendicularRepository)
         {
             FixedLengthRepository = fixedLengthRepository;

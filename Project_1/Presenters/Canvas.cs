@@ -200,7 +200,7 @@ namespace Project_1.Presenters
 
         #region BL helpers
 
-        private void SetSelectedEdgeLength(int length)
+        private void SetSelectedEdgeLength(float length)
         {
             var u = SelectedEdge.U;
             var v = SelectedEdge.V;
@@ -456,7 +456,7 @@ namespace Project_1.Presenters
 
         private void WriteEdgeLength(IEdge edge)
         {
-            Drawer.Write(edge.Center, edge.Length.ToString());
+            Drawer.Write(edge.Center, ((int)edge.Length).ToString());
         }
 
         private void RecolorSelectedRelationEdges()
@@ -657,7 +657,7 @@ namespace Project_1.Presenters
                                         }
                                         else
                                         {
-                                            perpendicularsFromAnotherPolygon.Add(relatedEdge.GetMakePerpendicularInstruction(e));
+                                            perpendicularsFromAnotherPolygon.Add(SetPerpendicularByFirstPoint(relatedEdge.U, relatedEdge.V, relatedEdge.Length, e.U, e.V));
                                         }
                                     }
                                 }

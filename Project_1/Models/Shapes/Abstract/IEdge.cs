@@ -9,7 +9,7 @@ namespace Project_1.Models.Shapes.Abstract
         IPoint U { get; set; }
         IPoint V { get; set; }
 
-        int Length { get; }
-        (IPoint toMove, Vector2 move) GetMakePerpendicularInstruction(IEdge edge, int? fixedLength = null);
+        float Length { get; }
+        (IPoint toMove, Vector2 move) GetMakePerpendicularInstruction(IEdge edge, float? fixedLength = null);
     }
 }
