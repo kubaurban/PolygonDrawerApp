@@ -160,7 +160,7 @@ namespace Project_1.Presenters
 
         private void HandleEdgePointInsert(object sender, EventArgs e)
         {
-            Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
+            Constraints.RemoveAllForEdge(SelectedEdge);
 
             Shapes.GetPolygonByEdge(SelectedEdge).InsertPoint(SelectedEdge, new Point()
             {
