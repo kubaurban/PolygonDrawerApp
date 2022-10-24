@@ -126,34 +126,5 @@ namespace Project_1.Models.Shapes
 
             return (u, uv + P);
         }
-
-        public void MakePerpendicularWithConstraints(IEdge edge)
-        {
-            IPoint z;
-
-            // check intersection
-            if (U == edge.U)
-            {
-                z = edge.V;
-            }
-            else if (U == edge.V)
-            {
-                z = edge.U;
-            }
-            else if (V == edge.U)
-            {
-                z = edge.V;
-            }
-            else if (V == edge.V)
-            {
-                z = edge.U;
-            }
-            else
-            {
-                z = edge.V;
-            }
-
-            z.MoveWithConstraints(Vector2.Zero);
-        }
     }
 }

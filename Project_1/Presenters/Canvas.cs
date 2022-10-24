@@ -7,6 +7,7 @@ using Project_1.Models.Shapes;
 using Project_1.Models.Shapes.Abstract;
 using Project_1.Views;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -324,7 +325,8 @@ namespace Project_1.Presenters
                                 var relation = Constraints.PerpendicularRepository.Add(preSelectedEdge, MakePerpendicularEdge);
 
                                 // TODO: some assertion needed (if can make perpendicular) + implement assumption of not making perpendicular edges that are not neighbors
-                                relation.Edge.MakePerpendicularWithConstraints(relation.Value);
+                                QueuedPerpendiculars.Add(relation);
+                                SetPerpendicular(relation.Edge, relation.Value);
 
                                 RedrawAll?.Invoke();
                                 Drawer.RefreshArea();
@@ -444,7 +446,6 @@ namespace Project_1.Presenters
         #region Move with constraints functions
         private void PointMoveWithConstraints(IPoint root, Vector2 rootMove)
         {
-            QueuedPerpendiculars.Clear();
             var polygon = Shapes.GetPolygonByPoint(root);
 
             var verticesCopy = new List<IPoint>();
@@ -470,6 +471,7 @@ namespace Project_1.Presenters
                 // move entire polygon at last
                 polygon.Move(rootMove);
             }
+            QueuedPerpendiculars.Clear();
         }
 
         private void EdgeMoveWithConstraints(IEdge root, Vector2 rootMove)
@@ -555,6 +557,7 @@ namespace Project_1.Presenters
                                         }
                                     }
                                 }
+
                                 toBeProcessed.Enqueue((v, Vector2.Zero)); // only for case when perpendicular relation is the only relation on 'e'
                             }
                         }
@@ -616,5 +619,139 @@ namespace Project_1.Presenters
             return true;
         }
         #endregion
+
+        public void SetPerpendicular(IEdge e, IEdge f)
+        {
+            IPoint u, v, w, z;
+
+            bool intersected = true;
+            // check intersection
+            if (e.U == f.U)
+            {
+                v = w = e.U;
+                u = e.V;
+                z = f.V;
+            }
+            else if (e.U == f.V)
+            {
+                v = w = e.U;
+                u = e.V;
+                z = f.U;
+            }
+            else if (e.V == f.U)
+            {
+                v = w = e.V;
+                u = e.U;
+                z = f.V;
+            }
+            else if (e.V == f.V)
+            {
+                v = w = e.V;
+                u = e.U;
+                z = f.U;
+            }
+            else
+            {
+                intersected = false;
+                u = e.U;
+                v = e.V;
+
+                w = f.U;
+                z = f.V;
+            }
+
+            var uv = v - u;
+            var wz = z - w;
+
+            bool eFixed = false, fFixed = false;
+            float eLength, fLength;
+            if (Constraints.FixedLengthRepository.HasConstraint(e))
+            {
+                eFixed = true;
+                eLength = Constraints.FixedLengthRepository.GetForEdge(e).Single().Value;
+            }
+            else
+            {
+                eLength = uv.Length();
+            }
+
+            if (Constraints.FixedLengthRepository.HasConstraint(f))
+            {
+                fFixed = true;
+                fLength = Constraints.FixedLengthRepository.GetForEdge(f).Single().Value;
+            }
+            else
+            {
+                fLength = wz.Length();
+            }
+
+            bool ePerpend = false, fPerpend = false;
+            if (Constraints.PerpendicularRepository.GetForEdge(e).Count() > 1)
+            {
+                ePerpend = true;
+            }
+
+            if (Constraints.PerpendicularRepository.GetForEdge(f).Count() > 1)
+            {
+                fPerpend = true;
+            }
+
+            (IPoint toMove, Vector2 move) instruction;
+
+            if (!intersected || (intersected && eFixed && fFixed) || ePerpend || fPerpend)
+            {
+                if (ePerpend)
+                {
+                    instruction = SetPerpendicularByFirstPoint(z, w, fLength, u, v);
+                }
+                else
+                {
+                    instruction = SetPerpendicularByFirstPoint(u, v, eLength, w, z);
+                }
+                instruction.toMove.MoveWithConstraints(instruction.move);
+            }
+            else 
+            {
+                if (fFixed)
+                {
+                    instruction = SetPerpendicularByMiddlePoint(z, v, fLength, u);
+                }
+                else
+                {
+                    instruction = SetPerpendicularByMiddlePoint(u, v, eLength, z);
+                }
+                instruction.toMove.Move(instruction.move);
+            }
+        }
+
+        private (IPoint, Vector2) SetPerpendicularByFirstPoint(IPoint u, IPoint v, float fixedLength, IPoint z, IPoint w)
+        {
+            var uv = v - u;
+            var wz = w - z;
+
+            var P = new Vector2(wz.Y, -wz.X);
+            P = Vector2.Normalize(P) * fixedLength;
+
+            // check better direction
+            var direction = Vector2.Dot(uv, P) / (fixedLength * P.Length());
+            if (direction > 0)
+            {
+                P = Vector2.Negate(P);
+            }
+
+            return (u, uv + P);
+        }
+
+        private (IPoint, Vector2) SetPerpendicularByMiddlePoint(IPoint u, IPoint v, float fixedLength, IPoint z)
+        {
+            var uv = v - u;
+            var uz = z - u;
+
+            var x = (float)Math.Pow(fixedLength, 2) / uz.Length();
+            var T = uv - uz * Vector2.Dot(uv, uz) / Vector2.Dot(-uz, -uz);
+            var H = Vector2.Normalize(T) * (float)Math.Sqrt(x * uz.Length() - Math.Pow(x, 2));
+            var X = Vector2.Normalize(uz) * x;
+            return (v, -uv + X + H);
+        }
     }
 }
