@@ -58,6 +58,7 @@ namespace Project_1.Presenters
         private IMovable MovingItem { get; set; }
         private IEdge MakePerpendicularEdge { get; set; }
         private IEdgeConstraint<IEdge> SelectedRelation => Drawer.GetSelectedRelation();
+        private IEnumerable<IEdge> HighlightedEdges { get; set; }
         private HashSet<Perpendicular> QueuedPerpendiculars { get; }
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepositories constraintRepositories)
@@ -79,6 +80,7 @@ namespace Project_1.Presenters
             RedrawAll += DrawAllSolitaryPoints;
             RedrawAll += WriteEdgesFixedLengths;
             RedrawAll += RecolorSelectedRelationEdges;
+            RedrawAll += RecolorHighlightedEdges;
             #endregion
 
             #region Assign move with constraints functions to shapes
@@ -300,16 +302,25 @@ namespace Project_1.Presenters
 
                         if (MovingItem != default(Edge))
                         {
+                            HighlightedEdges = Constraints.PerpendicularRepository.GetForEdge(SelectedEdge).SelectMany(x => new HashSet<IEdge>() { x.Edge, x.Value });
+
                             return;
                         }
 
                         #endregion
                         #region Vertex selection - move
 
-                        MovingItem = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+                        var selectedVertex = Shapes.GetAllPolygonPoints().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+                        MovingItem = selectedVertex;
 
                         if (MovingItem != default(Point))
                         {
+                            var relatedEdges = Shapes.GetPolygonByPoint(selectedVertex).GetNeighborEdges(selectedVertex);
+
+                            HighlightedEdges = relatedEdges.SelectMany(x =>
+                                Constraints.PerpendicularRepository.GetForEdge(x)
+                                    .SelectMany(y => new HashSet<IEdge>() { y.Edge, y.Value }));
+
                             return;
                         }
 
@@ -354,6 +365,9 @@ namespace Project_1.Presenters
         private void HandleLeftMouseUp(object sender, MouseEventArgs e)
         {
             MovingItem = null;
+            HighlightedEdges = null;
+            RedrawAll?.Invoke();
+            Drawer.RefreshArea();
         }
 
         private void HandleRightMouseDown(object sender, MouseEventArgs e)
@@ -449,6 +463,17 @@ namespace Project_1.Presenters
 
                 Drawer.DrawLine(firstEdge.U.Center, firstEdge.V.Center, SpecialColor);
                 Drawer.DrawLine(secondEdge.U.Center, secondEdge.V.Center, SpecialColor);
+            }
+        }
+
+        private void RecolorHighlightedEdges()
+        {
+            if (HighlightedEdges is not null)
+            {
+                foreach (var e in HighlightedEdges)
+                {
+                    Drawer.DrawLine(e.U.Center, e.V.Center, SpecialColor);
+                } 
             }
         }
         #endregion
