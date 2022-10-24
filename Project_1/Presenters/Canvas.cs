@@ -286,7 +286,7 @@ namespace Project_1.Presenters
                     {
                         #region Edge selection
 
-                        SelectedEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+                        SelectedEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.EdgeWidth));
                         MovingItem = SelectedEdge;
 
                         if (MovingItem != default(Edge))
@@ -316,7 +316,7 @@ namespace Project_1.Presenters
                 case DrawerMode.MakePerpendicular:
                     {
                         var preSelectedEdge = MakePerpendicularEdge;
-                        MakePerpendicularEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+                        MakePerpendicularEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.EdgeWidth));
 
                         if (preSelectedEdge != default(Edge))
                         {
@@ -350,7 +350,7 @@ namespace Project_1.Presenters
         {
             Click = e.Location;
 
-            SelectedEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.PointWidth));
+            SelectedEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.EdgeWidth));
 
             if (SelectedEdge != default(IEdge))
             {

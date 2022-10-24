@@ -15,8 +15,8 @@ namespace Project_1.Views
     {
         #region Private fields
 
-        private static readonly int _pointWidth = 8;
-        private static readonly int _edgeWidth = 4;
+        private static readonly int _pointWidth = 10;
+        private static readonly int _edgeClickWidth = 10;
         private static readonly int _moveIconWidth = 20;
 
         #endregion
@@ -43,7 +43,7 @@ namespace Project_1.Views
         #endregion
 
         public static int PointWidth => _pointWidth;
-        public static int EdgeWidth => _edgeWidth;
+        public static int EdgeWidth => _edgeClickWidth;
         public static int MoveIconWidth => _moveIconWidth;
         public static string MoveIconFilePath => "../../../../Resources/move.ico";
 
@@ -230,7 +230,7 @@ namespace Project_1.Views
         private void DrawLineLibrary(PointF p1, PointF p2, Color? color = null)
         {
             using var g = Graphics;
-            g.DrawLine(new(color ?? DefaultColor), p1, p2);
+            g.DrawLine(new(color ??= DefaultColor, color == DefaultColor ? 1 : 2), p1, p2);
         }
 
         private void DrawLineBresenham(PointF p1, PointF p2, Color? color = null)
