@@ -7,6 +7,7 @@ using Project_1.Models.Shapes;
 using Project_1.Models.Shapes.Abstract;
 using Project_1.Views;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -495,8 +496,63 @@ namespace Project_1.Presenters
             }
 
             var toBeProcessed = new Queue<(IPoint, Vector2)>();
-            toBeProcessed.Enqueue((root.U, rootMove));
-            toBeProcessed.Enqueue((root.V, rootMove));
+
+            var uNeigh = polygon.GetNeighborEdges(root.U).Single(x => x != root); // e
+            var vNeigh = polygon.GetNeighborEdges(root.V).Single(x => x != root); // f
+            var eLength = Constraints.FixedLengthRepository.GetForEdge(uNeigh).SingleOrDefault()?.Value;
+            var fLength = Constraints.FixedLengthRepository.GetForEdge(vNeigh).SingleOrDefault()?.Value;
+
+            root.U.Move(rootMove);
+            root.V.Move(rootMove);
+            toBeProcessed.Enqueue((root.U, Vector2.Zero));
+            toBeProcessed.Enqueue((root.V, Vector2.Zero));
+            foreach (var rel in Constraints.PerpendicularRepository.GetForEdge(root))
+            {
+                var relatedEdge = rel.Edge == root ? rel.Value : rel.Edge;
+                if (relatedEdge == uNeigh)
+                {
+                    var toMove = root.U.GetNeighbor(uNeigh);
+
+                    if (eLength.HasValue)
+                    {
+                        var instr = SetPerpendicularByFirstPoint(toMove, root.U, eLength.Value, root.U, root.V);
+                        toBeProcessed.Enqueue((instr.toMove, instr.move));
+                    }
+                    else
+                    {
+                        var uv = root.V - root.U;
+                        toBeProcessed.Enqueue((toMove, -uv * Vector2.Dot(rootMove, -uv) / Vector2.Dot(uv, uv)));
+                    }
+
+                }
+                else if (relatedEdge == vNeigh)
+                {
+                    var toMove = root.V.GetNeighbor(vNeigh);
+                    if (fLength.HasValue)
+                    {
+                        var instr = SetPerpendicularByFirstPoint(toMove, root.V, fLength ?? vNeigh.Length, root.V, root.U);
+                        toBeProcessed.Enqueue((instr.toMove, instr.move));
+                    }
+                    else
+                    {
+                        var uv = root.V - root.U;
+                        toBeProcessed.Enqueue((toMove, -uv * Vector2.Dot(rootMove, -uv) / Vector2.Dot(uv, uv)));
+                    }
+                }
+
+                QueuedPerpendiculars.Add(rel);
+            }
+
+            if (!QueuedPerpendiculars.Any())
+            {
+                toBeProcessed.Dequeue();
+                toBeProcessed.Dequeue();
+                root.U.Move(-rootMove);
+                root.V.Move(-rootMove);
+
+                toBeProcessed.Enqueue((root.U, rootMove));
+                toBeProcessed.Enqueue((root.V, rootMove));
+            }
 
             if (!Algorithm(polygon, toBeProcessed))
             {
@@ -512,6 +568,8 @@ namespace Project_1.Presenters
                 // move entire polygon at last
                 polygon.Move(rootMove);
             }
+
+            QueuedPerpendiculars.Clear();
         }
 
         private bool Algorithm(IPolygon polygon, Queue<(IPoint toMove, Vector2 move)> toBeProcessed)
@@ -742,7 +800,7 @@ namespace Project_1.Presenters
             }
         }
 
-        private static (IPoint, Vector2) SetPerpendicularByFirstPoint(IPoint u, IPoint v, float fixedLength, IPoint z, IPoint w)
+        private static (IPoint toMove, Vector2 move) SetPerpendicularByFirstPoint(IPoint u, IPoint v, float fixedLength, IPoint z, IPoint w)
         {
             var uv = v - u;
             var wz = w - z;
