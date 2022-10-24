@@ -7,7 +7,6 @@ using Project_1.Models.Shapes;
 using Project_1.Models.Shapes.Abstract;
 using Project_1.Views;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -90,6 +89,16 @@ namespace Project_1.Presenters
             InitModelChangedHandlers();
             InitActionHandlers();
             InitBusinessLogicHandlers();
+
+            InitDefaultScene();
+        }
+
+
+        private void InitDefaultScene()
+        {
+            // TODO
+            RedrawAll?.Invoke();
+            Drawer.RefreshArea();
         }
 
         #region Init handler functions
@@ -327,6 +336,7 @@ namespace Project_1.Presenters
                                 // TODO: some assertion needed (if can make perpendicular) + implement assumption of not making perpendicular edges that are not neighbors
                                 QueuedPerpendiculars.Add(relation);
                                 SetPerpendicular(relation.Edge, relation.Value);
+                                QueuedPerpendiculars.Remove(relation);
 
                                 RedrawAll?.Invoke();
                                 Drawer.RefreshArea();
@@ -557,10 +567,10 @@ namespace Project_1.Presenters
                                         }
                                     }
                                 // only for case when perpendicular relation is the only relation on 'e'
-                                if (toBeProcessed.Count == 0 || toBeProcessed.Peek().toMove != v)
-                                {
+                                //if (toBeProcessed.Count == 0 || toBeProcessed.Peek().toMove != v)
+                                //{
                                     toBeProcessed.Enqueue((v, Vector2.Zero));
-                                }
+                                //}
                             }
                         }
                     }
