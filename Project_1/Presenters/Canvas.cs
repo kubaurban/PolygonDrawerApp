@@ -473,7 +473,7 @@ namespace Project_1.Presenters
                 foreach (var e in HighlightedEdges)
                 {
                     Drawer.DrawLine(e.U.Center, e.V.Center, SpecialColor);
-                } 
+                }
             }
         }
         #endregion
@@ -521,17 +521,6 @@ namespace Project_1.Presenters
 
             var toBeProcessed = new Queue<(IPoint, Vector2)>();
 
-            #region preprocessing
-            var uNeigh = polygon.GetNeighborEdges(root.U).Single(x => x != root); // e
-            var vNeigh = polygon.GetNeighborEdges(root.V).Single(x => x != root); // f
-            var eLength = Constraints.FixedLengthRepository.GetForEdge(uNeigh).SingleOrDefault()?.Value;
-            var fLength = Constraints.FixedLengthRepository.GetForEdge(vNeigh).SingleOrDefault()?.Value;
-
-            root.U.Move(rootMove);
-            root.V.Move(rootMove);
-            toBeProcessed.Enqueue((root.U, Vector2.Zero));
-            toBeProcessed.Enqueue((root.V, Vector2.Zero));
-
             var relations = Constraints.PerpendicularRepository.GetForEdge(root);
 
             if (!relations.Any())
@@ -541,6 +530,17 @@ namespace Project_1.Presenters
             }
             else
             {
+                #region preprocessing if neighboring edges are related to moved edge
+                var uNeigh = polygon.GetNeighborEdges(root.U).Single(x => x != root); // e
+                var vNeigh = polygon.GetNeighborEdges(root.V).Single(x => x != root); // f
+                var eLength = Constraints.FixedLengthRepository.GetForEdge(uNeigh).SingleOrDefault()?.Value;
+                var fLength = Constraints.FixedLengthRepository.GetForEdge(vNeigh).SingleOrDefault()?.Value;
+
+                root.U.Move(rootMove);
+                root.V.Move(rootMove);
+                toBeProcessed.Enqueue((root.U, Vector2.Zero));
+                toBeProcessed.Enqueue((root.V, Vector2.Zero));
+
                 foreach (var rel in relations)
                 {
                     var relatedEdge = rel.Edge == root ? rel.Value : rel.Edge;
@@ -576,8 +576,8 @@ namespace Project_1.Presenters
 
                     QueuedPerpendiculars.Add(rel);
                 }
+                #endregion
             }
-            #endregion
 
             if (!Algorithm(polygon, toBeProcessed))
             {
@@ -641,7 +641,14 @@ namespace Project_1.Presenters
                                         var relatedEdge = rel.Edge == e ? rel.Value : rel.Edge;
                                         if (polygon.Edges.Contains(relatedEdge))
                                         {
-                                            perpendicularsToBeProcessed.Add(relatedEdge, e);
+                                            if (!perpendicularsToBeProcessed.ContainsKey(relatedEdge))
+                                            {
+                                                perpendicularsToBeProcessed.Add(relatedEdge, e);
+                                            }
+                                            else
+                                            {
+                                                return false;
+                                            }
                                         }
                                         else
                                         {
