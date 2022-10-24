@@ -504,11 +504,12 @@ namespace Project_1.Presenters
             }
         }
 
-        private bool Algorithm(IPolygon polygon, Queue<(IPoint, Vector2)> toBeProcessed)
+        private bool Algorithm(IPolygon polygon, Queue<(IPoint toMove, Vector2 move)> toBeProcessed)
         {
             var canBeProcessed = polygon.Vertices.ToHashSet();
 
             var perpendicularsToBeProcessed = new Dictionary<IEdge, IEdge>();
+            var perpendicularsFromAnotherPolygon = new List<(IPoint toMove, Vector2 move)>();
 
             while (toBeProcessed.Any() && canBeProcessed.Count > 0)
             {
@@ -551,14 +552,15 @@ namespace Project_1.Presenters
                                         }
                                         else
                                         {
-                                            var toBeProcessedInAnotherPolygon = new Queue<(IPoint, Vector2)>();
-                                            toBeProcessedInAnotherPolygon.Enqueue(relatedEdge.GetMakePerpendicularInstruction(e));
-                                            Algorithm(Shapes.GetPolygonByEdge(relatedEdge), toBeProcessedInAnotherPolygon);
+                                            perpendicularsFromAnotherPolygon.Add(relatedEdge.GetMakePerpendicularInstruction(e));
+                                        }
                                         }
                                     }
+                                // only for case when perpendicular relation is the only relation on 'e'
+                                if (toBeProcessed.Count == 0 || toBeProcessed.Peek().toMove != v)
+                                {
+                                    toBeProcessed.Enqueue((v, Vector2.Zero));
                                 }
-
-                                toBeProcessed.Enqueue((v, Vector2.Zero)); // only for case when perpendicular relation is the only relation on 'e'
                             }
                         }
                     }
@@ -616,10 +618,16 @@ namespace Project_1.Presenters
                 }
             }
 
+            foreach (var (toMove, move) in perpendicularsFromAnotherPolygon)
+            {
+                PointMoveWithConstraints(toMove, move);
+            }
+
             return true;
         }
         #endregion
 
+        #region Constraint algorithm helpers
         public void SetPerpendicular(IEdge e, IEdge f)
         {
             IPoint u, v, w, z;
@@ -724,7 +732,7 @@ namespace Project_1.Presenters
             }
         }
 
-        private (IPoint, Vector2) SetPerpendicularByFirstPoint(IPoint u, IPoint v, float fixedLength, IPoint z, IPoint w)
+        private static (IPoint, Vector2) SetPerpendicularByFirstPoint(IPoint u, IPoint v, float fixedLength, IPoint z, IPoint w)
         {
             var uv = v - u;
             var wz = w - z;
@@ -742,7 +750,7 @@ namespace Project_1.Presenters
             return (u, uv + P);
         }
 
-        private (IPoint, Vector2) SetPerpendicularByMiddlePoint(IPoint u, IPoint v, float fixedLength, IPoint z)
+        private static (IPoint, Vector2) SetPerpendicularByMiddlePoint(IPoint u, IPoint v, float fixedLength, IPoint z)
         {
             var uv = v - u;
             var uz = z - u;
@@ -753,5 +761,6 @@ namespace Project_1.Presenters
             var X = Vector2.Normalize(uz) * x;
             return (v, -uv + X + H);
         }
+        #endregion
     }
 }
