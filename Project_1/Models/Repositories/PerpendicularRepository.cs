@@ -18,9 +18,13 @@ namespace Project_1.Models.Repositories
 
         public Perpendicular Add(IEdge edge, IEdge value)
         {
-            var newConstraint = new Perpendicular(edge, value);
-            _perpendiculars.Add(newConstraint);
-            return newConstraint;
+            var constraint = Get().SingleOrDefault(x => (x.Edge == edge && x.Value == value) || (x.Edge == value && x.Value == edge));
+            if (constraint is null)
+            {
+                constraint = new Perpendicular(edge, value);
+                _perpendiculars.Add(constraint);
+            }
+            return constraint;
         }
 
         public IEnumerable<Perpendicular> Get() => _perpendiculars.AsEnumerable();
