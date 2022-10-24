@@ -7,6 +7,7 @@ using Project_1.Models.Shapes;
 using Project_1.Models.Shapes.Abstract;
 using Project_1.Views;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -58,6 +59,7 @@ namespace Project_1.Presenters
         private IMovable MovingItem { get; set; }
         private IEdge MakePerpendicularEdge { get; set; }
         private IEdgeConstraint<IEdge> SelectedRelation => Drawer.GetSelectedRelation();
+        private HashSet<Perpendicular> QueuedPerpendiculars { get; }
 
         public Canvas(IDrawer drawer, IShapeRepository shapes, IConstraintRepositories constraintRepositories)
         {
@@ -66,6 +68,7 @@ namespace Project_1.Presenters
             Constraints = constraintRepositories;
 
             _selectedEdge = null;
+            QueuedPerpendiculars = new HashSet<Perpendicular>();
 
             #region Settings
             SpecialColor = System.Drawing.Color.BlueViolet;
@@ -157,7 +160,7 @@ namespace Project_1.Presenters
 
         private void HandleEdgePointInsert(object sender, EventArgs e)
         {
-            Constraints.FixedLengthRepository.RemoveForEdge(SelectedEdge);
+            Constraints.RemoveAllForEdge(SelectedEdge);
 
             Shapes.GetPolygonByEdge(SelectedEdge).InsertPoint(SelectedEdge, new Point()
             {
@@ -321,7 +324,9 @@ namespace Project_1.Presenters
                             {
                                 var relation = Constraints.PerpendicularRepository.Add(preSelectedEdge, MakePerpendicularEdge);
 
-                                relation.Edge.MakePerpendicularTo(relation.Value);
+                                // TODO: some assertion needed (if can make perpendicular) + implement assumption of not making perpendicular edges that are not neighbors
+                                QueuedPerpendiculars.Add(relation);
+                                SetPerpendicular(relation.Edge, relation.Value);
 
                                 RedrawAll?.Invoke();
                                 Drawer.RefreshArea();
@@ -466,6 +471,7 @@ namespace Project_1.Presenters
                 // move entire polygon at last
                 polygon.Move(rootMove);
             }
+            QueuedPerpendiculars.Clear();
         }
 
         private void EdgeMoveWithConstraints(IEdge root, Vector2 rootMove)
@@ -502,6 +508,8 @@ namespace Project_1.Presenters
         {
             var canBeProcessed = polygon.Vertices.ToHashSet();
 
+            var perpendicularsToBeProcessed = new Dictionary<IEdge, IEdge>();
+
             while (toBeProcessed.Any() && canBeProcessed.Count > 0)
             {
                 (var u, var move) = toBeProcessed.Dequeue();
@@ -511,12 +519,47 @@ namespace Project_1.Presenters
                     foreach (var e in polygon.GetNeighborEdges(u))
                     {
                         var v = u.GetNeighbor(e);
-                        if (Constraints.FixedLengthRepository.HasConstraint(e) && canBeProcessed.Contains(v))
+
+                        if (canBeProcessed.Contains(v))
                         {
-                            var vu = u - v;
-                            var vu_moved = vu + move;
-                            var vMove = vu_moved - Vector2.Normalize(vu_moved) * vu.Length();
-                            toBeProcessed.Enqueue((v, vMove));
+                            if (perpendicularsToBeProcessed.TryGetValue(e, out IEdge relative)) // it preserves length constraint
+                            {
+                                var fixedLength = Constraints.FixedLengthRepository.GetForEdge(e).SingleOrDefault()?.Value;
+                                var instruction = e.GetMakePerpendicularInstruction(relative, fixedLength);
+                                toBeProcessed.Enqueue(instruction);
+                                perpendicularsToBeProcessed.Remove(e);
+                            }
+                            else if (Constraints.FixedLengthRepository.HasConstraint(e))
+                            {
+                                var vu = u - v;
+                                var vu_moved = vu + move;
+                                var vMove = vu_moved - Vector2.Normalize(vu_moved) * vu.Length();
+                                toBeProcessed.Enqueue((v, vMove));
+                            }
+
+                            if (Constraints.PerpendicularRepository.HasConstraint(e))
+                            {
+                                foreach (var rel in Constraints.PerpendicularRepository.GetForEdge(e))
+                                {
+                                    if (!QueuedPerpendiculars.Contains(rel))
+                                    {
+                                        QueuedPerpendiculars.Add(rel);
+                                        var relatedEdge = rel.Edge == e ? rel.Value : rel.Edge;
+                                        if (polygon.Edges.Contains(relatedEdge))
+                                        {
+                                            perpendicularsToBeProcessed.Add(relatedEdge, e);
+                                        }
+                                        else
+                                        {
+                                            var toBeProcessedInAnotherPolygon = new Queue<(IPoint, Vector2)>();
+                                            toBeProcessedInAnotherPolygon.Enqueue(relatedEdge.GetMakePerpendicularInstruction(e));
+                                            Algorithm(Shapes.GetPolygonByEdge(relatedEdge), toBeProcessedInAnotherPolygon);
+                                        }
+                                    }
+                                }
+
+                                toBeProcessed.Enqueue((v, Vector2.Zero)); // only for case when perpendicular relation is the only relation on 'e'
+                            }
                         }
                     }
 
@@ -530,38 +573,185 @@ namespace Project_1.Presenters
 
             if (toBeProcessed.Any())
             {
-                (var last, _) = toBeProcessed.Dequeue();
-
-                var edges = polygon.GetNeighborEdges(last);
-
-                var e = edges.First();
-                var f = edges.Last();
-                var u = last.GetNeighbor(e);
-                var v = last.GetNeighbor(f);
-
-                var uv = v - u;
-                var uLast = last - u;
-
-                var eLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(e).Single().Value;
-                var fLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(f).Single().Value;
-
-                var x = (float)(uv.LengthSquared() + Math.Pow(eLengthConstraint, 2) - Math.Pow(fLengthConstraint, 2)) / (2 * uv.Length());
-
-                var t = uLast - uv * Vector2.Dot(uLast, uv) / Vector2.Dot(-uv, -uv);
-
-                var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(eLengthConstraint, 2) - Math.Pow(x, 2));
-
-                var X = Vector2.Normalize(uv) * x;
-
-                last.Move(-uLast + X + H);
-                if (last.X.Equals(float.NaN) || last.Y.Equals(float.NaN))
+                var allFixed = true;
+                foreach (var e in polygon.Edges)
                 {
-                    return false;
+                    if (!Constraints.FixedLengthRepository.HasConstraint(e))
+                    {
+                        allFixed = false;
+                        break;
+                    }
+                }
+
+                if (allFixed)
+                {
+                    (var last, _) = toBeProcessed.Dequeue();
+
+                    var edges = polygon.GetNeighborEdges(last);
+
+                    var e = edges.First();
+                    var f = edges.Last();
+                    var u = last.GetNeighbor(e);
+                    var v = last.GetNeighbor(f);
+
+                    var uv = v - u;
+                    var uLast = last - u;
+
+                    var eLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(e).Single().Value;
+                    var fLengthConstraint = Constraints.FixedLengthRepository.GetForEdge(f).Single().Value;
+
+                    var x = (float)(uv.LengthSquared() + Math.Pow(eLengthConstraint, 2) - Math.Pow(fLengthConstraint, 2)) / (2 * uv.Length());
+
+                    var t = uLast - uv * Vector2.Dot(uLast, uv) / Vector2.Dot(-uv, -uv);
+
+                    var H = Vector2.Normalize(t) * (float)Math.Sqrt(Math.Pow(eLengthConstraint, 2) - Math.Pow(x, 2));
+
+                    var X = Vector2.Normalize(uv) * x;
+
+                    last.Move(-uLast + X + H);
+                    if (last.X.Equals(float.NaN) || last.Y.Equals(float.NaN))
+                    {
+                        return false;
+                    }
                 }
             }
 
             return true;
         }
         #endregion
+
+        public void SetPerpendicular(IEdge e, IEdge f)
+        {
+            IPoint u, v, w, z;
+
+            bool intersected = true;
+            // check intersection
+            if (e.U == f.U)
+            {
+                v = w = e.U;
+                u = e.V;
+                z = f.V;
+            }
+            else if (e.U == f.V)
+            {
+                v = w = e.U;
+                u = e.V;
+                z = f.U;
+            }
+            else if (e.V == f.U)
+            {
+                v = w = e.V;
+                u = e.U;
+                z = f.V;
+            }
+            else if (e.V == f.V)
+            {
+                v = w = e.V;
+                u = e.U;
+                z = f.U;
+            }
+            else
+            {
+                intersected = false;
+                u = e.U;
+                v = e.V;
+
+                w = f.U;
+                z = f.V;
+            }
+
+            var uv = v - u;
+            var wz = z - w;
+
+            bool eFixed = false, fFixed = false;
+            float eLength, fLength;
+            if (Constraints.FixedLengthRepository.HasConstraint(e))
+            {
+                eFixed = true;
+                eLength = Constraints.FixedLengthRepository.GetForEdge(e).Single().Value;
+            }
+            else
+            {
+                eLength = uv.Length();
+            }
+
+            if (Constraints.FixedLengthRepository.HasConstraint(f))
+            {
+                fFixed = true;
+                fLength = Constraints.FixedLengthRepository.GetForEdge(f).Single().Value;
+            }
+            else
+            {
+                fLength = wz.Length();
+            }
+
+            bool ePerpend = false, fPerpend = false;
+            if (Constraints.PerpendicularRepository.GetForEdge(e).Count() > 1)
+            {
+                ePerpend = true;
+            }
+
+            if (Constraints.PerpendicularRepository.GetForEdge(f).Count() > 1)
+            {
+                fPerpend = true;
+            }
+
+            (IPoint toMove, Vector2 move) instruction;
+
+            if (!intersected || (intersected && eFixed && fFixed) || ePerpend || fPerpend)
+            {
+                if (ePerpend)
+                {
+                    instruction = SetPerpendicularByFirstPoint(z, w, fLength, u, v);
+                }
+                else
+                {
+                    instruction = SetPerpendicularByFirstPoint(u, v, eLength, w, z);
+                }
+                instruction.toMove.MoveWithConstraints(instruction.move);
+            }
+            else 
+            {
+                if (fFixed)
+                {
+                    instruction = SetPerpendicularByMiddlePoint(z, v, fLength, u);
+                }
+                else
+                {
+                    instruction = SetPerpendicularByMiddlePoint(u, v, eLength, z);
+                }
+                instruction.toMove.Move(instruction.move);
+            }
+        }
+
+        private (IPoint, Vector2) SetPerpendicularByFirstPoint(IPoint u, IPoint v, float fixedLength, IPoint z, IPoint w)
+        {
+            var uv = v - u;
+            var wz = w - z;
+
+            var P = new Vector2(wz.Y, -wz.X);
+            P = Vector2.Normalize(P) * fixedLength;
+
+            // check better direction
+            var direction = Vector2.Dot(uv, P) / (fixedLength * P.Length());
+            if (direction > 0)
+            {
+                P = Vector2.Negate(P);
+            }
+
+            return (u, uv + P);
+        }
+
+        private (IPoint, Vector2) SetPerpendicularByMiddlePoint(IPoint u, IPoint v, float fixedLength, IPoint z)
+        {
+            var uv = v - u;
+            var uz = z - u;
+
+            var x = (float)Math.Pow(fixedLength, 2) / uz.Length();
+            var T = uv - uz * Vector2.Dot(uv, uz) / Vector2.Dot(-uz, -uz);
+            var H = Vector2.Normalize(T) * (float)Math.Sqrt(x * uz.Length() - Math.Pow(x, 2));
+            var X = Vector2.Normalize(uz) * x;
+            return (v, -uv + X + H);
+        }
     }
 }
