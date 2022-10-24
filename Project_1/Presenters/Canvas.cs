@@ -447,16 +447,17 @@ namespace Project_1.Presenters
         {
             foreach (var e in Shapes.GetAllPolygonEdges())
             {
-                if (Constraints.FixedLengthRepository.HasConstraint(e))
+                var length = Constraints.FixedLengthRepository.GetForEdge(e).SingleOrDefault()?.Value;
+                if (length.HasValue)
                 {
-                    WriteEdgeLength(e);
+                    WriteEdgeLength(e, (int)length.Value);
                 }
             }
         }
 
-        private void WriteEdgeLength(IEdge edge)
+        private void WriteEdgeLength(IEdge edge, int length)
         {
-            Drawer.Write(edge.Center, ((int)edge.Length).ToString());
+            Drawer.Write(edge.Center, length.ToString());
         }
 
         private void RecolorSelectedRelationEdges()
