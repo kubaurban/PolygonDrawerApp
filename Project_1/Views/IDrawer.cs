@@ -4,6 +4,7 @@ using Project_1.Models.Shapes.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace Project_1.Views
 {
@@ -17,12 +18,13 @@ namespace Project_1.Views
         event EventHandler SelectedRelationChangedHandler;
         event EventHandler RelationDeleteHandler;
         event EventHandler EdgeDeleteFixedLengthHandler;
+        event MouseEventHandler MouseMiddleHandler;
 
         void DrawLine(PointF p1, PointF p2, Color? color = null);
         void DrawPoint(PointF p);
         void DrawPolygon(IPolygon polygon);
         void DrawPolygons(IEnumerable<IPolygon> polygons);
-        void Write(PointF pointF, string text);
+        void Write(PointF pointF, string text, Color? color = null);
         void ClearArea();
         void RefreshArea();
         void ShowManageEdgeMenu(PointF point, bool isFixed);

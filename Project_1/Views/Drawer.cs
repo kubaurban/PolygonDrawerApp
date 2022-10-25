@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Windows.Forms;
 
 namespace Project_1.Views
@@ -28,6 +29,7 @@ namespace Project_1.Views
         public event MouseEventHandler RightMouseDownHandler;
         public event MouseEventHandler MouseDownMoveHandler;
         public event MouseEventHandler MouseUpMoveHandler;
+        public event MouseEventHandler MouseMiddleHandler;
 
         #endregion
 
@@ -72,7 +74,7 @@ namespace Project_1.Views
             #region Default settings
             DefaultColor = Color.Black;
             DefaultBrush = new SolidBrush(DefaultColor);
-            DefaultWrittingFont = new Font("Arial", 8);
+            DefaultWrittingFont = new Font("Arial", 10, FontStyle.Bold);
             #endregion
 
             InitDefaultState();
@@ -295,16 +297,28 @@ namespace Project_1.Views
         {
             using var g = Graphics;
 
-            var first = polygon.Vertices.First();
-            DrawPoint(first.Center);
-            var prev = first;
-            foreach (var v in polygon.Vertices.Skip(1))
+            //var first = polygon.Vertices.First();
+            //DrawPoint(first.Center);
+            //var prev = first;
+            //foreach (var v in polygon.Vertices.Skip(1))
+            //{
+            //    DrawPoint(v.Center);
+            //    DrawLineLibrary(prev.Center, v.Center);
+            //    prev = v;
+            //}
+            //DrawLineLibrary(prev.Center, first.Center);
+            foreach (var e in polygon.Edges)
             {
-                DrawPoint(v.Center);
-                DrawLineLibrary(prev.Center, v.Center);
-                prev = v;
+                DrawPoint(e.U.Center);
+                if (e.Bezier)
+                {
+                    DrawBezier(e);
+                }
+                else
+                {
+                    DrawLineLibrary(e.U.Center, e.V.Center);
+                }
             }
-            DrawLineLibrary(prev.Center, first.Center);
 
             if (Mode == DrawerMode.Modify)
             {
@@ -327,12 +341,13 @@ namespace Project_1.Views
             g.DrawIcon(new(MoveIconFilePath), new((int)point.X - MoveIconWidth / 2, (int)point.Y - MoveIconWidth / 2, MoveIconWidth, MoveIconWidth));
         }
 
-        public void Write(PointF center, string text)
+        public void Write(PointF center, string text, Color? color = null)
         {
             var point = center;
+            var brush = new SolidBrush(color ?? Color.Black);
 
             using var g = Graphics;
-            g.DrawString(text, DefaultWrittingFont, DefaultBrush, point);
+            g.DrawString(text, DefaultWrittingFont, brush, point);
         }
 
         public void ClearArea()
@@ -358,6 +373,9 @@ namespace Project_1.Views
                     break;
                 case MouseButtons.Right:
                     RightMouseDownHandler?.Invoke(sender, e);
+                    break;
+                case MouseButtons.Middle:
+                    MouseMiddleHandler?.Invoke(sender, e);
                     break;
                 default:
                     break;
@@ -412,6 +430,49 @@ namespace Project_1.Views
         private void OnModeChanged(object sender, EventArgs e)
         {
             ModeChangedHandler?.Invoke(sender, e);
+        }
+        #endregion
+
+        #region Bezier
+        public void DrawBezier(IEdge e)
+        {
+            DrawPoint(e.BezierPoints.v1.Center);
+            DrawPoint(e.BezierPoints.v2.Center);
+
+            DrawLineLibrary(e.U.Center, e.BezierPoints.v1.Center, Color.Beige);
+            DrawLineLibrary(e.BezierPoints.v2.Center, e.BezierPoints.v1.Center, Color.Beige);
+            DrawLineLibrary(e.V.Center, e.BezierPoints.v2.Center, Color.Beige);
+
+            (var p1, var p2) = e.BezierPoints;
+            var v0 = new Vector2(e.U.X, e.U.Y);
+            var v1 = new Vector2(p1.X, p1.Y);
+            var v2 = new Vector2(p2.X, p2.Y);
+            var v3 = new Vector2(e.V.X, e.V.Y);
+
+            var d = 0.001f;
+
+            var A0 = v0;
+            var A1 = 3 * (v1 - v0);
+            var A2 = 3 * (v2 - 2 * v1 + v0);
+            var A3 = v3 - 3 * v2 + 3 * v1 - v0;
+
+            for (int i = 0; i < 1001; i++)
+            {
+                var t = d * i;
+                var Px = Horner(new float[] { A3.X, A2.X, A1.X, A0.X }, t);
+                var Py = Horner(new float[] { A3.Y, A2.Y, A1.Y, A0.Y }, t);
+                DrawArea.SetPixel((int)Px, (int)Py, Color.Black);
+            }
+        }
+
+        private float Horner(float[] poly, float x)
+        {
+            var result = poly[0];
+
+            for (int i = 1; i < poly.Length; i++)
+                result = result * x + poly[i];
+
+            return result;
         }
         #endregion
     }

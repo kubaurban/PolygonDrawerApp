@@ -10,12 +10,27 @@ namespace Project_1.Models.Shapes
         public IPoint U { get; set; }
         public IPoint V { get; set; }
 
+        public bool Bezier { get; set; } = false;
+        public (IPoint v1, IPoint v2) BezierPoints
+        {
+            get
+            {
+                var p1 = new Point(U.X, U.Y);
+                p1.Move(BezierVectors.vec1);
+                var p2 = new Point(V.X, V.Y);
+                p2.Move(BezierVectors.vec2);
+                return (p1, p2);
+            }
+        }
+        public (Vector2 vec1, Vector2 vec2) BezierVectors { get; set; }
+
         public PointF Center => new((U.X + V.X) / 2, (U.Y + V.Y) / 2);
 
         public static EdgeMoveWithConstraints ConstrainedMove { get; set; }
 
         public Edge(IPoint u, IPoint v)
         {
+            BezierVectors = (new Vector2(-200 + (u.X - u.X) / 3 , (v.Y - v.Y) / 3), new Vector2(200 + (v.X - v.X) / 3, (u.Y - u.Y) / 3));
             U = u;
             V = v;
         }

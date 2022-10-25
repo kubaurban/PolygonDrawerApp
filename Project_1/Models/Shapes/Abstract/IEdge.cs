@@ -9,6 +9,9 @@ namespace Project_1.Models.Shapes.Abstract
         IPoint U { get; set; }
         IPoint V { get; set; }
 
+        bool Bezier { get; set; }
+        public (IPoint v1, IPoint v2) BezierPoints { get; }
+
         float Length { get; }
         (IPoint toMove, Vector2 move) GetMakePerpendicularInstruction(IEdge edge, float? fixedLength = null);
     }

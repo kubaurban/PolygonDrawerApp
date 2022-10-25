@@ -79,6 +79,7 @@ namespace Project_1.Presenters
             RedrawAll += DrawAllPolygons;
             RedrawAll += DrawAllSolitaryPoints;
             RedrawAll += WriteEdgesFixedLengths;
+            RedrawAll += DisplayPerpendicularIcons;
             RedrawAll += RecolorSelectedRelationEdges;
             RedrawAll += RecolorHighlightedEdges;
             #endregion
@@ -164,6 +165,18 @@ namespace Project_1.Presenters
             Drawer.RightMouseDownHandler += HandleRightMouseDown;
             Drawer.MouseDownMoveHandler += HandleMouseDownMove;
             Drawer.MouseUpMoveHandler += HandleMouseUpMove;
+            Drawer.MouseMiddleHandler += HandleMouseMiddleDown;
+        }
+
+        private void HandleMouseMiddleDown(object sender, MouseEventArgs e)
+        {
+            var edge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(e.Location, DrawerClass.EdgeWidth));
+            if (edge != null)
+            {
+                MakeBezier(edge);
+                RedrawAll?.Invoke();
+                Drawer.RefreshArea();
+            }
         }
 
         private void InitBusinessLogicHandlers()
@@ -429,13 +442,16 @@ namespace Project_1.Presenters
 
         private void HandleRightMouseDown(object sender, MouseEventArgs e)
         {
-            Click = e.Location;
-
-            SelectedEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.EdgeWidth));
-
-            if (SelectedEdge != default(IEdge))
+            if (Drawer.Mode == DrawerMode.Modify)
             {
-                Drawer.ShowManageEdgeMenu(Click, Constraints.FixedLengthRepository.HasConstraint(SelectedEdge));
+                Click = e.Location;
+
+                SelectedEdge = Shapes.GetAllPolygonEdges().Find(x => x.WasClicked(Click, DrawerClass.EdgeWidth));
+
+                if (SelectedEdge != default(IEdge))
+                {
+                    Drawer.ShowManageEdgeMenu(Click, Constraints.FixedLengthRepository.HasConstraint(SelectedEdge));
+                }
             }
         }
 
@@ -532,6 +548,27 @@ namespace Project_1.Presenters
                 {
                     Drawer.DrawLine(e.U.Center, e.V.Center, SpecialColor);
                 }
+            }
+        }
+
+        private void DisplayPerpendicularIcons()
+        {
+            // code below written very fast, just before labs
+            var processedRelations = new HashSet<Perpendicular>();
+            foreach (var edge in Shapes.GetAllPolygonEdges())
+            {
+                string label = string.Empty;
+                foreach (var rel in Constraints.PerpendicularRepository.GetForEdge(edge))
+                {
+                    processedRelations.Add(rel);
+
+                    var letter = (char)('A' + rel.Id);
+                    label += letter.ToString() + ' ';
+                }
+
+                var vec = new Vector2(-20, -10);
+                var coord = new System.Drawing.PointF(edge.Center.X + vec.X, edge.Center.Y + vec.Y);
+                Drawer.Write(coord, label, SpecialColor);
             }
         }
         #endregion
@@ -935,5 +972,11 @@ namespace Project_1.Presenters
             return (v, -uv + X + H);
         }
         #endregion
+
+        private void MakeBezier(IEdge e)
+        {
+            e.Bezier = true;
+            Constraints.RemoveAllForEdge(e);
+        }
     }
 }
