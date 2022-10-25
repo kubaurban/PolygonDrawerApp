@@ -132,6 +132,25 @@ namespace Project_1.Presenters
             Constraints.FixedLengthRepository.Add(poly2.Edges[2], poly2.Edges[2].Length);
             #endregion
 
+            #region Polygon multiple fixed edges + perpendicular
+            var poly3 = Shapes.AddPolygon(new List<IPoint>()
+            {
+                new Point(852.4634f, 346.9718f),
+                new Point(758.567139f, 307.212219f),
+                new Point(660.7959f, 339.234253f),
+                new Point(587.3084f, 401.331055f),
+                new Point(557.567f, 478.137329f),
+                new Point(726.825f, 543.678467f),
+                new Point(821.7804f, 492.0345f),
+            });
+
+            Constraints.FixedLengthRepository.Add(poly3.Edges[0], poly3.Edges[0].Length);
+            Constraints.FixedLengthRepository.Add(poly3.Edges[4], poly3.Edges[4].Length);
+            Constraints.FixedLengthRepository.Add(poly3.Edges[5], poly3.Edges[5].Length);
+            Constraints.FixedLengthRepository.Add(poly3.Edges[6], poly3.Edges[6].Length);
+
+            Constraints.PerpendicularRepository.Add(poly3.Edges[3], poly3.Edges[4]);
+            #endregion
 
             RedrawAll?.Invoke();
             Drawer.RefreshArea();
@@ -602,11 +621,11 @@ namespace Project_1.Presenters
                         toBeProcessed.Enqueue((toMove, perpendNotFixedMove));
                     }
                 }
-                
+
                 if (vNeighPerpend)
                 {
                     toBeProcessed.Enqueue((root.V, Vector2.Zero));
-                    
+
                     var toMove = root.V.GetNeighbor(vNeigh);
                     if (fLength.HasValue)
                     {
@@ -618,7 +637,7 @@ namespace Project_1.Presenters
                         toBeProcessed.Enqueue((toMove, perpendNotFixedMove));
                     }
                 }
-                
+
                 if (!uNeighPerpend && eLength.HasValue)
                 {
                     root.U.Move(-rootMove);
