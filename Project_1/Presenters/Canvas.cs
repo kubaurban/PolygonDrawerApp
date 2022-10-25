@@ -98,7 +98,41 @@ namespace Project_1.Presenters
 
         private void InitDefaultScene()
         {
-            // TODO
+            #region Polygon 'U'
+            var poly1 = Shapes.AddPolygon(new List<IPoint>()
+            {
+                new Point(104.917351f, 72.2116241f),
+                new Point(240, 40),
+                new Point(372.486237f, 118.601837f),
+                new Point(593.7294f, 37.9027557f),
+                new Point(464.932678f, 239.198273f),
+                new Point(449.759552f, 351.778442f),
+                new Point(74, 301),
+            });
+
+            Constraints.PerpendicularRepository.Add(poly1.Edges[4], poly1.Edges[5]);
+            Constraints.PerpendicularRepository.Add(poly1.Edges[5], poly1.Edges[6]);
+
+            Constraints.FixedLengthRepository.Add(poly1.Edges[0], poly1.Edges[0].Length);
+            Constraints.FixedLengthRepository.Add(poly1.Edges[3], poly1.Edges[3].Length);
+            #endregion
+
+            #region Polygon perpendicular
+            var poly2 = Shapes.AddPolygon(new List<IPoint>()
+            {
+                new Point(804.917358f, 72.2116241f),
+                new Point(1040, 40),
+                new Point(972.486237f, 118.601837f),
+                new Point(1069.62183f, 383.937073f),
+                new Point(940, 301),
+            });
+
+            Constraints.PerpendicularRepository.Add(poly1.Edges[3], poly2.Edges[3]);
+
+            Constraints.FixedLengthRepository.Add(poly2.Edges[2], poly2.Edges[2].Length);
+            #endregion
+
+
             RedrawAll?.Invoke();
             Drawer.RefreshArea();
         }

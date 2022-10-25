@@ -16,6 +16,12 @@ namespace Project_1.Models.Shapes
 
         public Point() { }
 
+        public Point(float x, float y)
+        {
+            X = x;
+            Y = y;
+        }
+
         public void Move(Vector2 vector)
         {
             X += vector.X;
@@ -26,11 +32,7 @@ namespace Project_1.Models.Shapes
 
         public object Clone()
         {
-            return new Point()
-            {
-                X = X,
-                Y = Y
-            };
+            return new Point(X, Y);
         }
 
         public void MoveWithConstraints(Vector2 vector)
