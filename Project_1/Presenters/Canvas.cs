@@ -402,7 +402,6 @@ namespace Project_1.Presenters
                             {
                                 var relation = Constraints.PerpendicularRepository.Add(preSelectedEdge, MakePerpendicularEdge);
 
-                                // TODO: some assertion needed (if can make perpendicular) + implement assumption of not making perpendicular edges that are not neighbors
                                 QueuedPerpendiculars.Add(relation);
                                 SetPerpendicular(relation.Edge, relation.Value);
                                 QueuedPerpendiculars.Remove(relation);
@@ -436,7 +435,7 @@ namespace Project_1.Presenters
 
             if (SelectedEdge != default(IEdge))
             {
-                Drawer.ShowManageEdgeMenu(Click);
+                Drawer.ShowManageEdgeMenu(Click, Constraints.FixedLengthRepository.HasConstraint(SelectedEdge));
             }
         }
 

@@ -25,7 +25,7 @@ namespace Project_1.Views
         void Write(PointF pointF, string text);
         void ClearArea();
         void RefreshArea();
-        void ShowManageEdgeMenu(PointF point);
+        void ShowManageEdgeMenu(PointF point, bool isFixed);
         void EnableRelationsBoxVisibility();
         void DisableRelationsBoxVisibility();
         void SetRelationsListDataSource(IList<IEdgeConstraint<IEdge>> relations);

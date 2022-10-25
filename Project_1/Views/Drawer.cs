@@ -109,8 +109,9 @@ namespace Project_1.Views
             ManageEdgeMenu.Items.AddRange(new ToolStripItem[] { addMiddle, setLength, deleteFixedLength });
         }
 
-        public void ShowManageEdgeMenu(PointF point)
+        public void ShowManageEdgeMenu(PointF point, bool isFixed)
         {
+            ManageEdgeMenu.Items[2].Enabled = isFixed;
             ManageEdgeMenu.Show(PictureBox, new Point((int)point.X, (int)point.Y));
         }
 
@@ -122,13 +123,11 @@ namespace Project_1.Views
         private void OnEdgeSetFixedLength(object sender, EventArgs e)
         {
             EdgeSetLengthClickedHandler?.Invoke(sender, e);
-            ManageEdgeMenu.Items[2].Enabled = true;
         }
 
         private void OnEdgeDeleteFixedLength(object sender, EventArgs e)
         {
             EdgeDeleteFixedLengthHandler?.Invoke(sender, e);
-            ManageEdgeMenu.Items[2].Enabled = false;
         }
         #endregion
 
