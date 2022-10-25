@@ -561,7 +561,7 @@ namespace Project_1.Presenters
 
             var toBeProcessed = new Queue<(IPoint, Vector2)>();
 
-            var relations = Constraints.PerpendicularRepository.GetForEdge(root);
+            var relations = Constraints.PerpendicularRepository.GetForEdge(root).Where(x => polygon.Edges.Contains(x.Edge) && polygon.Edges.Contains(x.Value));
 
             if (!relations.Any())
             {
@@ -573,47 +573,66 @@ namespace Project_1.Presenters
                 #region preprocessing if neighboring edges are related to moved edge
                 var uNeigh = polygon.GetNeighborEdges(root.U).Single(x => x != root); // e
                 var vNeigh = polygon.GetNeighborEdges(root.V).Single(x => x != root); // f
+
+                // fixed length check
                 var eLength = Constraints.FixedLengthRepository.GetForEdge(uNeigh).SingleOrDefault()?.Value;
                 var fLength = Constraints.FixedLengthRepository.GetForEdge(vNeigh).SingleOrDefault()?.Value;
 
+                // perpendicualr with root check
+                var uNeighPerpend = relations.Any(x => x.Edge == uNeigh || x.Value == uNeigh);
+                var vNeighPerpend = relations.Any(x => x.Edge == vNeigh || x.Value == vNeigh);
+
                 root.U.Move(rootMove);
                 root.V.Move(rootMove);
-                toBeProcessed.Enqueue((root.U, Vector2.Zero));
-                toBeProcessed.Enqueue((root.V, Vector2.Zero));
+
+                var uv = root.V - root.U;
+                var perpendNotFixedMove = -uv * Vector2.Dot(rootMove, -uv) / Vector2.Dot(uv, uv);
+                if (uNeighPerpend)
+                {
+                    toBeProcessed.Enqueue((root.U, Vector2.Zero));
+
+                    var toMove = root.U.GetNeighbor(uNeigh);
+                    if (eLength.HasValue)
+                    {
+                        var instr = SetPerpendicularByFirstPoint(toMove, root.U, eLength.Value, root.U, root.V);
+                        toBeProcessed.Enqueue((instr.toMove, instr.move));
+                    }
+                    else
+                    {
+                        toBeProcessed.Enqueue((toMove, perpendNotFixedMove));
+                    }
+                }
+                
+                if (vNeighPerpend)
+                {
+                    toBeProcessed.Enqueue((root.V, Vector2.Zero));
+                    
+                    var toMove = root.V.GetNeighbor(vNeigh);
+                    if (fLength.HasValue)
+                    {
+                        var instr = SetPerpendicularByFirstPoint(toMove, root.V, fLength.Value, root.V, root.U);
+                        toBeProcessed.Enqueue((instr.toMove, instr.move));
+                    }
+                    else
+                    {
+                        toBeProcessed.Enqueue((toMove, perpendNotFixedMove));
+                    }
+                }
+                
+                if (!uNeighPerpend && eLength.HasValue)
+                {
+                    root.U.Move(-rootMove);
+                    toBeProcessed.Enqueue((root.U, rootMove));
+                }
+
+                if (!vNeighPerpend && fLength.HasValue)
+                {
+                    root.V.Move(-rootMove);
+                    toBeProcessed.Enqueue((root.V, rootMove));
+                }
 
                 foreach (var rel in relations)
                 {
-                    var relatedEdge = rel.Edge == root ? rel.Value : rel.Edge;
-                    if (relatedEdge == uNeigh)
-                    {
-                        var toMove = root.U.GetNeighbor(uNeigh);
-
-                        if (eLength.HasValue)
-                        {
-                            var instr = SetPerpendicularByFirstPoint(toMove, root.U, eLength.Value, root.U, root.V);
-                            toBeProcessed.Enqueue((instr.toMove, instr.move));
-                        }
-                        else
-                        {
-                            var uv = root.V - root.U;
-                            toBeProcessed.Enqueue((toMove, -uv * Vector2.Dot(rootMove, -uv) / Vector2.Dot(uv, uv)));
-                        }
-                    }
-                    else if (relatedEdge == vNeigh)
-                    {
-                        var toMove = root.V.GetNeighbor(vNeigh);
-                        if (fLength.HasValue)
-                        {
-                            var instr = SetPerpendicularByFirstPoint(toMove, root.V, fLength.Value, root.V, root.U);
-                            toBeProcessed.Enqueue((instr.toMove, instr.move));
-                        }
-                        else
-                        {
-                            var uv = root.V - root.U;
-                            toBeProcessed.Enqueue((toMove, -uv * Vector2.Dot(rootMove, -uv) / Vector2.Dot(uv, uv)));
-                        }
-                    }
-
                     QueuedPerpendiculars.Add(rel);
                 }
                 #endregion
