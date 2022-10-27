@@ -16,7 +16,7 @@ using DrawerClass = Project_1.Views.Drawer;
 
 namespace Project_1.Presenters
 {
-    public class Canvas
+    public class Canvas : ICanvas
     {
         #region Injected components
         private IDrawer Drawer { get; }
@@ -25,7 +25,7 @@ namespace Project_1.Presenters
         #endregion
 
         #region Settings
-        public System.Drawing.Color SpecialColor { get; }
+        private System.Drawing.Color SpecialColor { get; }
         #endregion
 
         private Action RedrawAll { get; set; }
@@ -95,8 +95,9 @@ namespace Project_1.Presenters
             InitDefaultScene();
         }
 
+        public Form GetForm() => Drawer.GetForm();
 
-        private void InitDefaultScene()
+        public void InitDefaultScene()
         {
             #region Polygon 'U'
             var poly1 = Shapes.AddPolygon(new List<IPoint>()
@@ -495,7 +496,7 @@ namespace Project_1.Presenters
             }
         }
 
-        public void WriteEdgesFixedLengths()
+        private void WriteEdgesFixedLengths()
         {
             foreach (var e in Shapes.GetAllPolygonEdges())
             {
@@ -801,7 +802,7 @@ namespace Project_1.Presenters
         #endregion
 
         #region Constraint algorithm helpers
-        public void SetPerpendicular(IEdge e, IEdge f)
+        private void SetPerpendicular(IEdge e, IEdge f)
         {
             IPoint u, v, w, z;
 

@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace Project_1.Views
 {
-    public interface IDrawer : IUserActionHandler
+    public interface IDrawer : IUserActionHandler, IForm
     {
         DrawerMode Mode { get; }
 

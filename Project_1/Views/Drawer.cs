@@ -90,6 +90,8 @@ namespace Project_1.Views
             RefreshArea();
         }
 
+        public Form GetForm() => this;
+
         private void InitDefaultState()
         {
             Mode = DrawerMode.Draw;

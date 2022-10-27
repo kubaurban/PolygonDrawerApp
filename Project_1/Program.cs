@@ -1,7 +1,12 @@
+using Microsoft.Practices.Unity;
+using Project_1.Models.Constraints;
 using Project_1.Models.Repositories;
+using Project_1.Models.Repositories.Abstract;
+using Project_1.Models.Shapes.Abstract;
 using Project_1.Presenters;
 using Project_1.Views;
 using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace Project_1
@@ -18,13 +23,16 @@ namespace Project_1
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var drawer = new Drawer();
-            var shapesRepository = new ShapeRepository();
-            var relationsRepository = new ConstraintRepositories(new FixedLengthRepository(), new PerpendicularRepository());
+            var container = new UnityContainer();
+            container.RegisterType<ICanvas, Canvas>();
+            container.RegisterType<IDrawer, Drawer>();
+            container.RegisterType<IShapeRepository, ShapeRepository>();
+            container.RegisterType<IEdgeConstraintRepository<FixedLength, float>, FixedLengthRepository>();
+            container.RegisterType<IEdgeConstraintRepository<Perpendicular, IEdge>, PerpendicularRepository>();
+            container.RegisterType<IConstraintRepositories, ConstraintRepositories>();
 
-            _ = new Canvas(drawer, shapesRepository, relationsRepository);
-
-            Application.Run(drawer);
+            var canvas = container.Resolve<Canvas>();
+            Application.Run(canvas.GetForm());
         }
     }
 }
